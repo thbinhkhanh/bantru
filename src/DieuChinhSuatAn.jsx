@@ -92,7 +92,21 @@ export default function DieuChinhSuatAn() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 3 }}>
+    //<Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 3 }}>
+    <Box
+      sx={{
+        width: '100%',
+        maxWidth: {
+          xs: 360,  // Điện thoại
+          sm: 600,  // Máy tính bảng
+          md: 800,  // Màn hình lớn hơn
+        },
+        mx: 'auto',
+        mt: 4,
+        p: 2,
+      }}
+    >
+
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography
           variant="h5"

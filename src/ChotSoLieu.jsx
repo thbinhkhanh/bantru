@@ -135,7 +135,9 @@ export default function ChotSoLieu() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 3 }}>
+    //<Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 3 }}>
+    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 8 }}>
+
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography
           variant="h5"
