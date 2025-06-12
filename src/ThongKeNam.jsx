@@ -146,6 +146,7 @@ export default function ChotSoLieu() {
           sx={{ mb: 5 }}
         >
           TỔNG HỢP THEO NĂM
+          <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 1, mb: 4 }} />
         </Typography>
 
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" justifyContent="center">

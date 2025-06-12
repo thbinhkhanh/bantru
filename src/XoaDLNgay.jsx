@@ -78,17 +78,8 @@ export default function ChotSoLieu() {
   };
 
   return (
-  <Box
-    sx={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: 'calc(100vh - 64px)',
-      backgroundColor: '#f5f5f5',
-      p: 2,
-    }}
-  >
-    <Paper elevation={3} sx={{ p: 4, borderRadius: 4, maxWidth: 500, width: '100%' }}>
+    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4, p: 2 }}>
+    <Paper elevation={3} sx={{ p: 3, borderRadius: 4 }}>
       <Typography
         variant="h5"
         align="center"
@@ -98,91 +89,92 @@ export default function ChotSoLieu() {
         sx={{ mb: 4 }}
       >
         XÓA DỮ LIỆU THEO NGÀY
+        <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 1, mb: 4 }} />
       </Typography>
 
-      <Stack spacing={3} alignItems="center">
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
-          <DatePicker
-            label="Chọn ngày"
-            value={selectedDate}
-            onChange={(newValue) => {
-              setSelectedDate(newValue);
-              setShowSuccess(false);
-            }}
-            renderInput={(params) => <TextField {...params} size="small" />}
-          />
-        </LocalizationProvider>
+        <Stack spacing={3} alignItems="center">
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
+            <DatePicker
+              label="Chọn ngày"
+              value={selectedDate}
+              onChange={(newValue) => {
+                setSelectedDate(newValue);
+                setShowSuccess(false); // Ẩn thông báo khi đổi ngày
+              }}
+              renderInput={(params) => <TextField {...params} size="small" />}
+            />
+          </LocalizationProvider>
 
-        <RadioGroup
-          row
-          value={option}
-          onChange={(e) => {
-            setOption(e.target.value);
-            setShowSuccess(false);
-          }}
-        >
-          <FormControlLabel value="toantruong" control={<Radio />} label="Toàn trường" />
-          <FormControlLabel value="chonlop" control={<Radio />} label="Chọn lớp" />
-        </RadioGroup>
-
-        {option === 'chonlop' && (
-          <Select
-            size="small"
-            value={selectedClass}
+          <RadioGroup
+            row
+            value={option}
             onChange={(e) => {
-              setSelectedClass(e.target.value);
-              setShowSuccess(false);
+              setOption(e.target.value);
+              setShowSuccess(false); // Ẩn thông báo khi đổi radio
             }}
-            displayEmpty
+          >
+            <FormControlLabel value="toantruong" control={<Radio />} label="Toàn trường" />
+            <FormControlLabel value="chonlop" control={<Radio />} label="Chọn lớp" />
+          </RadioGroup>
+
+          {option === 'chonlop' && (
+            <Select
+              size="small"
+              value={selectedClass}
+              onChange={(e) => {
+                setSelectedClass(e.target.value);
+                setShowSuccess(false); // Ẩn thông báo khi đổi lớp
+              }}
+              displayEmpty
+              sx={{ minWidth: 140 }}
+            >
+              <MenuItem value="" disabled>
+                -- Chọn lớp --
+              </MenuItem>
+              {classList.map((cls) => (
+                <MenuItem key={cls} value={cls}>
+                  {cls}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSubmit}
+            disabled={option === 'chonlop' && !selectedClass}
             sx={{ minWidth: 140 }}
           >
-            <MenuItem value="" disabled>
-              -- Chọn lớp --
-            </MenuItem>
-            {classList.map((cls) => (
-              <MenuItem key={cls} value={cls}>
-                {cls}
-              </MenuItem>
-            ))}
-          </Select>
-        )}
+            Thực hiện
+          </Button>
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-          disabled={option === 'chonlop' && !selectedClass}
-          sx={{ minWidth: 140 }}
-        >
-          Thực hiện
-        </Button>
+          {progressing && (
+            <Box sx={{ width: '100%', mt: 2 }}>
+              <LinearProgress />
+            </Box>
+          )}
 
-        {progressing && (
-          <Box sx={{ width: '100%', mt: 2 }}>
-            <LinearProgress />
-          </Box>
-        )}
+          {showSuccess && (
+            <Alert severity="success" sx={{ mt: 2, textAlign: 'center' }}>
+              {resultMessage}
+            </Alert>
+          )}
+        </Stack>
+      </Paper>
 
-        {showSuccess && (
-          <Alert severity="success" sx={{ mt: 2, textAlign: 'center' }}>
-            {resultMessage}
-          </Alert>
-        )}
-      </Stack>
-    </Paper>
-
-    <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
-      <DialogTitle>Xác nhận xóa</DialogTitle>
-      <DialogContent>
-        <DialogContentText>{confirmMessage}</DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setOpenConfirm(false)}>Hủy</Button>
-        <Button onClick={handleConfirm} color="primary" autoFocus>
-          Xác nhận
-        </Button>
-      </DialogActions>
-    </Dialog>
-  </Box>
-);
+      <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
+        <DialogTitle>Xác nhận xóa</DialogTitle>
+        <DialogContent>
+          <DialogContentText>{confirmMessage}</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenConfirm(false)}>Hủy</Button>
+          <Button onClick={handleConfirm} color="primary" autoFocus>
+            Xác nhận
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
 }

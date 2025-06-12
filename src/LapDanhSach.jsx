@@ -109,7 +109,7 @@ export default function DangKyLaiBanTru() {
   };
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, p: 2 }}>
+    <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4, p: 2 }}>
       <Paper elevation={3} sx={{ p: 3, borderRadius: 4 }}>
         <Typography
           variant="h5"
@@ -119,6 +119,7 @@ export default function DangKyLaiBanTru() {
           sx={{ mt: 2 }}
         >
           LẬP DANH SÁCH BÁN TRÚ
+          <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 1, mb: 4 }} />
         </Typography>
 
         <Box mt={3} mb={3} display="flex" justifyContent="center">

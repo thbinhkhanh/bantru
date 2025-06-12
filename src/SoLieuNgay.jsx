@@ -128,8 +128,12 @@ export default function ChotSoLieu() {
           align="center"
           sx={{ mt: 2, mb: 4, color: 'error.main', fontWeight: 'bold', fontSize: '1.1rem' }}
         >
+          <Box sx={{ height: '1.5px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mb: 2 }} />
           {today}
         </Typography>
+
+        
+
 
 
         <TableContainer component={Paper} sx={{ mt: 2, borderRadius: 2 }}>

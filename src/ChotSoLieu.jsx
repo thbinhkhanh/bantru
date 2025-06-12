@@ -139,16 +139,19 @@ export default function ChotSoLieu() {
     <Box sx={{ maxWidth: 400, mx: 'auto', mt: 8 }}>
 
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
-        <Typography
-          variant="h5"
-          align="center"
-          gutterBottom
-          fontWeight="bold"
-          color="primary"
-          sx={{ mb: 5 }}
-        >
-          CHỐT SỐ LIỆU
-        </Typography>
+        <Box sx={{ mb: 5 }}>
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            color="primary"
+            align="center"
+            sx={{ mb: 1 }}
+          >
+            CHỐT SỐ LIỆU
+          </Typography>
+          <Box sx={{ height: '1.5px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1 }} />
+        </Box>
+
 
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" justifyContent="center">
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>

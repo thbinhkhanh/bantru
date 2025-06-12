@@ -92,18 +92,19 @@ export default function DieuChinhSuatAn() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 3 }}>
+    <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4, p: 3 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
-        <Typography
-          variant="h5"
-          align="center"
-          gutterBottom
-          fontWeight="bold"
-          color="primary"
-          sx={{ mb: 5 }}
-        >
-          ĐIỀU CHỈNH SUẤT ĂN
-        </Typography>
+        <Box sx={{ textAlign: 'center', mb: 5 }}>
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            color="primary"
+            gutterBottom
+          >
+            ĐIỀU CHỈNH SUẤT ĂN
+          </Typography>
+          <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1 }} />
+        </Box>
 
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" justifyContent="center" sx={{ mb: 3 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>

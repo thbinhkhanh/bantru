@@ -145,6 +145,7 @@ export default function DangKyLaiBanTru() {
       sx={{ mt: 2 }}
     >
       CẬP NHẬT DANH SÁCH BÁN TRÚ
+      <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 1, mb: 2 }} />
     </Typography>
 
     <Box mb={2} display="flex" justifyContent="center">
