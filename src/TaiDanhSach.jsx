@@ -2,226 +2,156 @@ import React, { useState } from 'react';
 import {
   Box,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
-  IconButton,
-  TextField,
+  Stack,
   Button,
   LinearProgress,
-  Stack,
+  Snackbar,
   Alert,
 } from '@mui/material';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import vi from 'date-fns/locale/vi';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-const summaryData = [
-  { group: '1.1', siSo: 14, anBanTru: 14 },
-  { group: '1.2', siSo: 7, anBanTru: 7 },
-  { group: '1.3', siSo: 13, anBanTru: 13 },
-  { group: '1.4', siSo: 12, anBanTru: 12 },
-  { group: '1.5', siSo: 8, anBanTru: 8 },
-  { group: '1.6', siSo: 7, anBanTru: 7 },
-  { group: 'KHỐI 1', siSo: 61, anBanTru: 61, isGroup: true },
+export default function LapDanhSach() {
+  const [uploading, setUploading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  { group: '2.1', siSo: 11, anBanTru: 11 },
-  { group: '2.2', siSo: 12, anBanTru: 12 },
-  { group: '2.3', siSo: 6, anBanTru: 6 },
-  { group: '2.4', siSo: 4, anBanTru: 4 },
-  { group: '2.5', siSo: 3, anBanTru: 3 },
-  { group: '2.6', siSo: 4, anBanTru: 4 },
-  { group: 'KHỐI 2', siSo: 40, anBanTru: 40, isGroup: true },
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    setSuccess(false);
+    setError(false);
+    setErrorMsg('');
 
-  { group: '3.1', siSo: 5, anBanTru: 5 },
-  { group: '3.2', siSo: 11, anBanTru: 11 },
-  { group: '3.3', siSo: 10, anBanTru: 10 },
-  { group: '3.4', siSo: 4, anBanTru: 4 },
-  { group: '3.5', siSo: 5, anBanTru: 5 },
-  { group: '3.6', siSo: 10, anBanTru: 10 },
-  { group: 'KHỐI 3', siSo: 45, anBanTru: 45, isGroup: true },
+    if (!file) return;
 
-  { group: '4.1', siSo: 5, anBanTru: 5 },
-  { group: '4.2', siSo: 14, anBanTru: 14 },
-  { group: '4.3', siSo: 14, anBanTru: 14 },
-  { group: '4.4', siSo: 4, anBanTru: 4 },
-  { group: '4.5', siSo: 5, anBanTru: 5 },
-  { group: '4.6', siSo: 10, anBanTru: 10 },
-  { group: 'KHỐI 4', siSo: 52, anBanTru: 52, isGroup: true },
+    if (!file.name.endsWith('.xlsx')) {
+      setErrorMsg('Vui lòng chọn file Excel (.xlsx)');
+      setError(true);
+      e.target.value = null; // reset input
+      return;
+    }
 
-  { group: '5.1', siSo: 10, anBanTru: 10 },
-  { group: '5.2', siSo: 8, anBanTru: 8 },
-  { group: '5.3', siSo: 7, anBanTru: 7 },
-  { group: '5.4', siSo: 6, anBanTru: 6 },
-  { group: '5.5', siSo: 6, anBanTru: 6 },
-  { group: '5.6', siSo: 0, anBanTru: 0 },
-  { group: 'KHỐI 5', siSo: 37, anBanTru: 37, isGroup: true },
+    if (file.size > 10 * 1024 * 1024) { // 10MB
+      setErrorMsg('File quá lớn (tối đa 10MB)');
+      setError(true);
+      e.target.value = null;
+      return;
+    }
 
-  { group: 'TRƯỜNG', siSo: 235, anBanTru: 235, isGroup: true },
-];
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64 = reader.result.split(',')[1]; // Bỏ phần data:...
+      const fileName = file.name;
+      setUploading(true);
 
-function Row({ row, openGroups, setOpenGroups }) {
-  const isOpen = openGroups.includes(row.group);
-  const groupNumber = row.group.split(' ')[1];
-  const isTruong = row.group === 'TRƯỜNG';
-  const subRows = summaryData.filter((r) => !r.isGroup && r.group.startsWith(groupNumber + '.'));
-
-  return (
-    <>
-      <TableRow
-        sx={{
-          backgroundColor: isTruong ? '#fff3e0' : '#e3f2fd',
-          cursor: isTruong ? 'default' : 'pointer',
-          '&:hover': { backgroundColor: isTruong ? '#ffe0b2' : '#bbdefb' },
-        }}
-        onClick={() => {
-          if (!isTruong) {
-            setOpenGroups(isOpen ? openGroups.filter(g => g !== row.group) : [...openGroups, row.group]);
+      try {
+        const response = await fetch(
+          'https://script.google.com/macros/s/AKfycbx-SCgW73YUrwvOmHAb9Gdo8W93VWSPzqNsf5AeJZsHnfUebHcwSHY5asjRrHoWhxuscw/exec',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              fileName,
+              base64Data: base64,
+            }),
           }
-        }}
-      >
-        <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          {!isTruong && (
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpenGroups(isOpen ? openGroups.filter(g => g !== row.group) : [...openGroups, row.group]);
-              }}
-            >
-              {isOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            </IconButton>
-          )}
-          {row.group}
-        </TableCell>
-        <TableCell align="center" sx={{ fontWeight: 'bold' }}>{row.siSo}</TableCell>
-        <TableCell align="center" sx={{ fontWeight: 'bold' }}>{row.anBanTru}</TableCell>
-      </TableRow>
+        );
 
-      {isOpen && subRows.map((subRow, i) => (
-        <TableRow key={i} sx={{ backgroundColor: '#f9fbe7', '&:hover': { backgroundColor: '#f0f4c3' } }}>
-          <TableCell sx={{ pl: 6, textAlign: 'center' }}>{subRow.group}</TableCell>
-          <TableCell align="center">{subRow.siSo}</TableCell>
-          <TableCell align="center">{subRow.anBanTru}</TableCell>
-        </TableRow>
-      ))}
-    </>
-  );
-}
+        const result = await response.json();
+        if (result.success) {
+          setSuccess(true);
+        } else {
+          setErrorMsg(result.error || 'Lỗi không xác định từ máy chủ!');
+          setError(true);
+        }
+      } catch (err) {
+        setErrorMsg(err.message || 'Lỗi kết nối máy chủ!');
+        setError(true);
+      } finally {
+        setUploading(false);
+        e.target.value = null; // reset input
+      }
+    };
 
-export default function ChotSoLieu() {
-  const [openGroups, setOpenGroups] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isLoading, setIsLoading] = useState(false);
-  const [isUpdated, setIsUpdated] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-
-  const handleUpdate = () => {
-    setIsLoading(true);
-    setIsUpdated(false);
-    setShowSuccess(false);
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsUpdated(true);
-      setShowSuccess(true);
-    }, 2000);
+    reader.readAsDataURL(file);
   };
 
   return (
-    <Box sx={{ maxWidth: 500, mx: 'auto', mt: 6, px: 2 }}>
-      <Paper
-        elevation={4}
-        sx={{
-          p: { xs: 2, sm: 4 },
-          borderRadius: 4,
-          backgroundColor: '#fafafa',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
-        }}
-      >
-
+    <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4, p: 3 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography
           variant="h5"
           align="center"
-          gutterBottom
           fontWeight="bold"
           color="primary"
-          sx={{ mb: 5 }}
+          gutterBottom
         >
-          TẢI DANH SÁCH LÊN
-          <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 1, mb: 4 }} />
+          TẢI DANH SÁCH BÁN TRÚ
+          <Box
+            sx={{
+              height: '2px',
+              width: '100%',
+              backgroundColor: '#1976d2',
+              borderRadius: 1,
+              mt: 1,
+              mb: 2,
+            }}
+          />
         </Typography>
 
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" justifyContent="center">
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
-            <DatePicker
-              label="Chọn ngày"
-              value={selectedDate}
-              onChange={(newValue) => setSelectedDate(newValue)}
-              renderInput={(params) => <TextField {...params} size="small" />}
-            />
-          </LocalizationProvider>
-
+        <Stack spacing={3} alignItems="center">
           <Button
             variant="contained"
-            color="primary"
-            onClick={handleUpdate}
-            disabled={isLoading}
-            sx={{ minWidth: 140 }}
+            component="label"
+            startIcon={<CloudUploadIcon />}
+            disabled={uploading}
+            sx={{ minWidth: 220 }}
           >
-            Cập nhật
+            Chọn file Excel
+            <input
+              type="file"
+              hidden
+              accept=".xlsx"
+              onChange={handleFileUpload}
+            />
           </Button>
+
+          {uploading && (
+            <Box sx={{ width: '60%' }}>
+              <LinearProgress />
+              <Typography variant="body2" align="center" sx={{ mt: 1 }}>
+                Đang tải và xử lý dữ liệu...
+              </Typography>
+            </Box>
+          )}
         </Stack>
 
-        {isLoading && (
-          <Box sx={{ width: '100%', mt: 3 }}>
-            <LinearProgress />
-            <Typography align="center" mt={1}>Đang cập nhật dữ liệu...</Typography>
-          </Box>
-        )}
+        <Snackbar
+          open={success}
+          autoHideDuration={4000}
+          onClose={() => setSuccess(false)}
+        >
+          <Alert
+            severity="success"
+            variant="filled"
+            iconMapping={{ success: <CloudUploadIcon /> }}
+          >
+            Cập nhật thành công! 🎉
+          </Alert>
+        </Snackbar>
 
-        {showSuccess && (
-          <>
-            <Alert severity="success" sx={{ mt: 3, textAlign: 'center' }}>
-              Cập nhật dữ liệu thành công!
-            </Alert>
-
-            <Typography
-              align="center"
-              sx={{ mt: 4, color: 'error.main', fontWeight: 'bold' }}
-            >
-              Dữ liệu cập nhật đến ngày: {selectedDate.toLocaleDateString('vi-VN')}
-            </Typography>
-          </>
-        )}
-
-
-        {isUpdated && (
-          <TableContainer component={Paper} sx={{ mt: 4, borderRadius: 2 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>LỚP / KHỐI</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>SĨ SỐ</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>ĂN BÁN TRÚ</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {summaryData
-                  .filter(row => row.isGroup || row.group === 'TRƯỜNG')
-                  .map((row, index) => (
-                    <Row key={index} row={row} openGroups={openGroups} setOpenGroups={setOpenGroups} />
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+        <Snackbar
+          open={error}
+          autoHideDuration={5000}
+          onClose={() => setError(false)}
+        >
+          <Alert severity="error" variant="filled">
+            {errorMsg}
+          </Alert>
+        </Snackbar>
       </Paper>
     </Box>
   );

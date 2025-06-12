@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Paper,
   Typography,
   Table,
   TableBody,
@@ -9,191 +8,196 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  FormControl,
-  Select,
-  MenuItem,
-  Checkbox,
+  Paper,
+  TextField,
   Button,
-  LinearProgress,
-  Snackbar,
-  Alert,
+  Stack,
+  MenuItem,
+  Select,
+  FormControl,
   InputLabel,
+  Checkbox,
+  LinearProgress,
 } from '@mui/material';
 
-const classOptions = ['5.1', '5.2', '5.3', '5.4', '5.5'];
-
-const demoStudents = [
-  { id: '7952245907', name: 'HỒ NGUYỄN TRUNG HẬU', class: '5.1' },
-  { id: '7926588441', name: 'TRẦN VĂN KHOA', class: '5.1' },
-  { id: '7926588356', name: 'TRƯƠNG THIỆN PHÚC', class: '5.1' },
-  { id: '7926588263', name: 'BÙI MINH HUY', class: '5.1' },
-  { id: '7952245902', name: 'NGUYỄN LÊ THIÊN ANH', class: '5.1' },
-  { id: '7952245915', name: 'NGUYỄN NGỌC BẢO NGÂN', class: '5.1' },
-  { id: '7952245909', name: 'NGUYỄN PHAN NGỌC KHÁNH', class: '5.1' },
-  { id: '4052245916', name: 'TRẦN THỊ BẢO NGỌC', class: '5.1' },
-  { id: '7976160671', name: 'NGUYỄN NGỌC THẢO', class: '5.1' },
-  { id: '7926588270', name: 'LÊ NGỌC THIÊN HƯƠNG', class: '5.1' },
-  { id: '7926588452', name: 'TRẦN NGỌC QUỲNH TRÂM', class: '5.1' },
-  { id: '79214042646', name: 'DƯƠNG HOÀNG ANH', class: '5.2' },
-  { id: '86214010567', name: 'VÕ TRÍ ĐẠT', class: '5.2' },
-  { id: '79214018933', name: 'BÙI NGUYỄN HỮU TRÍ', class: '5.2' },
-  { id: '79214018037', name: 'VÕ HỮU NHÂN', class: '5.2' },
-  { id: '79214025944', name: 'NGUYỄN LÊ KHANG', class: '5.2' },
-  { id: '79314043124', name: 'NGUYỄN TƯỜNG LAM', class: '5.2' },
-  { id: '79314043195', name: 'PHAN NGUYỄN GIA LINH', class: '5.2' },
-  { id: '79314017578', name: 'NGUYỄN NGỌC GIA LINH', class: '5.2' },
-  { id: '7952264390', name: 'ĐẶNG HUỲNH GIA BẢO', class: '5.3' },
-  { id: '7926588415', name: 'TRẦN MINH NHẬT', class: '5.3' },
-  { id: '7942211205', name: 'NGÔ MINH THÔNG', class: '5.3' },
-  { id: '7959197625', name: 'PHẠM HOÀNG BẢO NGHI', class: '5.3' },
-  { id: '7926588239', name: 'NGUYỄN HỒ KIM PHƯỢNG', class: '5.3' },
-  { id: '7952264405', name: 'NGUYỄN NGỌC THỦY TIÊN', class: '5.3' },
-  { id: '7952264409', name: 'TRẦN HUỲNH KIM XUÂN', class: '5.3' },
-  { id: '7942211304', name: 'PHAN TRẤN PHONG', class: '5.4' },
-  { id: '9685589118', name: 'NGUYỄN HUỲNH GIAO', class: '5.4' },
-  { id: '7952250847', name: 'HUỲNH NG. PHƯƠNG NGHI', class: '5.4' },
-  { id: '7952250858', name: 'ĐÀO THỊ THẢO VY', class: '5.4' },
-  { id: '7952250842', name: 'HUỲNH NGỌC YẾN LINH', class: '5.4' },
-  { id: '7952250833', name: 'VÕ LÊ TRÚC HÀ', class: '5.4' },
-  { id: '7951520796', name: 'TRẦN GIA BẢO', class: '5.5' },
-  { id: '7952257443', name: 'TẠ ĐĂNG KHÔI', class: '5.5' },
-  { id: '7926588297', name: 'TRƯƠNG ĐĂNG KHOA', class: '5.5' },
-  { id: '7950168309', name: 'BÙI NGUYỄN TẤN LỢI', class: '5.5' },
-  { id: '4677529501', name: 'LÊ TRƯỜNG PHÚC', class: '5.5' },
-  { id: '7952257471', name: 'BÙI ANH TUẤN', class: '5.5' },
-];
-
-export default function DangKyLaiBanTru() {
+export default function LapDanhSach() {
   const [selectedClass, setSelectedClass] = useState('');
+  const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('warning');
+  const [classes, setClasses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleClassChange = (e) => {
-    const cls = e.target.value;
-    setSelectedClass(cls);
-    const studentsOfClass = demoStudents
-      .filter((s) => s.class === cls)
-      .map((s, index) => ({
-        stt: index + 1,
-        id: s.id,
-        name: s.name,
-        dangKy: false,
-      }));
-    setFilteredStudents(studentsOfClass);
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbwx4g0bhqSGtE-Gy0BWpLBBhzc_Gm0jSNa4mThNlDlTOix_HaXRS0DCnhvGzlIi-7Q/exec?action=GET_DATA"
+        );
+        const json = await response.json();
+        if (Array.isArray(json.data)) {
+          const rawData = json.data.slice(1); // Bỏ dòng tiêu đề
+
+          const processed = rawData.map((row, index) => ({
+            id: index + 1,
+            hoTen: row[2],
+            lop: row[3],
+            isK: row[4] === "K",
+            registered: false,
+          }));
+
+          setStudents(processed);
+          const uniqueClasses = [...new Set(processed.map((s) => s.lop))].filter(Boolean);
+          setClasses(uniqueClasses);
+          if (uniqueClasses.length > 0) {
+            const firstClass = uniqueClasses[0];
+            setSelectedClass(firstClass);
+            setFilteredStudents(
+              processed
+                .filter((s) => s.lop === firstClass)
+                .map((s, index) => ({ ...s, id: index + 1 }))
+            );
+          }
+        } else {
+          console.error("Dữ liệu trả về không hợp lệ:", json);
+        }
+      } catch (error) {
+        console.error("Lỗi tải dữ liệu:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleClassChange = (event) => {
+    const classValue = event.target.value;
+    setSelectedClass(classValue);
+    setFilteredStudents(
+      students
+        .filter((s) => s.lop === classValue)
+        .map((s, index) => ({ ...s, id: index + 1 }))
+    );
   };
 
-  const handleDangKyChange = (index, checked) => {
+  const toggleRegister = (index) => {
     const updated = [...filteredStudents];
-    updated[index].dangKy = checked;
+    updated[index].registered = !updated[index].registered;
     setFilteredStudents(updated);
   };
 
-  const handleCapNhat = () => {
-    if (!filteredStudents.some((s) => s.dangKy)) {
-      setSnackbarMessage('Cảnh báo: Bạn chưa chọn học sinh nào để đăng ký.');
-      setSnackbarSeverity('warning');
-      setSnackbarOpen(true);
-      return;
-    }
-
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSnackbarMessage('Cập nhật thành công!');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
-    }, 2000);
+  const handleSave = () => {
+    const registeredStudents = filteredStudents.filter((s) => s.registered);
+    console.log('Dữ liệu lưu:', registeredStudents);
+    alert('Đã lưu dữ liệu đăng ký!');
   };
 
   return (
-    <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4, p: 2 }}>
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 4 }}>
+    <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4, p: 3 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography
           variant="h5"
           align="center"
+          gutterBottom
           fontWeight="bold"
           color="primary"
-          sx={{ mt: 2 }}
+          sx={{ mb: 5 }}
         >
-          LẬP DANH SÁCH
-          <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 1, mb: 4 }} />
+          LẬP DANH SÁCH BÁN TRÚ
+          <Box
+            sx={{
+              height: '2px',
+              width: '100%',
+              backgroundColor: '#1976d2',
+              borderRadius: 1,
+              mt: 1,
+              mb: 2,
+            }}
+          />
         </Typography>
 
-        <Box mt={3} mb={3} display="flex" justifyContent="center">
-          <FormControl size="small" sx={{ minWidth: 150 }}>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          alignItems="center"
+          justifyContent="center"
+          sx={{ mb: 3 }}
+        >
+          <FormControl size="small" sx={{ minWidth: 120 }}>
             <InputLabel>Lớp</InputLabel>
-            <Select
-              value={selectedClass}
-              onChange={handleClassChange}
-              label="Lớp"
-            >
-              {classOptions.map((cls) => (
-                <MenuItem key={cls} value={cls}>
+            <Select value={selectedClass} label="Lớp" onChange={handleClassChange}>
+              {classes.map((cls, idx) => (
+                <MenuItem key={idx} value={cls}>
                   {cls}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
-        </Box>
+        </Stack>
 
-        <TableContainer>
-          <Table size="small">
-            <TableHead>
-              <TableRow sx={{ backgroundColor: '#e3f2fd' }}>
-                <TableCell align="center"><strong>STT</strong></TableCell>
-                <TableCell><strong>HỌ VÀ TÊN</strong></TableCell>
-                <TableCell align="center"><strong>ĐĂNG KÝ</strong></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredStudents.map((student, index) => (
-                <TableRow key={index}>
-                  <TableCell align="center">{student.stt}</TableCell>
-                  <TableCell>{student.name}</TableCell>
-                  <TableCell align="center">
-                    <Checkbox
-                      checked={student.dangKy}
-                      onChange={(e) => handleDangKyChange(index, e.target.checked)}
-                      color="primary"
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Box mt={3} display="flex" flexDirection="column" alignItems="center">
-          <Button variant="contained" color="primary" onClick={handleCapNhat}>
-            Cập nhật
-          </Button>
-          {loading && (
-            <Box sx={{ width: '100%', mt: 2 }}>
+        {loading ? (
+          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', my: 2 }}>
+            <Box sx={{ width: '50%' }}>
               <LinearProgress />
             </Box>
-          )}
-        </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Đang tải dữ liệu học sinh...
+            </Typography>
+          </Box>
+        ) : selectedClass ? (
+          <>
+            <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>
+                      STT
+                    </TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>
+                      HỌ VÀ TÊN
+                    </TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>
+                      ĐĂNG KÝ
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {filteredStudents.map((student, index) => (
+                    <TableRow
+                      key={index}
+                      hover
+                      sx={{ backgroundColor: student.isK ? '#f0f0f0' : 'inherit' }}
+                    >
+                      <TableCell align="center" sx={{ py: 0.5, color: student.isK ? 'red' : 'inherit' }}>
+                        {index + 1}
+                      </TableCell>
+                      <TableCell sx={{ py: 0.5, color: student.isK ? 'red' : 'inherit' }}>
+                        {student.hoTen}
+                      </TableCell>
+                      <TableCell align="center" sx={{ py: 0.5 }}>
+                        {!student.isK && (
+                          <Checkbox
+                            checked={student.registered}
+                            onChange={() => toggleRegister(index)}
+                            size="small"
+                          />
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            <Stack direction="row" justifyContent="center" sx={{ mt: 3 }}>
+              <Button variant="contained" onClick={handleSave} sx={{ minWidth: 140 }}>
+                Lưu
+              </Button>
+            </Stack>
+          </>
+        ) : null}
       </Paper>
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={snackbarSeverity}
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Box>
-
   );
 }
