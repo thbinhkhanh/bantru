@@ -78,102 +78,111 @@ export default function ChotSoLieu() {
   };
 
   return (
-    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4, p: 2 }}>
-      <Paper elevation={3} sx={{ p: 3, borderRadius: 4 }}>
-        <Typography
-          variant="h5"
-          align="center"
-          gutterBottom
-          fontWeight="bold"
-          color="primary"
-          sx={{ mb: 4 }}
-        >
-          XÓA DỮ LIỆU THEO NGÀY
-        </Typography>
+  <Box
+    sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: 'calc(100vh - 64px)',
+      backgroundColor: '#f5f5f5',
+      p: 2,
+    }}
+  >
+    <Paper elevation={3} sx={{ p: 4, borderRadius: 4, maxWidth: 500, width: '100%' }}>
+      <Typography
+        variant="h5"
+        align="center"
+        gutterBottom
+        fontWeight="bold"
+        color="primary"
+        sx={{ mb: 4 }}
+      >
+        XÓA DỮ LIỆU THEO NGÀY
+      </Typography>
 
-        <Stack spacing={3} alignItems="center">
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
-            <DatePicker
-              label="Chọn ngày"
-              value={selectedDate}
-              onChange={(newValue) => {
-                setSelectedDate(newValue);
-                setShowSuccess(false); // Ẩn thông báo khi đổi ngày
-              }}
-              renderInput={(params) => <TextField {...params} size="small" />}
-            />
-          </LocalizationProvider>
-
-          <RadioGroup
-            row
-            value={option}
-            onChange={(e) => {
-              setOption(e.target.value);
-              setShowSuccess(false); // Ẩn thông báo khi đổi radio
+      <Stack spacing={3} alignItems="center">
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
+          <DatePicker
+            label="Chọn ngày"
+            value={selectedDate}
+            onChange={(newValue) => {
+              setSelectedDate(newValue);
+              setShowSuccess(false);
             }}
-          >
-            <FormControlLabel value="toantruong" control={<Radio />} label="Toàn trường" />
-            <FormControlLabel value="chonlop" control={<Radio />} label="Chọn lớp" />
-          </RadioGroup>
+            renderInput={(params) => <TextField {...params} size="small" />}
+          />
+        </LocalizationProvider>
 
-          {option === 'chonlop' && (
-            <Select
-              size="small"
-              value={selectedClass}
-              onChange={(e) => {
-                setSelectedClass(e.target.value);
-                setShowSuccess(false); // Ẩn thông báo khi đổi lớp
-              }}
-              displayEmpty
-              sx={{ minWidth: 140 }}
-            >
-              <MenuItem value="" disabled>
-                -- Chọn lớp --
-              </MenuItem>
-              {classList.map((cls) => (
-                <MenuItem key={cls} value={cls}>
-                  {cls}
-                </MenuItem>
-              ))}
-            </Select>
-          )}
+        <RadioGroup
+          row
+          value={option}
+          onChange={(e) => {
+            setOption(e.target.value);
+            setShowSuccess(false);
+          }}
+        >
+          <FormControlLabel value="toantruong" control={<Radio />} label="Toàn trường" />
+          <FormControlLabel value="chonlop" control={<Radio />} label="Chọn lớp" />
+        </RadioGroup>
 
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-            disabled={option === 'chonlop' && !selectedClass}
+        {option === 'chonlop' && (
+          <Select
+            size="small"
+            value={selectedClass}
+            onChange={(e) => {
+              setSelectedClass(e.target.value);
+              setShowSuccess(false);
+            }}
+            displayEmpty
             sx={{ minWidth: 140 }}
           >
-            Thực hiện
-          </Button>
+            <MenuItem value="" disabled>
+              -- Chọn lớp --
+            </MenuItem>
+            {classList.map((cls) => (
+              <MenuItem key={cls} value={cls}>
+                {cls}
+              </MenuItem>
+            ))}
+          </Select>
+        )}
 
-          {progressing && (
-            <Box sx={{ width: '100%', mt: 2 }}>
-              <LinearProgress />
-            </Box>
-          )}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+          disabled={option === 'chonlop' && !selectedClass}
+          sx={{ minWidth: 140 }}
+        >
+          Thực hiện
+        </Button>
 
-          {showSuccess && (
-            <Alert severity="success" sx={{ mt: 2, textAlign: 'center' }}>
-              {resultMessage}
-            </Alert>
-          )}
-        </Stack>
-      </Paper>
+        {progressing && (
+          <Box sx={{ width: '100%', mt: 2 }}>
+            <LinearProgress />
+          </Box>
+        )}
 
-      <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
-        <DialogTitle>Xác nhận xóa</DialogTitle>
-        <DialogContent>
-          <DialogContentText>{confirmMessage}</DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenConfirm(false)}>Hủy</Button>
-          <Button onClick={handleConfirm} color="primary" autoFocus>
-            Xác nhận
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
-  );
+        {showSuccess && (
+          <Alert severity="success" sx={{ mt: 2, textAlign: 'center' }}>
+            {resultMessage}
+          </Alert>
+        )}
+      </Stack>
+    </Paper>
+
+    <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
+      <DialogTitle>Xác nhận xóa</DialogTitle>
+      <DialogContent>
+        <DialogContentText>{confirmMessage}</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setOpenConfirm(false)}>Hủy</Button>
+        <Button onClick={handleConfirm} color="primary" autoFocus>
+          Xác nhận
+        </Button>
+      </DialogActions>
+    </Dialog>
+  </Box>
+);
 }

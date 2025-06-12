@@ -109,7 +109,7 @@ export default function DangKyLaiBanTru() {
   };
 
   return (
-    <Box sx={{ maxWidth: 900, mx: 'auto', mt: 4, p: 2 }}>
+    <Box sx={{ maxWidth: 600, mx: 'auto', mt: 4, p: 2 }}>
       <Paper elevation={3} sx={{ p: 3, borderRadius: 4 }}>
         <Typography
           variant="h5"
@@ -143,7 +143,6 @@ export default function DangKyLaiBanTru() {
             <TableHead>
               <TableRow sx={{ backgroundColor: '#e3f2fd' }}>
                 <TableCell align="center"><strong>STT</strong></TableCell>
-                <TableCell align="center"><strong>MÃ ĐỊNH DANH</strong></TableCell>
                 <TableCell><strong>HỌ VÀ TÊN</strong></TableCell>
                 <TableCell align="center"><strong>ĐĂNG KÝ</strong></TableCell>
               </TableRow>
@@ -152,7 +151,6 @@ export default function DangKyLaiBanTru() {
               {filteredStudents.map((student, index) => (
                 <TableRow key={index}>
                   <TableCell align="center">{student.stt}</TableCell>
-                  <TableCell align="center">{student.id}</TableCell>
                   <TableCell>{student.name}</TableCell>
                   <TableCell align="center">
                     <Checkbox
@@ -195,5 +193,6 @@ export default function DangKyLaiBanTru() {
         </Alert>
       </Snackbar>
     </Box>
+
   );
 }

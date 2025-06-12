@@ -135,8 +135,17 @@ export default function ChotSoLieu() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 3 }}>
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
+    <Box sx={{ maxWidth: 800, mx: 'auto', mt: 6, px: 2 }}>
+      <Paper
+        elevation={4}
+        sx={{
+          p: { xs: 2, sm: 4 },
+          borderRadius: 4,
+          backgroundColor: '#fafafa',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
+        }}
+      >
+
         <Typography
           variant="h5"
           align="center"

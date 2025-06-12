@@ -112,8 +112,8 @@ export default function ChotSoLieu() {
   const today = new Date().toLocaleDateString('vi-VN');
 
   return (
-    <Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 3 }}>
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
+    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 8 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
         <Typography
           variant="h5"
           align="center"
@@ -130,6 +130,7 @@ export default function ChotSoLieu() {
         >
           {today}
         </Typography>
+
 
         <TableContainer component={Paper} sx={{ mt: 2, borderRadius: 2 }}>
           <Table>

@@ -92,21 +92,7 @@ export default function DieuChinhSuatAn() {
   };
 
   return (
-    //<Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 3 }}>
-    <Box
-      sx={{
-        width: '100%',
-        maxWidth: {
-          xs: 360,  // Điện thoại
-          sm: 600,  // Máy tính bảng
-          md: 800,  // Màn hình lớn hơn
-        },
-        mx: 'auto',
-        mt: 4,
-        p: 2,
-      }}
-    >
-
+    <Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 3 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography
           variant="h5"
@@ -141,7 +127,7 @@ export default function DieuChinhSuatAn() {
 
         {selectedClass && (
           <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
-            <Table size="small"> {/* Giảm chiều cao bảng */}
+            <Table size="small">
               <TableHead>
                 <TableRow>
                   <TableCell align="center" sx={{ fontWeight: 'bold' }}>STT</TableCell>
@@ -149,7 +135,6 @@ export default function DieuChinhSuatAn() {
                   <TableCell align="center" sx={{ fontWeight: 'bold' }}>ĐĂNG KÝ</TableCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
                 {filteredStudents.map((student, index) => (
                   <TableRow key={index}>
@@ -159,7 +144,7 @@ export default function DieuChinhSuatAn() {
                       <Checkbox
                         checked={student.registered}
                         onChange={() => toggleRegister(index)}
-                        size="small" // Checkbox nhỏ gọn hơn
+                        size="small"
                       />
                     </TableCell>
                   </TableRow>
@@ -167,7 +152,6 @@ export default function DieuChinhSuatAn() {
               </TableBody>
             </Table>
           </TableContainer>
-
         )}
 
         {selectedClass && (
