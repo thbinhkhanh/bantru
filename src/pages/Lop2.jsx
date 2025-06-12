@@ -90,7 +90,7 @@ export default function Lop2() {
 
   const handleSave = () => {
     console.log('Dữ liệu lưu:', filteredStudents);
-    alert('Đã lưu dữ liệu đăng ký!');
+    alert('Đã lưu dữ liệu đăng ký thành công!');
   };
 
   return (
@@ -111,7 +111,7 @@ export default function Lop2() {
           maxWidth: 450,
           width: '100%',
           borderRadius: 4,
-          boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+          boxShadow: '0 8px 30px rgba(148, 12, 12, 0.15)',
           backgroundColor: 'white',
         }}
         elevation={10}
