@@ -130,9 +130,9 @@ export default function QuanLy() {
         </Box>
       ) : selectedFunction ? (
         <Box maxWidth={selectedFunction === 'CAPNHAT' ? 1000 : 700} mx="auto">
-          
+          <Card sx={{ p: 4, borderRadius: 4 }} elevation={10}>
             {renderSelectedFunction()}
-          
+          </Card>
         </Box>
       ) : (
         <>
@@ -186,11 +186,22 @@ export default function QuanLy() {
                         src={nhom.icon.props.src}
                         alt={nhom.icon.props.alt}
                         sx={{
-                          width: 95,
-                          height: 95,
+                          width: {
+                            xs: 120, // kích thước lớn hơn trên điện thoại
+                            sm: 100,
+                            md: 95,
+                          },
+                          height: {
+                            xs: 120,
+                            sm: 100,
+                            md: 95,
+                          },
                           objectFit: 'contain',
+                          display: 'block',
+                          mx: 'auto', // căn giữa theo chiều ngang
                         }}
                       />
+
                     </Grid>
 
                     <Grid item xs={12} sm={10} md={11}>
