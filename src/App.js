@@ -1,5 +1,11 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from 'react-router-dom';
 
 import Home from './pages/Home';
 import Lop1 from './pages/Lop1';
@@ -27,9 +33,8 @@ export default function App() {
 }
 
 function Navigation() {
-  const location = useLocation(); // Xác định trang hiện tại
+  const location = useLocation();
 
-  // Define an array of objects for better readability and mapping
   const navItems = [
     { path: '/', name: 'Trang chủ' },
     { path: '/lop1', name: 'Lớp 1' },
@@ -37,23 +42,36 @@ function Navigation() {
     { path: '/lop3', name: 'Lớp 3' },
     { path: '/lop4', name: 'Lớp 4' },
     { path: '/lop5', name: 'Lớp 5' },
-    { path: '/quanly', name: 'Quản lý' }, // Corrected name for '/quanly'
+    { path: '/quanly', name: 'Quản lý' },
   ];
 
   return (
-    <nav style={{ padding: '12px', background: '#1976d2', color: 'white', marginBottom: '20px' }}>
+    <nav
+      style={{
+        padding: '12px',
+        background: '#1976d2',
+        color: 'white',
+        marginBottom: '20px',
+        display: 'flex',
+        overflowX: 'auto',
+        whiteSpace: 'nowrap',
+        gap: '10px',
+      }}
+    >
       {navItems.map((item, index) => (
         <Link
           key={index}
           to={item.path}
           style={{
-            marginRight: '10px',
             color: 'white',
             textDecoration: 'none',
             padding: '8px 12px',
-            backgroundColor: location.pathname === item.path ? '#1565c0' : 'transparent',
-            borderBottom: location.pathname === item.path ? '3px solid white' : 'none',
+            backgroundColor:
+              location.pathname === item.path ? '#1565c0' : 'transparent',
+            borderBottom:
+              location.pathname === item.path ? '3px solid white' : 'none',
             borderRadius: '4px',
+            flexShrink: 0,
           }}
         >
           {item.name}
