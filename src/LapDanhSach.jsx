@@ -122,22 +122,21 @@ export default function DangKyLaiBanTru() {
         </Typography>
 
         <Box mt={3} mb={3} display="flex" justifyContent="center">
-  <FormControl size="small" sx={{ minWidth: 120 }}>
-    <InputLabel>Lớp</InputLabel>
-    <Select
-      value={selectedClass}
-      onChange={handleClassChange}
-      label="LỚP"
-    >
-      {classOptions.map((cls) => (
-        <MenuItem key={cls} value={cls}>
-          {cls}
-        </MenuItem>
-      ))}
-    </Select>
-  </FormControl>
-</Box>
-
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel>Lớp</InputLabel>
+            <Select
+              value={selectedClass}
+              onChange={handleClassChange}
+              label="Lớp"
+            >
+              {classOptions.map((cls) => (
+                <MenuItem key={cls} value={cls}>
+                  {cls}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
 
         <TableContainer>
           <Table size="small">

@@ -78,15 +78,15 @@ export default function ChotSoLieu() {
   };
 
   return (
-    <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4, p: 3 }}>
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
+    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4, p: 2 }}>
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 4 }}>
         <Typography
           variant="h5"
           align="center"
           gutterBottom
           fontWeight="bold"
           color="primary"
-          sx={{ mb: 5 }}
+          sx={{ mb: 4 }}
         >
           XÓA DỮ LIỆU THEO NGÀY
         </Typography>
