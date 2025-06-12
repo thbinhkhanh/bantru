@@ -165,8 +165,12 @@ export default function QuanLy() {
                     p: 3,
                     borderRadius: 4,
                     width: '100%',
-                    maxWidth: 1055,
-                    mx: 'auto', // căn giữa khối card
+                    maxWidth: {
+                      xs: 360,  // khớp hộp đăng nhập khi ở điện thoại
+                      sm: 720,
+                      md: 1055,
+                    },
+                    mx: 'auto',
                   }}
                 >
                   <Grid container spacing={3} alignItems="center">
