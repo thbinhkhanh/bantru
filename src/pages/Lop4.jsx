@@ -1,151 +1,131 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  Stack,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  Checkbox,
-  Card,
+  Box, Typography, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper, Button, Stack, MenuItem,
+  Select, FormControl, InputLabel, Checkbox, Card, LinearProgress
 } from '@mui/material';
 
-const rawStudentData = `NGUYỄN BẢO HUY\t4.1
-NGUYỄN HỮU THIỆN\t4.1
-NGUYỄN GIA KHOA\t4.1
-ĐẶNG SU MY\t4.1
-ĐỖ HOÀNG YẾN NGỌC\t4.1
-LƯ HOÀNG KHÁNH LINH\t4.1
-HOÀNG NGUYỄN BÌNH AN\t4.2
-NGUYỄN MINH KHUÊ\t4.2
-ĐẶNG PHẠM QUỐC ANH\t4.2
-HUỲNH THIỆN NHÂN\t4.2
-VÕ NGỌC BẢO CHÂU\t4.2
-NGUYỄN PHAN BẢO VY\t4.2
-NGUYỄN TRƯƠNG ANH THƯ\t4.2
-VÕ HỒNG THẢO NHI\t4.2
-NGÔ NGỌC MỘC TRÀ\t4.2
-NGUYỄN DUY KHẢ VÂN\t4.2
-LÊ GIA KHANH\t4.2
-LƯU KHÁNH THY\t4.2
-PHẠM LÊ KIỀU DUYÊN\t4.2
-VÕ HIẾU NGHĨA\t4.2
-ĐẶNG HỒ NHẤT ĐÔ\t4.3
-BÙI MINH HOÀNG\t4.3
-LÊ PHÚC KHÁNG\t4.3
-TRẦN LÊ QUỐC THÁI\t4.3
-NGUYỄN TUẤN TÚ\t4.3
-BÙI MINH TRIẾT\t4.3
-DƯƠNG TẤN VÕ\t4.3
-ĐẶNG NGUYỄN NGỌC HÂN\t4.3
-HỒ LÊ THỤC QUYÊN\t4.3
-NGUYỄN LÊ NHƯ QUỲNH\t4.3
-NGUYỄN NGỌC ANH THY\t4.3
-HUỲNH KHÁNH VY\t4.3
-TRẦN GIA AN\t4.3
-NGUYỄN TRẦN THIÊN ÂN\t4.3
-ĐẶNG THỤY THANH TRÚC\t4.4
-VÕ NGỌC PHƯƠNG UYÊN\t4.4
-NGUYỄN LÊ THIÊN KIM\t4.4
-PHẠM KHẮC HUY\t4.4
-TRẦN TUẤN THIÊN ĐĂNG\t4.5
-ĐOÀN NHÃ VY\t4.5
-MAI PHẠM ANH THƯ\t4.5
-NGUYỄN KIM NGỌC\t4.5
-TRẦN HIẾU NGHĨA\t4.5
-NGUYỄN ĐỨC THỊNH\t4.6
-CHÂU HOÀNG ANH KHOA\t4.6
-NGUYỄN TÂN MINH TRÍ\t4.6
-BÙI THÀNH ĐẠT\t4.6
-DƯƠNG MINH HIẾU\t4.6
-LÊ NHẬT HUY\t4.6
-PHẠM GIA QUỲNH\t4.6
-TRẦN KIM YẾN\t4.6
-NGUYỄN MAI PHƯƠNG\t4.6
-NGUYỄN THỊ HỒNG VY\t4.6`;
-
-const students = rawStudentData.split('\n').map((line, index) => {
-  const [name, className] = line.trim().split('\t');
-  return { id: index + 1, name, className, registered: false };
-});
-
-const classList = [...new Set(students.map(s => s.className))];
-
 export default function Lop4() {
-  const [selectedClass, setSelectedClass] = useState(classList[0] || '');
+  const [allStudents, setAllStudents] = useState([]);
+  const [selectedClass, setSelectedClass] = useState('');
   const [filteredStudents, setFilteredStudents] = useState([]);
+  const [classList, setClassList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    setFilteredStudents(students.filter(s => s.className === selectedClass));
-  }, [selectedClass]);
+    setIsLoading(true);
+    fetch('https://script.google.com/macros/s/AKfycbz0pjR3DbPJ5S0MYkvT-7wMpTaj1Qg3Zmd8kiO8IRw7opejZHV3iLSCOJO2KXZ_heYB/exec?action=getLop4')
+      .then(res => res.json())
+      .then(response => {
+        const rawData = response?.data ?? [];
+
+        if (rawData.length === 0) {
+          console.warn("Không có dữ liệu hoặc định dạng sai.");
+          setIsLoading(false);
+          return;
+        }
+
+        const data = rawData.map(row => ({
+          stt: row[0],
+          id: row[1],
+          name: row[2],
+          className: row[3],
+          cancelled: row[4],
+          isCancelled: (row[4] || '').toString().trim().toLowerCase() === 'x',
+          registered: (row[5] || '').toString().trim().toUpperCase() === 'T'
+        }));
+
+        setAllStudents(data);
+
+        const classes = [...new Set(data.map(s => s.className))];
+        setClassList(classes);
+
+        if (classes.length > 0) {
+          const firstClass = classes[0];
+          setSelectedClass(firstClass);
+          setFilteredStudents(data.filter(s => s.className === firstClass));
+        }
+
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Lỗi khi tải dữ liệu:', err);
+        setIsLoading(false);
+      });
+  }, []);
 
   const handleClassChange = (event) => {
-    setSelectedClass(event.target.value);
+    const selected = event.target.value;
+    setSelectedClass(selected);
+
+    const filtered = allStudents
+      .filter(s => s.className === selected)
+      .map((s, idx) => ({
+        ...s,
+        stt: idx + 1  // Đánh lại STT từ 1
+      }));
+
+    setFilteredStudents(filtered);
   };
 
   const toggleRegister = (index) => {
     const updated = [...filteredStudents];
     updated[index].registered = !updated[index].registered;
     setFilteredStudents(updated);
+
+    // Đồng bộ lại allStudents để giữ trạng thái khi đổi lớp
+    setAllStudents(prev => prev.map(student => 
+      student.id === updated[index].id ? { ...student, registered: updated[index].registered } : student
+    ));
   };
 
   const handleSave = () => {
-    console.log('Dữ liệu lưu:', filteredStudents);
-    alert('Đã lưu dữ liệu đăng ký!');
+    setIsSaving(true);
+
+    const dataToSave = filteredStudents.map(s => ({
+      id: s.id,
+      className: s.className,
+      registered: s.registered
+    }));
+
+    console.log("📤 Gửi lên dữ liệu:", JSON.stringify(dataToSave, null, 2));
+
+    fetch('https://script.google.com/macros/s/AKfycbz0pjR3DbPJ5S0MYkvT-7wMpTaj1Qg3Zmd8kiO8IRw7opejZHV3iLSCOJO2KXZ_heYB/exec', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'saveLop4', data: dataToSave })
+    })
+      .then(res => res.json())
+      .then(result => {
+        setIsSaving(false);
+        console.log("✅ Phản hồi từ server:", result);
+        if (result.success) {
+          alert("Lưu thành công!");
+        } else {
+          alert("Lỗi lưu dữ liệu: " + result.message);
+        }
+      })
+      .catch(err => {
+        setIsSaving(false);
+        console.error("❌ Lỗi kết nối:", err);
+        alert("Không thể kết nối đến server.");
+      });
   };
 
+
+
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        //bgcolor: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)',
-        background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)', // đúng cú pháp
-        py: 6,
-        px: 2,
-        display: 'flex',
-        justifyContent: 'center',
-      }}
-    >
-      <Card
-        sx={{
-          p: 4,
-          maxWidth: 450,
-          width: '100%',
-          borderRadius: 4,
-          boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
-          backgroundColor: 'white',
-        }}
-        elevation={10}
-      >
-        <Typography
-          variant="h5"
-          align="center"
-          gutterBottom
-          fontWeight="bold"
-          color="primary"
-          sx={{
-            mb: 4,
-            textShadow: '2px 2px 5px rgba(0,0,0,0.1)',
-            borderBottom: '3px solid #1976d2',
-            pb: 1,
-          }}
-        >
+    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)', py: 6, px: 2, display: 'flex', justifyContent: 'center' }}>
+      <Card sx={{ p: 4, maxWidth: 450, width: '100%', borderRadius: 4, boxShadow: '0 8px 30px rgba(0,0,0,0.15)', backgroundColor: 'white' }} elevation={10}>
+        <Typography variant="h5" align="center" gutterBottom fontWeight="bold" color="primary" sx={{ mb: 4, textShadow: '2px 2px 5px rgba(0,0,0,0.1)', borderBottom: '3px solid #1976d2', pb: 1 }}>
           DANH SÁCH HỌC SINH
         </Typography>
 
         <Stack direction="row" justifyContent="center" sx={{ mb: 4 }}>
           <FormControl size="small" sx={{ minWidth: 120 }}>
             <InputLabel>Lớp</InputLabel>
-            <Select value={selectedClass} label="Lớp" onChange={handleClassChange}>
+            <Select value={selectedClass || ""} label="Lớp" onChange={handleClassChange}>
               {classList.map((cls, idx) => (
                 <MenuItem key={idx} value={cls}>{cls}</MenuItem>
               ))}
@@ -153,46 +133,79 @@ export default function Lop4() {
           </FormControl>
         </Stack>
 
-        {selectedClass && (
-          <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>STT</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>HỌ VÀ TÊN</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>ĐĂNG KÝ</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredStudents.map((student, index) => (
-                  <TableRow key={index} hover>
-                    <TableCell align="center">{index + 1}</TableCell>
-                    <TableCell>{student.name}</TableCell>
-                    <TableCell align="center">
-                      <Checkbox
-                        checked={student.registered}
-                        onChange={() => toggleRegister(index)}
-                        size="small"
-                        color="primary"
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+        {isLoading && (
+          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', my: 2 }}>
+            <Box sx={{ width: '50%' }}>
+              <LinearProgress />
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Đang tải dữ liệu học sinh...
+            </Typography>
+          </Box>
         )}
 
-        {selectedClass && (
-          <Stack direction="row" justifyContent="center" sx={{ mt: 4 }}>
-            <Button
-              variant="contained"
-              onClick={handleSave}
-              sx={{ minWidth: 160, fontWeight: 600, py: 1 }}
-            >
-              Lưu đăng ký
-            </Button>
-          </Stack>
+        {!isLoading && selectedClass && (
+          <>
+            <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>STT</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>HỌ VÀ TÊN</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>ĐĂNG KÝ</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredStudents.map((student, index) => {
+                    const isCancelled = student.cancelled?.toLowerCase() === 'x';
+                    return (
+                      <TableRow
+                        key={index}
+                        hover
+                        sx={{
+                          backgroundColor: isCancelled ? '#f0f0f0' : 'inherit',
+                        }}
+                      >
+                        <TableCell align="center">{index + 1}</TableCell>
+                        <TableCell sx={{ color: isCancelled ? 'red' : 'inherit' }}>
+                          {student.name}
+                        </TableCell>
+                        <TableCell align="center">
+                          {!isCancelled ? (
+                            <Checkbox
+                              checked={student.registered ?? false}
+                              onChange={() => toggleRegister(index)}
+                              size="small"
+                              color="primary"
+                            />
+                          ) : (
+                            <Typography variant="body2" color="text.secondary"></Typography>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {isSaving && (
+              <Box sx={{ width: '100%', mt: 2 }}>
+                <LinearProgress />
+              </Box>
+            )}
+
+            <Stack direction="row" justifyContent="center" sx={{ mt: 4 }}>
+              <Button
+                variant="contained"
+                onClick={handleSave}
+                sx={{ minWidth: 160, fontWeight: 600, py: 1 }}
+                disabled={isSaving}
+              >
+                Lưu
+              </Button>
+            </Stack>
+          </>
         )}
       </Card>
     </Box>

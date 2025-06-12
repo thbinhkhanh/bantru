@@ -58,7 +58,15 @@ export default function Lop1() {
   const handleClassChange = (event) => {
     const selected = event.target.value;
     setSelectedClass(selected);
-    setFilteredStudents(allStudents.filter(s => s.className === selected));
+
+    const filtered = allStudents
+      .filter(s => s.className === selected)
+      .map((s, idx) => ({
+        ...s,
+        stt: idx + 1  // Đánh lại STT từ 1
+      }));
+
+    setFilteredStudents(filtered);
   };
 
   const toggleRegister = (index) => {
@@ -158,7 +166,7 @@ export default function Lop1() {
                           backgroundColor: isCancelled ? '#f0f0f0' : 'inherit',
                         }}
                       >
-                        <TableCell align="center">{student.stt}</TableCell>
+                        <TableCell align="center">{index + 1}</TableCell>
                         <TableCell sx={{ color: isCancelled ? 'red' : 'inherit' }}>
                           {student.name}
                         </TableCell>
