@@ -159,74 +159,79 @@ export default function QuanLy() {
             justifyContent="center"
           >
             <Stack spacing={4} alignItems="center">
-              {chucNangNhom.map((nhom, index) => {
-                const widthGroup = 1055; // Áp dụng đồng đều cho 3 khung
+              {chucNangNhom.map((nhom, index) => (
+                <Card
+                  key={index}
+                  elevation={6}
+                  sx={{
+                    p: 3,
+                    borderRadius: 4,
+                    width: '100%',
+                    maxWidth: 1055,
+                    mx: 'auto', // căn giữa khối card
+                  }}
+                >
+                  <Grid container spacing={3} alignItems="center">
+                    <Grid
+                      item
+                      xs={12}
+                      sm={2}
+                      md={1}
+                      display="flex"
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      <Box
+                        component="img"
+                        src={nhom.icon.props.src}
+                        alt={nhom.icon.props.alt}
+                        sx={{
+                          width: 95,
+                          height: 95,
+                          objectFit: 'contain',
+                        }}
+                      />
+                    </Grid>
 
-                return (
-                  <Card
-                    key={index}
-                    elevation={6}
-                    sx={{
-                      p: 3,
-                      borderRadius: 4,
-                      width: widthGroup,
-                    }}
-                  >
-                    <Grid container spacing={3} alignItems="center">
-                      <Grid item xs={12} sm={2} md={1} display="flex" justifyContent="center" alignItems="center">
-                        <Box
-                          component="img"
-                          src={nhom.icon.props.src}
-                          alt={nhom.icon.props.alt}
-                          sx={{
-                            width: 95,   // bạn có thể tăng lên ví dụ 72 hoặc 80 nếu muốn lớn hơn
-                            height: 95,
-                            objectFit: 'contain',
-                          }}
-                        />
-                      </Grid>
-
-                      <Grid item xs={12} sm={10} md={11}>
-                        <Typography variant="h6" fontWeight="bold" mb={2}>
-                          {nhom.title}
-                        </Typography>
-                        <Grid container spacing={2}>
-                          {nhom.items.map((item) => (
-                            //<Grid item xs={12} sm={6} md={4} key={item.code}>
-                            <Grid item xs={12} sm={12} md={4} key={item.code}>
-
-                              <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.97 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                <Button
-                                  variant="contained"
-                                  fullWidth
-                                  sx={{
-                                    minWidth: 220,
+                    <Grid item xs={12} sm={10} md={11}>
+                      <Typography variant="h6" fontWeight="bold" mb={2}>
+                        {nhom.title}
+                      </Typography>
+                      <Grid container spacing={2} justifyContent="center">
+                        {nhom.items.map((item) => (
+                          <Grid item xs={12} sm={6} md={4} key={item.code}>
+                            <motion.div
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.97 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              <Button
+                                variant="contained"
+                                fullWidth
+                                sx={{
+                                  minWidth: 220,
+                                  backgroundColor: item.color,
+                                  fontWeight: 600,
+                                  height: 48,
+                                  '&:hover': {
                                     backgroundColor: item.color,
-                                    fontWeight: 600,
-                                    height: 48,
-                                    '&:hover': {
-                                      backgroundColor: item.color,
-                                      filter: 'brightness(0.9)',
-                                    },
-                                  }}
-                                  onClick={() => setSelectedFunction(item.code)}
-                                >
-                                  {item.label}
-                                </Button>
-                              </motion.div>
-                            </Grid>
-                          ))}
-                        </Grid>
+                                    filter: 'brightness(0.9)',
+                                  },
+                                }}
+                                onClick={() => setSelectedFunction(item.code)}
+                              >
+                                {item.label}
+                              </Button>
+                            </motion.div>
+                          </Grid>
+                        ))}
                       </Grid>
                     </Grid>
-                  </Card>
-                );
-              })}
+                  </Grid>
+                </Card>
+              ))}
             </Stack>
+
           </Box>
         </>
       )}
