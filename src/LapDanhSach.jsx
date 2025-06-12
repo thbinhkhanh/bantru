@@ -118,7 +118,7 @@ export default function DangKyLaiBanTru() {
           color="primary"
           sx={{ mt: 2 }}
         >
-          LẬP DANH SÁCH BÁN TRÚ
+          LẬP DANH SÁCH
           <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 1, mb: 4 }} />
         </Typography>
 

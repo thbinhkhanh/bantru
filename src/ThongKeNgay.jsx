@@ -145,7 +145,7 @@ export default function ChotSoLieu() {
           color="primary"
           sx={{ mb: 5 }}
         >
-          THỐNG KÊ THEO NGÀY
+          TỔNG HỢP NGÀY
           <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 1, mb: 4 }} />
         </Typography>
 

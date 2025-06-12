@@ -88,7 +88,7 @@ export default function ChotSoLieu() {
         color="primary"
         sx={{ mb: 4 }}
       >
-        XÓA DỮ LIỆU THEO NGÀY
+        XÓA DỮ LIỆU
         <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 1, mb: 4 }} />
       </Typography>
 
