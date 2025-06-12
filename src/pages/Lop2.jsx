@@ -90,7 +90,7 @@ export default function Lop2() {
 
   const handleSave = () => {
     console.log('Dữ liệu lưu:', filteredStudents);
-    alert('Đã lưu dữ liệu đăng ký thành công!');
+    alert('Đã lưu dữ liệu đăng ký!');
   };
 
   return (

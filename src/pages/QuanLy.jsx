@@ -192,7 +192,9 @@ export default function QuanLy() {
                         </Typography>
                         <Grid container spacing={2}>
                           {nhom.items.map((item) => (
-                            <Grid item xs={12} sm={6} md={4} key={item.code}>
+                            //<Grid item xs={12} sm={6} md={4} key={item.code}>
+                            <Grid item xs={12} sm={12} md={4} key={item.code}>
+
                               <motion.div
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.97 }}
