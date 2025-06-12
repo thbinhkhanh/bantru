@@ -130,9 +130,9 @@ export default function QuanLy() {
         </Box>
       ) : selectedFunction ? (
         <Box maxWidth={selectedFunction === 'CAPNHAT' ? 1000 : 700} mx="auto">
-          <Card sx={{ p: 4, borderRadius: 4 }} elevation={10}>
+          
             {renderSelectedFunction()}
-          </Card>
+          
         </Box>
       ) : (
         <>
