@@ -1,23 +1,21 @@
 import React, { useState, useEffect } from "react";
-import {
+import { 
   Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Button, Stack, MenuItem,
-  Select, FormControl, InputLabel, Checkbox, Card, LinearProgress,
-  TextField
+  TableHead, TableRow, Paper, Stack, TextField, MenuItem, 
+  Select, FormControl, InputLabel, LinearProgress, Button, Checkbox 
 } from "@mui/material";
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import vi from 'date-fns/locale/vi';
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import vi from "date-fns/locale/vi";
 import { getDocs, collection } from "firebase/firestore";
 import { db } from "./firebase"; 
 
-export default function DieuChinhSuatAn({ onBack }) { 
-  const [allStudents, setAllStudents] = useState([]);
-  const [selectedClass, setSelectedClass] = useState("");
+export default function ChotSoLieu({ onBack }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [selectedClass, setSelectedClass] = useState("");
   const [classList, setClassList] = useState([]);
+  const [dataList, setDataList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -28,23 +26,21 @@ export default function DieuChinhSuatAn({ onBack }) {
         const snapshot = await getDocs(collection(db, "BANTRU"));
         const studentData = snapshot.docs
           .map(doc => doc.data())
-          .filter(data => data["HỦY ĐK"] === "") 
+          .filter(data => data["HỦY ĐK"] === "")
           .map(data => ({
             id: data.id,
             ...data,
-            registered: true 
+            registered: true // 🔹 Đặt trạng thái mặc định là "Đã đăng ký"
           }));
 
-        setAllStudents(studentData);
+        setDataList(studentData);
 
         const classes = [...new Set(studentData.map(s => s.LỚP))];
         classes.sort();
         setClassList(classes);
 
         if (classes.length > 0) {
-          const firstClass = classes[0];
-          setSelectedClass(firstClass);
-          setFilteredStudents(studentData.filter(s => s.LỚP === firstClass));
+          setSelectedClass(classes[0]); // 🔹 Đặt giá trị mặc định là lớp đầu tiên
         }
       } catch (err) {
         console.error("❌ Lỗi khi tải dữ liệu từ Firebase:", err);
@@ -58,21 +54,19 @@ export default function DieuChinhSuatAn({ onBack }) {
 
   const handleClassChange = (event) => {
     setSelectedClass(event.target.value);
-    setFilteredStudents(allStudents.filter(s => s.LỚP === event.target.value));
   };
 
   const toggleRegister = (index) => { 
-    const updated = [...filteredStudents];
+    const updated = [...dataList];
     updated[index].registered = !updated[index].registered;
-    setFilteredStudents(updated);
+    setDataList(updated);
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const dataToSave = filteredStudents.map(s => ({
+      const dataToSave = dataList.map(s => ({
         id: s.id,
-        className: s.LỚP,
         registered: s.registered
       }));
 
@@ -87,13 +81,23 @@ export default function DieuChinhSuatAn({ onBack }) {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", background: "linear-gradient(to bottom, #e3f2fd, #bbdefb)", py: 6, px: 2, display: "flex", justifyContent: "center" }}>
-      <Card sx={{ p: 4, maxWidth: 450, width: "100%", borderRadius: 4, boxShadow: "0 8px 30px rgba(0,0,0,0.15)", backgroundColor: "white" }} elevation={10}>
-        <Typography variant="h5" align="center" gutterBottom fontWeight="bold" color="primary" sx={{ mb: 4, textShadow: "2px 2px 5px rgba(0,0,0,0.1)", borderBottom: "3px solid #1976d2", pb: 1 }}>
-          ĐIỀU CHỈNH SUẤT ĂN
-        </Typography>
+    <Box sx={{ maxWidth: 500, mx: "auto", mt: 8 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
+        <Box sx={{ mb: 5 }}>
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            color="primary"
+            align="center"
+            sx={{ mb: 1 }}
+          >
+            ĐIỀU CHỈNH SUẤT ĂN
+          </Typography>
+          <Box sx={{ height: "1.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1 }} />
+        </Box>
 
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center" sx={{ mb: 4 }}>
+        {/* 🔹 Chọn ngày và lớp */}
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center" justifyContent="center" sx={{ mb: 4 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
               label="Chọn ngày"
@@ -103,9 +107,9 @@ export default function DieuChinhSuatAn({ onBack }) {
             />
           </LocalizationProvider>
 
-          <FormControl size="small" sx={{ minWidth: 120 }} >
+          <FormControl size="small" sx={{ minWidth: 140 }}>
             <InputLabel>Lớp</InputLabel>
-            <Select value={selectedClass || ""} label="Lớp" onChange={handleClassChange}>
+            <Select value={selectedClass} label="Lớp" onChange={handleClassChange}>
               {classList.map((cls, idx) => (
                 <MenuItem key={idx} value={cls}>{cls}</MenuItem>
               ))}
@@ -115,9 +119,9 @@ export default function DieuChinhSuatAn({ onBack }) {
 
         {isLoading ? <LinearProgress /> : null}
 
-        <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+        {/* 🔹 Hiển thị bảng thống kê */}
+        <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
           <Table size="small">
-            {/* 🔹 Thêm dòng tiêu đề */}
             <TableHead>
               <TableRow>
                 <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>STT</TableCell>
@@ -127,7 +131,7 @@ export default function DieuChinhSuatAn({ onBack }) {
             </TableHead>
             
             <TableBody>
-              {filteredStudents.map((student, index) => (
+              {dataList.filter(s => s.LỚP === selectedClass).map((student, index) => (
                 <TableRow key={index} hover>
                   <TableCell align="center">{index + 1}</TableCell>
                   <TableCell>{student["HỌ VÀ TÊN"]}</TableCell>
@@ -140,6 +144,7 @@ export default function DieuChinhSuatAn({ onBack }) {
           </Table>
         </TableContainer>
 
+        {/* 🔹 Nút lưu và nút quay lại */}
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
           <Button variant="contained" color="primary" onClick={handleSave} sx={{ width: 160, fontWeight: 600, py: 1 }} disabled={isSaving}>
             {isSaving ? "🔄 Đang lưu..." : "Lưu"}
@@ -149,7 +154,7 @@ export default function DieuChinhSuatAn({ onBack }) {
             ⬅️ Quay lại
           </Button>
         </Stack>
-      </Card>
+      </Paper>
     </Box>
   );
 }
