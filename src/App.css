@@ -1,38 +1,38 @@
-.App {
-  text-align: center;
+import React, { useState, useEffect } from 'react';
+import { getDocs, collection } from 'firebase/firestore';
+import { db } from './firebase';
+
+function App() {
+  const [students, setStudents] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'BANTRU'));
+        const studentData = snapshot.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .filter(student => student['HỦY ĐK'] === ''); // Chỉ lấy học sinh chưa hủy đăng ký
+
+        setStudents(studentData);
+        console.log('✅ Dữ liệu đã tải:', studentData);
+      } catch (err) {
+        console.error('❌ Lỗi khi tải dữ liệu từ Firebase:', err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <div className="App">
+      <h1>Danh sách học sinh (Chưa hủy đăng ký)</h1>
+      <ul>
+        {students.map(student => (
+          <li key={student.id}>{student['HỌ VÀ TÊN']} - {student.LỚP}</li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+export default App;
