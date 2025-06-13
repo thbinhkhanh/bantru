@@ -177,7 +177,7 @@ export default function TaiDanhSach({ onBack }) {
                 sx={{ fontWeight: 'bold', height: 40 }}
                 disabled={loading}
               >
-                {loading ? '🔄 Đang tải lên...' : '📤 Tải lên'}
+                {loading ? '🔄 Đang tải lên...' : 'Tải lên'}
               </Button>
             </motion.div>
 

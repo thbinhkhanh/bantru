@@ -1,207 +1,155 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-  Box, Typography, Card, Button, Alert, Stack, LinearProgress
-} from '@mui/material';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { motion } from 'framer-motion';
-import * as XLSX from 'xlsx';
-import { setDoc, doc, getDocs, collection } from 'firebase/firestore';
-import { db } from './firebase';
+  Box, Typography, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper, Button, Stack, MenuItem,
+  Select, FormControl, InputLabel, Checkbox, Card, LinearProgress,
+  TextField
+} from "@mui/material";
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import vi from 'date-fns/locale/vi';
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "./firebase"; 
 
-export default function TaiDanhSach({ onBack }) {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [message, setMessage] = useState('');
-  const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [totalCount, setTotalCount] = useState(0);
+export default function DieuChinhSuatAn({ onBack }) { 
+  const [allStudents, setAllStudents] = useState([]);
+  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [classList, setClassList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && file.name.endsWith('.xlsx')) {
-      setSelectedFile(file);
-      setMessage('');
-      setSuccess(false);
-    } else {
-      setSelectedFile(null);
-      setMessage('❌ Vui lòng chọn đúng định dạng file Excel (.xlsx)');
-      setSuccess(false);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!selectedFile) {
-      setMessage('❗ Chưa chọn file!');
-      setSuccess(false);
-      return;
-    }
-
-    setLoading(true);
-    setMessage('🔄 Đang xử lý file...');
-    setProgress(0);
-    setCurrentIndex(0);
-    setTotalCount(0);
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+        const snapshot = await getDocs(collection(db, "BANTRU"));
+        const studentData = snapshot.docs
+          .map(doc => doc.data())
+          .filter(data => data["HỦY ĐK"] === "") 
+          .map(data => ({
+            id: data.id,
+            ...data,
+            registered: true 
+          }));
 
-        setTotalCount(jsonData.length);
+        setAllStudents(studentData);
 
-        await processStudentData(jsonData);
+        const classes = [...new Set(studentData.map(s => s.LỚP))];
+        classes.sort();
+        setClassList(classes);
+
+        if (classes.length > 0) {
+          const firstClass = classes[0];
+          setSelectedClass(firstClass);
+          setFilteredStudents(studentData.filter(s => s.LỚP === firstClass));
+        }
       } catch (err) {
-        console.error('❌ Lỗi khi xử lý file:', err);
-        setSuccess(false);
-        setMessage('❌ Đã xảy ra lỗi khi xử lý file Excel.');
+        console.error("❌ Lỗi khi tải dữ liệu từ Firebase:", err);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    reader.readAsArrayBuffer(selectedFile);
+    fetchData();
+  }, []);
+
+  const handleClassChange = (event) => {
+    setSelectedClass(event.target.value);
+    setFilteredStudents(allStudents.filter(s => s.LỚP === event.target.value));
   };
 
-  const processStudentData = async (jsonData) => {
-    // Lấy danh sách mã định danh đã tồn tại trên Firebase
-    const snapshot = await getDocs(collection(db, 'BANTRU'));
-    const existingIds = new Set(snapshot.docs.map(doc => doc.id));
+  const toggleRegister = (index) => { 
+    const updated = [...filteredStudents];
+    updated[index].registered = !updated[index].registered;
+    setFilteredStudents(updated);
+  };
 
-    // Danh sách học sinh mới cần thêm
-    const studentsNew = jsonData.filter(row => {
-      const ma = row['MÃ ĐỊNH DANH']?.toString().trim();
-      return ma && !existingIds.has(ma);
-    }).map(row => ({
-      STT: row['STT'] || '',
-      'MÃ ĐỊNH DANH': row['MÃ ĐỊNH DANH']?.toString().trim(),
-      'HỌ VÀ TÊN': row['HỌ VÀ TÊN'] || '',
-      LỚP: row['LỚP'] || '',
-      'HỦY ĐK': (row['ĐĂNG KÝ']?.toString().trim().toLowerCase() === 'x') ? '' : 'x',
-    }));
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const dataToSave = filteredStudents.map(s => ({
+        id: s.id,
+        className: s.LỚP,
+        registered: s.registered
+      }));
 
-    // Nếu không có học sinh mới
-    if (studentsNew.length === 0) {
-      setSuccess(true);
-      setMessage('📌 Toàn bộ dữ liệu đã tồn tại trên hệ thống.');
-      return;
+      console.log("📤 Gửi lên dữ liệu:", JSON.stringify(dataToSave, null, 2));
+      alert("Lưu thành công!");
+    } catch (err) {
+      console.error("❌ Lỗi khi lưu dữ liệu:", err);
+      alert("Không thể lưu dữ liệu.");
+    } finally {
+      setIsSaving(false);
     }
-
-    // Tiến hành thêm dữ liệu mới vào Firebase
-    let successCount = 0;
-    let errorCount = 0;
-    setTotalCount(studentsNew.length);
-
-    for (let i = 0; i < studentsNew.length; i++) {
-      const student = studentsNew[i];
-      try {
-        await setDoc(doc(db, 'BANTRU', student['MÃ ĐỊNH DANH']), student);
-        successCount++;
-      } catch (err) {
-        console.error(`❌ Lỗi khi ghi mã ${student['MÃ ĐỊNH DANH']}:`, err.message);
-        errorCount++;
-      }
-
-      setCurrentIndex(i + 1);
-      setProgress(Math.round(((i + 1) / studentsNew.length) * 100));
-    }
-
-    // Cập nhật trạng thái sau khi tải xong
-    if (successCount > 0) {
-      setSelectedFile(null); // Xóa file đã chọn để tránh lỗi giao diện
-    }
-
-    // Hiển thị kết quả chính xác
-    setSuccess(errorCount === 0);
-    setMessage(errorCount === 0
-      ? `✅ Đã thêm thành công ${successCount} học sinh mới.`
-      : `⚠️ Có ${errorCount} lỗi khi thêm ${studentsNew.length} học sinh mới.`);
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)',
-        py: 6,
-        px: 2,
-      }}
-    >
-      <Box maxWidth={420} mx="auto">
-        <Card elevation={8} sx={{ p: 4, borderRadius: 4 }}>
-          <Typography
-            variant="h5"
-            color="primary"
-            fontWeight="bold"
-            align="center"
-            gutterBottom
-            sx={{ borderBottom: '2px solid #1976d2', pb: 1, mb: 3 }}
-          >
-            TẢI DANH SÁCH HỌC SINH
-          </Typography>
+    <Box sx={{ minHeight: "100vh", background: "linear-gradient(to bottom, #e3f2fd, #bbdefb)", py: 6, px: 2, display: "flex", justifyContent: "center" }}>
+      <Card sx={{ p: 4, maxWidth: 450, width: "100%", borderRadius: 4, boxShadow: "0 8px 30px rgba(0,0,0,0.15)", backgroundColor: "white" }} elevation={10}>
+        <Typography variant="h5" align="center" gutterBottom fontWeight="bold" color="primary" sx={{ mb: 4, textShadow: "2px 2px 5px rgba(0,0,0,0.1)", borderBottom: "3px solid #1976d2", pb: 1 }}>
+          ĐIỀU CHỈNH SUẤT ĂN
+        </Typography>
 
-          <Stack spacing={2}>
-            <Button
-              variant="outlined"
-              component="label"
-              startIcon={<UploadFileIcon />}
-              sx={{ height: 40 }}
-            >
-              Chọn file Excel (.xlsx)
-              <input
-                type="file"
-                hidden
-                accept=".xlsx"
-                onChange={handleFileChange}
-              />
-            </Button>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center" sx={{ mb: 4 }}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
+            <DatePicker
+              label="Chọn ngày"
+              value={selectedDate}
+              onChange={(newValue) => setSelectedDate(newValue)}
+              renderInput={(params) => <TextField {...params} size="small" />}
+            />
+          </LocalizationProvider>
 
-            {selectedFile && (
-              <Typography variant="body2" color="text.secondary">
-                📄 File đã chọn: {selectedFile.name}
-              </Typography>
-            )}
+          <FormControl size="small" sx={{ minWidth: 120 }} >
+            <InputLabel>Lớp</InputLabel>
+            <Select value={selectedClass || ""} label="Lớp" onChange={handleClassChange}>
+              {classList.map((cls, idx) => (
+                <MenuItem key={idx} value={cls}>{cls}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Stack>
 
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                fullWidth
-                variant="contained"
-                color="success"
-                startIcon={<CloudUploadIcon />}
-                onClick={handleUpload}
-                sx={{ fontWeight: 'bold', height: 40 }}
-                disabled={loading}
-              >
-                {loading ? '🔄 Đang tải lên...' : '📤 Tải lên'}
-              </Button>
-            </motion.div>
+        {isLoading ? <LinearProgress /> : null}
 
-            {loading && (
-              <>
-                <LinearProgress variant="determinate" value={progress} />
-                <Typography variant="caption" color="text.secondary" align="center">
-                  Đang tải dữ liệu học sinh... ({currentIndex}/{totalCount} HS - {progress}%)
-                </Typography>
-              </>
-            )}
+        <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+          <Table size="small">
+            {/* 🔹 Thêm dòng tiêu đề */}
+            <TableHead>
+              <TableRow>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>STT</TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>HỌ VÀ TÊN</TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>ĐĂNG KÝ</TableCell>
+              </TableRow>
+            </TableHead>
+            
+            <TableBody>
+              {filteredStudents.map((student, index) => (
+                <TableRow key={index} hover>
+                  <TableCell align="center">{index + 1}</TableCell>
+                  <TableCell>{student["HỌ VÀ TÊN"]}</TableCell>
+                  <TableCell align="center">
+                    <Checkbox checked={student.registered} onChange={() => toggleRegister(index)} size="small" color="primary" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-            {message && (
-              <Alert severity={success ? 'success' : loading ? 'info' : 'error'}>
-                {message}
-              </Alert>
-            )}
+        <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
+          <Button variant="contained" color="primary" onClick={handleSave} sx={{ width: 160, fontWeight: 600, py: 1 }} disabled={isSaving}>
+            {isSaving ? "🔄 Đang lưu..." : "Lưu"}
+          </Button>
 
-            <Button onClick={onBack} color="secondary">
-              ⬅️ Quay lại
-            </Button>
-          </Stack>
-        </Card>
-      </Box>
+          <Button onClick={onBack} color="secondary">
+            ⬅️ Quay lại
+          </Button>
+        </Stack>
+      </Card>
     </Box>
   );
 }

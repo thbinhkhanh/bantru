@@ -10,7 +10,7 @@ const firebaseConfig = {
   appId: "1:213526359119:web:d2001afd9b7051dcd40e3a"
 };
 
-// Đảm bảo chỉ khởi tạo app một lần
+// Chỉ khởi tạo Firebase 1 lần
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Lấy Firestore instance
