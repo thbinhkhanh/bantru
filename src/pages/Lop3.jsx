@@ -16,47 +16,48 @@ export default function Lop3() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-      const fetchData = async () => {
-        setIsLoading(true);
-        try {
-          const snapshot = await getDocs(collection(db, 'BANTRU'));
-          const studentData = snapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              ...data,
-              registered: data['HỦY ĐK'] === 'T' // ← Gán giá trị cho checkbox tại đây
-            };
-          }).filter(student => student.LỚP.toString().startsWith('1'));
-  
-          setAllStudents(studentData);
-  
-          const classes = [...new Set(studentData.map(s => s.LỚP))];
-          classes.sort();
-          setClassList(classes);
-  
-          if (classes.length > 0) {
-            const firstClass = classes[0];
-            setSelectedClass(firstClass);
-  
-            const filtered = studentData
-              .filter(s => s.LỚP === firstClass)
-              .map((s, idx) => ({
-                ...s,
-                stt: idx + 1
-              }));
-  
-            setFilteredStudents(filtered);
-          }
-        } catch (err) {
-          console.error('❌ Lỗi khi tải dữ liệu từ Firebase:', err);
-        } finally {
-          setIsLoading(false);
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const snapshot = await getDocs(collection(db, 'BANTRU'));
+        const studentData = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            registered: data['HỦY ĐK'] === 'T' // ← Gán giá trị cho checkbox tại đây
+          };
+        }).filter(student => student.LỚP.toString().startsWith('3'));
+
+        setAllStudents(studentData);
+
+        const classes = [...new Set(studentData.map(s => s.LỚP))];
+        classes.sort();
+        setClassList(classes);
+
+        if (classes.length > 0) {
+          const firstClass = classes[0];
+          setSelectedClass(firstClass);
+
+          const filtered = studentData
+            .filter(s => s.LỚP === firstClass)
+            .map((s, idx) => ({
+              ...s,
+              stt: idx + 1
+            }));
+
+          setFilteredStudents(filtered);
         }
-      };
-  
-      fetchData();
-    }, []);
+      } catch (err) {
+        console.error('❌ Lỗi khi tải dữ liệu từ Firebase:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
 
   const handleClassChange = (event) => {
     const selected = event.target.value;
@@ -130,21 +131,64 @@ export default function Lop3() {
             </Typography>
           </Box>
         ) : (
-          <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+          <TableContainer
+            component={Paper}
+            sx={{
+              borderRadius: 2,
+              mt: 2,
+              ml: { xs: -1, sm: 0 },
+              mr: { xs: -1, sm: 0 },
+              width: { xs: 'calc(100% + 16px)', sm: '100%' },
+            }}
+          >
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>STT</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>HỌ VÀ TÊN</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>ĐĂNG KÝ</TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: 'bold',
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                      width: 40,
+                      py: 0.5,
+                      px: 1
+                    }}
+                  >
+                    STT
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: 'bold',
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                      py: 0.5,
+                      px: 1
+                    }}
+                  >
+                    HỌ VÀ TÊN
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: 'bold',
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                      py: 0.5,
+                      px: 1
+                    }}
+                  >
+                    ĐĂNG KÝ
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredStudents.map((student, index) => (
                   <TableRow key={index} hover>
-                    <TableCell align="center">{index + 1}</TableCell>
-                    <TableCell>{student['HỌ VÀ TÊN']}</TableCell>
-                    <TableCell align="center">
+                    <TableCell align="center" sx={{ py: 0.5, px: 1 }}>{index + 1}</TableCell>
+                    <TableCell sx={{ py: 0.5, px: 1 }}>{student['HỌ VÀ TÊN']}</TableCell>
+                    <TableCell align="center" sx={{ py: 0.5, px: 1 }}>
                       <Checkbox
                         checked={student.registered ?? false}
                         onChange={() => toggleRegister(index)}
@@ -157,6 +201,7 @@ export default function Lop3() {
               </TableBody>
             </Table>
           </TableContainer>
+
         )}
 
         {isSaving && (

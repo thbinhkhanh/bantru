@@ -124,28 +124,82 @@ export default function LapDanhSach({ onBack }) { // ✅ Nhận `onBack` từ pr
             </Typography>
           </Box>
         ) : (
-          <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+          <TableContainer
+            component={Paper}
+            sx={{
+              borderRadius: 2,
+              mt: 2,
+              ml: { xs: -1, sm: 0 },
+              mr: { xs: -1, sm: 0 },
+              width: { xs: 'calc(100% + 16px)', sm: '100%' },
+            }}
+          >
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>STT</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>HỌ VÀ TÊN</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>ĐĂNG KÝ</TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: 'bold',
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                      width: 40,
+                      py: 0.5,
+                      px: 1,
+                    }}
+                  >
+                    STT
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: 'bold',
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                      py: 0.5,
+                      px: 1,
+                    }}
+                  >
+                    HỌ VÀ TÊN
+                  </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: 'bold',
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                      py: 0.5,
+                      px: 1,
+                    }}
+                  >
+                    ĐĂNG KÝ
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredStudents.map((student, index) => (
                   <TableRow key={index} hover>
-                    <TableCell align="center">{index + 1}</TableCell>
-                    <TableCell>{student['HỌ VÀ TÊN']}</TableCell>
-                    <TableCell align="center">
-                      <Checkbox checked={student.registered} onChange={() => toggleRegister(index)} size="small" color="primary" disabled={student.isLocked} />
+                    <TableCell align="center" sx={{ py: 0.5, px: 1 }}>
+                      {index + 1}
+                    </TableCell>
+                    <TableCell sx={{ py: 0.5, px: 1 }}>
+                      {student['HỌ VÀ TÊN']}
+                    </TableCell>
+                    <TableCell align="center" sx={{ py: 0.5, px: 1 }}>
+                      <Checkbox
+                        checked={student.registered}
+                        onChange={() => toggleRegister(index)}
+                        size="small"
+                        color="primary"
+                        disabled={student.isLocked}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
+
         )}
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>

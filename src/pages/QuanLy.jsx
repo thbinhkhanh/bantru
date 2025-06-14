@@ -207,9 +207,15 @@ export default function QuanLy() {
                     </Grid>
 
                     <Grid item xs={12} sm={10} md={11}>
-                      <Typography variant="h6" fontWeight="bold" mb={2}>
+                      <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                        mb={2}
+                        sx={{ textAlign: { xs: 'center', sm: 'left' } }}
+                      >
                         {nhom.title}
                       </Typography>
+
                       <Grid container spacing={2} justifyContent="center">
                         {nhom.items.map((item) => (
                           <Grid item xs={12} sm={6} md={4} key={item.code}>
