@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { 
+import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Stack, TextField, MenuItem, 
-  Select, FormControl, InputLabel, LinearProgress, Button, Checkbox 
+  TableHead, TableRow, Paper, Stack, TextField, MenuItem,
+  Select, FormControl, InputLabel, LinearProgress, Button, Checkbox
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import vi from "date-fns/locale/vi";
 import { getDocs, collection } from "firebase/firestore";
-import { db } from "./firebase"; 
+import { db } from "./firebase";
 
-export default function ChotSoLieu({ onBack }) {
+export default function DieuChinhSuatAn({ onBack }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedClass, setSelectedClass] = useState("");
   const [classList, setClassList] = useState([]);
@@ -19,28 +19,28 @@ export default function ChotSoLieu({ onBack }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
+  // 🔁 Tải dữ liệu từ Firestore
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
         const snapshot = await getDocs(collection(db, "BANTRU"));
-        const studentData = snapshot.docs
-          .map(doc => doc.data())
-          .filter(data => data["HỦY ĐK"] === "")
-          .map(data => ({
-            id: data.id,
+        const studentData = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
             ...data,
-            registered: true // 🔹 Đặt trạng thái mặc định là "Đã đăng ký"
-          }));
+            registered: data["HỦY ĐK"] === "T"  // ✅ Nếu HỦY ĐK là "T", coi là đã đăng ký
+          };
+        });
 
         setDataList(studentData);
 
-        const classes = [...new Set(studentData.map(s => s.LỚP))];
-        classes.sort();
+        const classes = [...new Set(studentData.map(s => s.LỚP))].sort();
         setClassList(classes);
 
         if (classes.length > 0) {
-          setSelectedClass(classes[0]); // 🔹 Đặt giá trị mặc định là lớp đầu tiên
+          setSelectedClass(classes[0]);
         }
       } catch (err) {
         console.error("❌ Lỗi khi tải dữ liệu từ Firebase:", err);
@@ -52,16 +52,23 @@ export default function ChotSoLieu({ onBack }) {
     fetchData();
   }, []);
 
+
+  // 🔄 Khi người dùng chọn lớp
   const handleClassChange = (event) => {
     setSelectedClass(event.target.value);
   };
 
-  const toggleRegister = (index) => { 
-    const updated = [...dataList];
-    updated[index].registered = !updated[index].registered;
+  // ✅ Toggle trạng thái đăng ký của học sinh
+  const toggleRegister = (id) => {
+    const updated = dataList.map(student =>
+      student.id === id
+        ? { ...student, registered: !student.registered }
+        : student
+    );
     setDataList(updated);
   };
 
+  // 💾 Xử lý lưu (tùy chỉnh phần này để ghi lại HỦY ĐK nếu muốn)
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -117,9 +124,9 @@ export default function ChotSoLieu({ onBack }) {
           </FormControl>
         </Stack>
 
-        {isLoading ? <LinearProgress /> : null}
+        {isLoading && <LinearProgress />}
 
-        {/* 🔹 Hiển thị bảng thống kê */}
+        {/* 🔹 Hiển thị bảng học sinh */}
         <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
           <Table size="small">
             <TableHead>
@@ -129,24 +136,37 @@ export default function ChotSoLieu({ onBack }) {
                 <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>ĐĂNG KÝ</TableCell>
               </TableRow>
             </TableHead>
-            
+
             <TableBody>
-              {dataList.filter(s => s.LỚP === selectedClass).map((student, index) => (
-                <TableRow key={index} hover>
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell>{student["HỌ VÀ TÊN"]}</TableCell>
-                  <TableCell align="center">
-                    <Checkbox checked={student.registered} onChange={() => toggleRegister(index)} size="small" color="primary" />
-                  </TableCell>
-                </TableRow>
-              ))}
+              {dataList
+                .filter(s => s.LỚP === selectedClass)
+                .map((student, index) => (
+                  <TableRow key={student.id} hover>
+                    <TableCell align="center">{index + 1}</TableCell>
+                    <TableCell>{student["HỌ VÀ TÊN"]}</TableCell>
+                    <TableCell align="center">
+                      <Checkbox
+                        checked={student.registered}
+                        onChange={() => toggleRegister(student.id)}
+                        size="small"
+                        color="primary"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
 
-        {/* 🔹 Nút lưu và nút quay lại */}
+        {/* 🔹 Nút lưu và quay lại */}
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
-          <Button variant="contained" color="primary" onClick={handleSave} sx={{ width: 160, fontWeight: 600, py: 1 }} disabled={isSaving}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSave}
+            sx={{ width: 160, fontWeight: 600, py: 1 }}
+            disabled={isSaving}
+          >
             {isSaving ? "🔄 Đang lưu..." : "Lưu"}
           </Button>
 

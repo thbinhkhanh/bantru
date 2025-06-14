@@ -17,34 +17,47 @@ export default function Lop1() {
 
   useEffect(() => {
     const fetchData = async () => {
-  setIsLoading(true);
-  try {
-    const snapshot = await getDocs(collection(db, 'BANTRU'));
-    const studentData = snapshot.docs.map(doc => ({
-  id: doc.id,
-  ...doc.data()
-})).filter(student => student.LỚP.toString().startsWith('1') && student['HỦY ĐK'] === '');
+      setIsLoading(true);
+      try {
+        const snapshot = await getDocs(collection(db, 'BANTRU'));
+        const studentData = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            registered: data['HỦY ĐK'] === 'T' // ← Gán giá trị cho checkbox tại đây
+          };
+        }).filter(student => student.LỚP.toString().startsWith('1'));
 
-    setAllStudents(studentData);
+        setAllStudents(studentData);
 
-    const classes = [...new Set(studentData.map(s => s.LỚP))]; // Tạo danh sách lớp từ Firebase
-    classes.sort(); // Sắp xếp danh sách lớp theo thứ tự tăng dần
-    setClassList(classes);
+        const classes = [...new Set(studentData.map(s => s.LỚP))];
+        classes.sort();
+        setClassList(classes);
 
-    if (classes.length > 0) {
-      const firstClass = classes[0];
-      setSelectedClass(firstClass);
-      setFilteredStudents(studentData.filter(s => s.LỚP === firstClass));
-    }
-  } catch (err) {
-    console.error('❌ Lỗi khi tải dữ liệu từ Firebase:', err);
-  } finally {
-    setIsLoading(false);
-  }
-};
+        if (classes.length > 0) {
+          const firstClass = classes[0];
+          setSelectedClass(firstClass);
+
+          const filtered = studentData
+            .filter(s => s.LỚP === firstClass)
+            .map((s, idx) => ({
+              ...s,
+              stt: idx + 1
+            }));
+
+          setFilteredStudents(filtered);
+        }
+      } catch (err) {
+        console.error('❌ Lỗi khi tải dữ liệu từ Firebase:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     fetchData();
   }, []);
+
 
   const handleClassChange = (event) => {
     const selected = event.target.value;
