@@ -18,7 +18,7 @@ import {
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 
-export default function FormBanTru({ onBack }) {
+export default function CapNhatDS({ onBack }) {
   const [classList, setClassList] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
   const [allStudents, setAllStudents] = useState([]);
@@ -129,7 +129,7 @@ export default function FormBanTru({ onBack }) {
         alignItems: "flex-start",
       }}
     >
-      <Box maxWidth={450} width="100%">
+      <Box maxWidth={420} width="100%">
         <Card elevation={10} sx={{ p: 4, borderRadius: 4, backgroundColor: "white" }}>
           <Typography
             variant="h5"
@@ -139,7 +139,7 @@ export default function FormBanTru({ onBack }) {
             gutterBottom
             sx={{ borderBottom: "3px solid #1976d2", pb: 1, mb: 3 }}
           >
-            CẬP NHẬT DANH SÁCH BÁN TRÚ
+            CẬP NHẬT DANH SÁCH
           </Typography>
 
           {loading ? (

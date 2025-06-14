@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -24,23 +24,34 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import vi from 'date-fns/locale/vi';
 
-const classList = [
-  '1.1', '1.2', '1.3', '1.4', '1.5', '1.6',
-  '2.1', '2.2', '2.3', '2.4', '2.5', '2.6',
-  '3.1', '3.2', '3.3', '3.4', '3.5', '3.6',
-  '4.1', '4.2', '4.3', '4.4', '4.5', '4.6',
-  '5.1', '5.2', '5.3', '5.4', '5.5'
-];
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from './firebase';
 
-export default function ChotSoLieu() {
+export default function ChotSoLieu({ onBack }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [option, setOption] = useState('toantruong');
   const [selectedClass, setSelectedClass] = useState('');
+  const [classList, setClassList] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [progressing, setProgressing] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState('');
   const [resultMessage, setResultMessage] = useState('');
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'BANTRU'));
+        const students = snapshot.docs.map((doc) => doc.data());
+        const classes = Array.from(new Set(students.map((s) => s.LỚP))).sort();
+        setClassList(classes);
+      } catch (error) {
+        console.error('Lỗi tải danh sách lớp:', error);
+      }
+    };
+
+    fetchClasses();
+  }, []);
 
   const formatDate = (date) =>
     date.toLocaleDateString('vi-VN', {
@@ -74,23 +85,32 @@ export default function ChotSoLieu() {
           ? `Đã xóa thành công dữ liệu toàn trường ngày ${dateStr}`
           : `Đã xóa thành công dữ liệu lớp ${selectedClass} ngày ${dateStr}`
       );
-    }, 1500); // Giả lập tiến trình xóa
+    }, 1500);
   };
 
   return (
     <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4, p: 2 }}>
-    <Paper elevation={3} sx={{ p: 3, borderRadius: 4 }}>
-      <Typography
-        variant="h5"
-        align="center"
-        gutterBottom
-        fontWeight="bold"
-        color="primary"
-        sx={{ mb: 4 }}
-      >
-        XÓA DỮ LIỆU
-        <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 1, mb: 4 }} />
-      </Typography>
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 4 }}>
+        <Typography
+          variant="h5"
+          align="center"
+          gutterBottom
+          fontWeight="bold"
+          color="primary"
+          sx={{ mb: 4 }}
+        >
+          XÓA DỮ LIỆU
+          <Box
+            sx={{
+              height: '2px',
+              width: '100%',
+              backgroundColor: '#1976d2',
+              borderRadius: 1,
+              mt: 1,
+              mb: 4,
+            }}
+          />
+        </Typography>
 
         <Stack spacing={3} alignItems="center">
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
@@ -99,7 +119,7 @@ export default function ChotSoLieu() {
               value={selectedDate}
               onChange={(newValue) => {
                 setSelectedDate(newValue);
-                setShowSuccess(false); // Ẩn thông báo khi đổi ngày
+                setShowSuccess(false);
               }}
               renderInput={(params) => <TextField {...params} size="small" />}
             />
@@ -110,7 +130,7 @@ export default function ChotSoLieu() {
             value={option}
             onChange={(e) => {
               setOption(e.target.value);
-              setShowSuccess(false); // Ẩn thông báo khi đổi radio
+              setShowSuccess(false);
             }}
           >
             <FormControlLabel value="toantruong" control={<Radio />} label="Toàn trường" />
@@ -123,7 +143,7 @@ export default function ChotSoLieu() {
               value={selectedClass}
               onChange={(e) => {
                 setSelectedClass(e.target.value);
-                setShowSuccess(false); // Ẩn thông báo khi đổi lớp
+                setShowSuccess(false);
               }}
               displayEmpty
               sx={{ minWidth: 140 }}
@@ -147,6 +167,10 @@ export default function ChotSoLieu() {
             sx={{ minWidth: 140 }}
           >
             Thực hiện
+          </Button>
+
+          <Button onClick={onBack} color="secondary" fullWidth>
+            ⬅️ Quay lại
           </Button>
 
           {progressing && (
