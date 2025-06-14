@@ -1,314 +1,290 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
-  Paper,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  Card,
+  Stack,
+  FormControl,
+  InputLabel,
   Select,
   MenuItem,
-  FormControl,
   TextField,
   Button,
   LinearProgress,
-  Snackbar,
-  Alert,
+  RadioGroup,
   FormControlLabel,
-  Switch,
-} from '@mui/material';
+  Radio,
+} from "@mui/material";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "./firebase";
 
-const classOptions = ['5.1', '5.2', '5.3', '5.4', '5.5'];
-const statusOptions = ['Đăng ký lại', 'Hủy đăng ký', 'Đăng ký mới'];
+export default function FormBanTru({ onBack }) {
+  const [classList, setClassList] = useState([]);
+  const [selectedClass, setSelectedClass] = useState("");
+  const [allStudents, setAllStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [selectedStudentId, setSelectedStudentId] = useState("");
+  const [selectedStudentData, setSelectedStudentData] = useState(null);
+  const [dangKy, setDangKy] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [nhapTuDanhSach, setNhapTuDanhSach] = useState("danhSach");
 
-const demoStudents = [
-  { id: '7952245907', name: 'HỒ NGUYỄN TRUNG HẬU', class: '5.1' },
-  { id: '7926588441', name: 'TRẦN VĂN KHOA', class: '5.1' },
-  { id: '7926588356', name: 'TRƯƠNG THIỆN PHÚC', class: '5.1' },
-  { id: '7926588263', name: 'BÙI MINH HUY', class: '5.1' },
-  { id: '7952245902', name: 'NGUYỄN LÊ THIÊN ANH', class: '5.1' },
-  { id: '7952245915', name: 'NGUYỄN NGỌC BẢO NGÂN', class: '5.1' },
-  { id: '7952245909', name: 'NGUYỄN PHAN NGỌC KHÁNH', class: '5.1' },
-  { id: '4052245916', name: 'TRẦN THỊ BẢO NGỌC', class: '5.1' },
-  { id: '7976160671', name: 'NGUYỄN NGỌC THẢO', class: '5.1' },
-  { id: '7926588270', name: 'LÊ NGỌC THIÊN HƯƠNG', class: '5.1' },
-  { id: '7926588452', name: 'TRẦN NGỌC QUỲNH TRÂM', class: '5.1' },
-  { id: '79214042646', name: 'DƯƠNG HOÀNG ANH', class: '5.2' },
-  { id: '86214010567', name: 'VÕ TRÍ ĐẠT', class: '5.2' },
-  { id: '79214018933', name: 'BÙI NGUYỄN HỮU TRÍ', class: '5.2' },
-  { id: '79214018037', name: 'VÕ HỮU NHÂN', class: '5.2' },
-  { id: '79214025944', name: 'NGUYỄN LÊ KHANG', class: '5.2' },
-  { id: '79314043124', name: 'NGUYỄN TƯỜNG LAM', class: '5.2' },
-  { id: '79314043195', name: 'PHAN NGUYỄN GIA LINH', class: '5.2' },
-  { id: '79314017578', name: 'NGUYỄN NGỌC GIA LINH', class: '5.2' },
-  { id: '7952264390', name: 'ĐẶNG HUỲNH GIA BẢO', class: '5.3' },
-  { id: '7926588415', name: 'TRẦN MINH NHẬT', class: '5.3' },
-  { id: '7942211205', name: 'NGÔ MINH THÔNG', class: '5.3' },
-  { id: '7959197625', name: 'PHẠM HOÀNG BẢO NGHI', class: '5.3' },
-  { id: '7926588239', name: 'NGUYỄN HỒ KIM PHƯỢNG', class: '5.3' },
-  { id: '7952264405', name: 'NGUYỄN NGỌC THỦY TIÊN', class: '5.3' },
-  { id: '7952264409', name: 'TRẦN HUỲNH KIM XUÂN', class: '5.3' },
-  { id: '7942211304', name: 'PHAN TRẤN PHONG', class: '5.4' },
-  { id: '9685589118', name: 'NGUYỄN HUỲNH GIAO', class: '5.4' },
-  { id: '7952250847', name: 'HUỲNH NG. PHƯƠNG NGHI', class: '5.4' },
-  { id: '7952250858', name: 'ĐÀO THỊ THẢO VY', class: '5.4' },
-  { id: '7952250842', name: 'HUỲNH NGỌC YẾN LINH', class: '5.4' },
-  { id: '7952250833', name: 'VÕ LÊ TRÚC HÀ', class: '5.4' },
-  { id: '7951520796', name: 'TRẦN GIA BẢO', class: '5.5' },
-  { id: '7952257443', name: 'TẠ ĐĂNG KHÔI', class: '5.5' },
-  { id: '7926588297', name: 'TRƯƠNG ĐĂNG KHOA', class: '5.5' },
-  { id: '7950168309', name: 'BÙI NGUYỄN TẤN LỢI', class: '5.5' },
-  { id: '4677529501', name: 'LÊ TRƯỜNG PHÚC', class: '5.5' },
-  { id: '7952257471', name: 'BÙI ANH TUẤN', class: '5.5' },
-];
+  const [customHoTen, setCustomHoTen] = useState("");
+  const [customMaDinhDanh, setCustomMaDinhDanh] = useState("");
 
-export default function DangKyLaiBanTru() {
-  const [students, setStudents] = useState(
-    Array(10).fill(null).map((_, index) => ({
-      stt: index + 1,
-      id: '',
-      name: '',
-      lop: '',
-      dangKy: '',
-    }))
-  );
-  const [loading, setLoading] = useState(false);
-  const [enableSelect, setEnableSelect] = useState(true);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('warning');
+  const dangKyOptions = ["Đăng ký mới", "Hủy đăng ký", "Đăng ký lại"];
 
-  const handleChange = (index, field, value) => {
-    const updated = [...students];
-    updated[index][field] = value;
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const snapshot = await getDocs(collection(db, "BANTRU"));
+        const studentsData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-    if (field === 'lop') {
-      updated[index].name = '';
-      updated[index].id = '';
-    }
+        setAllStudents(studentsData);
 
-    if (field === 'name') {
-      const studentInfo = demoStudents.find((s) => s.name === value);
-      updated[index].id = studentInfo?.id || '';
-    }
+        const classes = Array.from(new Set(studentsData.map((s) => s.LỚP))).sort();
+        setClassList(classes);
+      } catch (error) {
+        console.error("Lỗi tải dữ liệu:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-    setStudents(updated);
-  };
-
-  const handleCapNhat = () => {
-    const filledRows = students.filter(
-      (s) => s.name.trim() || s.lop.trim() || s.dangKy.trim()
-    );
-
-    if (filledRows.length === 0) {
-      setSnackbarMessage('Cảnh báo:\nKhông có dữ liệu nào để cập nhật.');
-      setSnackbarSeverity('warning');
-      setSnackbarOpen(true);
+  useEffect(() => {
+    if (!selectedClass) {
+      setFilteredStudents([]);
+      setSelectedStudentId("");
+      setSelectedStudentData(null);
+      setDangKy("");
       return;
     }
+    const filtered = allStudents.filter((s) => s.LỚP === selectedClass);
+    setFilteredStudents(filtered);
+    setSelectedStudentId("");
+    setSelectedStudentData(null);
+    setDangKy("");
+  }, [selectedClass, allStudents]);
 
-    let errorMessage = '';
-    filledRows.forEach((student, index) => {
-      const dong = students.findIndex((s) => s === student) + 1;
-      if (!student.name.trim()) errorMessage += `Dòng ${dong} chưa chọn họ và tên\n`;
-      if (!student.lop.trim()) errorMessage += `Dòng ${dong} chưa chọn lớp\n`;
-      if (!student.dangKy.trim()) errorMessage += `Dòng ${dong} chưa chọn trạng thái đăng ký\n`;
-    });
-
-    if (errorMessage) {
-      setSnackbarMessage(`Cảnh báo:\n${errorMessage.trim()}`);
-      setSnackbarSeverity('warning');
-      setSnackbarOpen(true);
+  useEffect(() => {
+    if (!selectedStudentId || nhapTuDanhSach !== "danhSach") {
+      setSelectedStudentData(null);
+      setDangKy("");
       return;
     }
+    const student = filteredStudents.find((s) => s.id === selectedStudentId);
+    setSelectedStudentData(student || null);
+    setDangKy(student?.["ĐĂNG KÝ"] || "");
+  }, [selectedStudentId, filteredStudents, nhapTuDanhSach]);
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSnackbarMessage('Cập nhật thành công!');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
-    }, 2000);
+  const handleUpdate = async () => {
+    setSaving(true);
+    try {
+      if (nhapTuDanhSach === "danhSach") {
+        if (!selectedStudentData) {
+          alert("Vui lòng chọn học sinh");
+          return;
+        }
+        console.log("🔁 Cập nhật học sinh từ danh sách:", {
+          id: selectedStudentData.id,
+          dangKy,
+        });
+      } else {
+        if (!customHoTen.trim() || !customMaDinhDanh.trim()) {
+          alert("Vui lòng nhập đầy đủ họ tên và mã định danh");
+          return;
+        }
+        console.log("➕ Cập nhật thủ công:", {
+          id: customMaDinhDanh,
+          hoTen: customHoTen,
+          dangKy,
+        });
+      }
+
+      alert("✅ Cập nhật thành công!");
+    } catch (error) {
+      console.error("❌ Lỗi cập nhật:", error);
+      alert("Cập nhật thất bại!");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <Box sx={{ maxWidth: 1100, mx: 'auto', mt: 4, p: 2 }}>
-  <Paper elevation={3} sx={{ p: 3, borderRadius: 4 }}>
-    <Typography
-      variant="h5"
-      align="center"
-      fontWeight="bold"
-      color="primary"
-      sx={{ mt: 2 }}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "linear-gradient(to bottom, #e3f2fd, #bbdefb)",
+        py: 6,
+        px: 2,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+      }}
     >
-      CẬP NHẬT DANH SÁCH BÁN TRÚ
-      <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 1, mb: 2 }} />
-    </Typography>
+      <Box maxWidth={450} width="100%">
+        <Card elevation={10} sx={{ p: 4, borderRadius: 4, backgroundColor: "white" }}>
+          <Typography
+            variant="h5"
+            align="center"
+            fontWeight="bold"
+            color="primary"
+            gutterBottom
+            sx={{ borderBottom: "3px solid #1976d2", pb: 1, mb: 3 }}
+          >
+            CẬP NHẬT DANH SÁCH BÁN TRÚ
+          </Typography>
 
-    <Box mb={2} display="flex" justifyContent="center">
-      <FormControlLabel
-        control={
-          <Switch
-            checked={enableSelect}
-            onChange={(e) => setEnableSelect(e.target.checked)}
-          />
-        }
-        label="Chọn học sinh từ danh sách (bật/tắt)"
-      />
-    </Box>
-
-    <TableContainer>
-      <Table size="small">
-        <TableHead>
-          <TableRow sx={{ backgroundColor: '#e3f2fd' }}>
-            <TableCell align="center" sx={{ px: 1, py: 0.5 }}>
-              <strong>STT</strong>
-            </TableCell>
-            <TableCell align="center" sx={{ px: 1, py: 0.5 }}>
-              <strong>MÃ ĐỊNH DANH</strong>
-            </TableCell>
-            <TableCell align="center" sx={{ px: 1, py: 0.5 }}>
-              <strong>HỌ VÀ TÊN</strong>
-            </TableCell>
-            <TableCell align="center" sx={{ px: 1, py: 0.5 }}>
-              <strong>LỚP</strong>
-            </TableCell>
-            <TableCell align="center" sx={{ px: 1, py: 0.5 }}>
-              <strong>ĐĂNG KÝ</strong>
-            </TableCell>
-          </TableRow>
-        </TableHead>
-
-        <TableBody>
-          {students.map((student, index) => {
-            const filteredStudents = demoStudents.filter((s) => s.class === student.lop);
-            return (
-              <TableRow key={index}>
-                <TableCell align="center" sx={{ width: 80, minWidth: 60, px: 1, py: 0.5 }}>
-                  <TextField
-                    value={student.stt}
-                    size="small"
-                    fullWidth
-                    inputProps={{ style: { textAlign: 'center' }, readOnly: true }}
-                  />
-                </TableCell>
-
-                <TableCell align="center" sx={{ width: 140, minWidth: 100, px: 1, py: 0.5 }}>
-                  <TextField
-                    value={student.id}
-                    onChange={(e) => handleChange(index, 'id', e.target.value)}
-                    size="small"
-                    fullWidth
-                    inputProps={{
-                      style: { textAlign: 'center' },
-                      readOnly: enableSelect,
-                    }}
-                  />
-                </TableCell>
-
-                <TableCell align="center" sx={{ px: 1, py: 0.5 }}>
-                  {enableSelect ? (
-                    <FormControl fullWidth size="small" disabled={!student.lop}>
-                      <Select
-                        value={student.name}
-                        onChange={(e) => handleChange(index, 'name', e.target.value)}
-                        displayEmpty
-                        sx={{ textAlign: 'left' }}
-                      >
-                        <MenuItem value="">
-                          <em>Chọn tên</em>
-                        </MenuItem>
-                        {filteredStudents.map((s) => (
-                          <MenuItem key={s.id} value={s.name}>
-                            {s.name}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  ) : (
-                    <TextField
-                      value={student.name}
-                      onChange={(e) => handleChange(index, 'name', e.target.value)}
-                      size="small"
-                      fullWidth
+          {loading ? (
+            <Box sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", my: 2 }}>
+              <Box sx={{ width: "60%" }}>
+                <LinearProgress />
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                Đang tải dữ liệu học sinh...
+              </Typography>
+            </Box>
+          ) : (
+            <>
+              {/* --- RADIO NÚT ĐẶT TRÊN CÙNG --- */}
+              <FormControl component="fieldset" sx={{ mb: 2 }}>
+                <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
+                  <RadioGroup
+                    value={nhapTuDanhSach}
+                    onChange={(e) => setNhapTuDanhSach(e.target.value)}
+                    row
+                    sx={{ justifyContent: "center", display: "flex", width: "100%" }}
+                  >
+                    <FormControlLabel
+                      value="danhSach"
+                      control={<Radio size="small" />}
+                      label="Chọn từ danh sách"
                     />
-                  )}
-                </TableCell>
+                    <FormControlLabel
+                      value="thuCong"
+                      control={<Radio size="small" />}
+                      label="Nhập thủ công"
+                    />
+                  </RadioGroup>
+                </Box>
+              </FormControl>
 
-                <TableCell align="center" sx={{ px: 1, py: 0.5 }}>
-                  <FormControl fullWidth size="small">
+              {/* --- DROPDOWN LỚP --- */}
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel>Lớp</InputLabel>
+                <Select
+                  value={selectedClass}
+                  label="Lớp"
+                  onChange={(e) => setSelectedClass(e.target.value)}
+                >
+                  <MenuItem value="">
+                    <em>Chọn lớp</em>
+                  </MenuItem>
+                  {classList.map((cls) => (
+                    <MenuItem key={cls} value={cls}>
+                      {cls}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* --- NỘI DUNG NHẬP --- */}
+              {nhapTuDanhSach === "danhSach" ? (
+                <>
+                  <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                    <InputLabel>Học sinh</InputLabel>
                     <Select
-                      value={student.lop}
-                      onChange={(e) => handleChange(index, 'lop', e.target.value)}
-                      displayEmpty
+                      value={selectedStudentId}
+                      label="Học sinh"
+                      onChange={(e) => setSelectedStudentId(e.target.value)}
+                      disabled={!selectedClass}
                     >
                       <MenuItem value="">
-                        <em>Chọn lớp</em>
+                        <em>Chọn học sinh</em>
                       </MenuItem>
-                      {classOptions.map((cls) => (
-                        <MenuItem key={cls} value={cls}>
-                          {cls}
+                      {filteredStudents.map((s) => (
+                        <MenuItem key={s.id} value={s.id}>
+                          {s["HỌ VÀ TÊN"]}
                         </MenuItem>
                       ))}
                     </Select>
                   </FormControl>
-                </TableCell>
 
-                <TableCell align="center" sx={{ px: 1, py: 0.5 }}>
-                  <FormControl fullWidth size="small">
-                    <Select
-                      value={student.dangKy}
-                      onChange={(e) => handleChange(index, 'dangKy', e.target.value)}
-                      displayEmpty
-                    >
-                      <MenuItem value="">
-                        <em>Chọn trạng thái</em>
-                      </MenuItem>
-                      {statusOptions.map((status) => (
-                        <MenuItem key={status} value={status}>
-                          {status}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </TableContainer>
+                  <TextField
+                    label="Mã định danh"
+                    size="small"
+                    fullWidth
+                    value={selectedStudentData?.id || ""}
+                    InputProps={{ readOnly: true }}
+                    disabled
+                    sx={{ mb: 2 }}
+                  />
+                </>
+              ) : (
+                <>
+                  <TextField
+                    label="Họ và tên"
+                    size="small"
+                    fullWidth
+                    value={customHoTen}
+                    onChange={(e) => setCustomHoTen(e.target.value)}
+                    sx={{ mb: 2 }}
+                  />
+                  <TextField
+                    label="Mã định danh"
+                    size="small"
+                    fullWidth
+                    value={customMaDinhDanh}
+                    onChange={(e) => setCustomMaDinhDanh(e.target.value)}
+                    sx={{ mb: 2 }}
+                  />
+                </>
+              )}
 
-    <Box mt={3} display="flex" flexDirection="column" alignItems="center">
-      <Button variant="contained" color="primary" onClick={handleCapNhat}>
-        Cập nhật
-      </Button>
-      {loading && (
-        <Box sx={{ width: '100%', mt: 2 }}>
-          <LinearProgress />
-        </Box>
-      )}
+              <FormControl fullWidth size="small" sx={{ mb: 3 }}>
+                <InputLabel>Trạng thái đăng ký</InputLabel>
+                <Select
+                  value={dangKy}
+                  label="Trạng thái đăng ký"
+                  onChange={(e) => setDangKy(e.target.value)}
+                  disabled={nhapTuDanhSach === "danhSach" ? !selectedStudentData : false}
+                >
+                  <MenuItem value="">
+                    <em>Chọn trạng thái</em>
+                  </MenuItem>
+                  {dangKyOptions.map((opt) => (
+                    <MenuItem key={opt} value={opt}>
+                      {opt}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <Stack spacing={2}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={handleUpdate}
+                  disabled={saving}
+                >
+                  {saving ? "🔄 Đang cập nhật..." : "Cập nhật"}
+                </Button>
+                <Button onClick={onBack} color="secondary">
+                  ⬅️ Quay lại
+                </Button>
+              </Stack>
+            </>
+          )}
+        </Card>
+      </Box>
     </Box>
-  </Paper>
-
-  <Snackbar
-    open={snackbarOpen}
-    autoHideDuration={4000}
-    onClose={() => setSnackbarOpen(false)}
-    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-  >
-    <Alert
-      onClose={() => setSnackbarOpen(false)}
-      severity={snackbarSeverity}
-      variant="filled"
-      sx={{ width: '100%' }}
-    >
-      {snackbarMessage}
-    </Alert>
-  </Snackbar>
-</Box>
   );
 }

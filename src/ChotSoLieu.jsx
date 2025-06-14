@@ -116,7 +116,7 @@ function Row({ row, openGroups, setOpenGroups }) {
   );
 }
 
-export default function ChotSoLieu() {
+export default function ChotSoLieu({ onBack }) {
   const [openGroups, setOpenGroups] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
@@ -135,9 +135,7 @@ export default function ChotSoLieu() {
   };
 
   return (
-    //<Box sx={{ maxWidth: 1000, mx: 'auto', mt: 4, p: 3 }}>
     <Box sx={{ maxWidth: 400, mx: 'auto', mt: 8 }}>
-
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Box sx={{ mb: 5 }}>
           <Typography
@@ -151,7 +149,6 @@ export default function ChotSoLieu() {
           </Typography>
           <Box sx={{ height: '1.5px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1 }} />
         </Box>
-
 
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" justifyContent="center">
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
@@ -196,7 +193,6 @@ export default function ChotSoLieu() {
           </>
         )}
 
-
         {isUpdated && (
           <TableContainer component={Paper} sx={{ mt: 4, borderRadius: 2 }}>
             <Table>
@@ -217,6 +213,13 @@ export default function ChotSoLieu() {
             </Table>
           </TableContainer>
         )}
+        
+        {/* Nút quay lại */}
+        <Stack sx={{ mt: 3 }}>
+          <Button onClick={onBack} color="secondary" fullWidth>
+            ⬅️ Quay lại
+          </Button>
+        </Stack>
       </Paper>
     </Box>
   );
