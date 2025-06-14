@@ -3,7 +3,6 @@ import {
   Box, Typography, Grid, Card, TextField, Button, Alert, Stack
 } from '@mui/material';
 import { motion } from 'framer-motion';
-//import { Settings, BarChart, Upload } from 'lucide-react';
 
 import ChotSoLieu from '../ChotSoLieu';
 import SoLieuNgay from '../SoLieuNgay';
@@ -32,36 +31,35 @@ export default function QuanLy() {
   };
 
   const chucNangNhom = [
-  {
-    icon: <img src="/N1.png" alt="N1" width={36} height={36} />,
-    title: 'QUẢN LÝ DỮ LIỆU NGÀY',
-    items: [
-      { label: 'CHỐT SỐ LIỆU', code: 'CHOT', color: '#42a5f5' },
-      { label: 'SỐ LIỆU TRONG NGÀY', code: 'SONGAY', color: '#66bb6a' },
-      { label: 'ĐIỀU CHỈNH SUẤT ĂN', code: 'SUATAN', color: '#ffb300' },
-      { label: 'XÓA DỮ LIỆU THEO NGÀY', code: 'XOANGAY', color: '#ef5350' },
-    ],
-  },
-  {
-    icon: <img src="/N2.png" alt="N2" width={36} height={36} />,
-    title: 'THỐNG KÊ',
-    items: [
-      { label: 'THỐNG KÊ THEO NGÀY', code: 'TKNGAY', color: '#ab47bc' },
-      { label: 'CHI TIẾT TỪNG THÁNG', code: 'TKTHANG', color: '#26c6da' },
-      { label: 'TỔNG HỢP CẢ NĂM', code: 'TKNAM', color: '#8d6e63' },
-    ],
-  },
-  {
-    icon: <img src="/N3.png" alt="N3" width={36} height={36} />,
-    title: 'DANH SÁCH HỌC SINH',
-    items: [
-      { label: 'CẬP NHẬT DANH SÁCH', code: 'CAPNHAT', color: '#5c6bc0' },
-      { label: 'LẬP DANH SÁCH BÁN TRÚ', code: 'LAPDS', color: '#ec407a' },
-      { label: 'TẢI DANH SÁCH LÊN', code: 'TAIDS', color: '#789262' },
-    ],
-  },
-];
-
+    {
+      icon: <img src="/N1.png" alt="N1" width={36} height={36} />,
+      title: 'QUẢN LÝ DỮ LIỆU NGÀY',
+      items: [
+        { label: 'CHỐT SỐ LIỆU', code: 'CHOT', color: '#42a5f5' },
+        { label: 'SỐ LIỆU TRONG NGÀY', code: 'SONGAY', color: '#66bb6a' },
+        { label: 'ĐIỀU CHỈNH SUẤT ĂN', code: 'SUATAN', color: '#ffb300' },
+        { label: 'XÓA DỮ LIỆU THEO NGÀY', code: 'XOANGAY', color: '#ef5350' },
+      ],
+    },
+    {
+      icon: <img src="/N2.png" alt="N2" width={36} height={36} />,
+      title: 'THỐNG KÊ',
+      items: [
+        { label: 'THỐNG KÊ THEO NGÀY', code: 'TKNGAY', color: '#ab47bc' },
+        { label: 'CHI TIẾT TỪNG THÁNG', code: 'TKTHANG', color: '#26c6da' },
+        { label: 'TỔNG HỢP CẢ NĂM', code: 'TKNAM', color: '#8d6e63' },
+      ],
+    },
+    {
+      icon: <img src="/N3.png" alt="N3" width={36} height={36} />,
+      title: 'DANH SÁCH HỌC SINH',
+      items: [
+        { label: 'CẬP NHẬT DANH SÁCH', code: 'CAPNHAT', color: '#5c6bc0' },
+        { label: 'LẬP DANH SÁCH BÁN TRÚ', code: 'LAPDS', color: '#ec407a' },
+        { label: 'TẢI DANH SÁCH LÊN', code: 'TAIDS', color: '#789262' },
+      ],
+    },
+  ];
 
   const renderSelectedFunction = () => {
     switch (selectedFunction) {
@@ -130,7 +128,7 @@ export default function QuanLy() {
         </Box>
       ) : selectedFunction ? (
         <Box maxWidth={selectedFunction === 'CAPNHAT' ? 1000 : 700} mx="auto">
-            {renderSelectedFunction()}
+          {renderSelectedFunction()}
         </Box>
       ) : (
         <>
@@ -150,12 +148,7 @@ export default function QuanLy() {
             HỆ THỐNG QUẢN LÝ BÁN TRÚ
           </Typography>
 
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-          >
+          <Box display="flex" flexDirection="column" alignItems="center">
             <Stack spacing={4} alignItems="center">
               {chucNangNhom.map((nhom, index) => (
                 <Card
@@ -166,44 +159,40 @@ export default function QuanLy() {
                     borderRadius: 4,
                     width: '100%',
                     maxWidth: {
-                      xs: 360,  // khớp hộp đăng nhập khi ở điện thoại
+                      xs: 360,
                       sm: 720,
                       md: 1055,
                     },
                     mx: 'auto',
                   }}
                 >
-                  <Grid container spacing={3} alignItems="center">
-                    <Grid
-                      item
-                      xs={12}
-                      sm={2}
-                      md={1}
-                      display="flex"
-                      justifyContent="center"
-                      alignItems="center"
-                    >
+                  <Grid
+                    container
+                    spacing={3}
+                    alignItems="center"
+                    justifyContent={{ xs: 'center', sm: 'flex-start' }}
+                    textAlign={{ xs: 'center', sm: 'left' }}
+                  >
+                    <Grid item xs={12} sm={2} md={1} textAlign="center">
                       <Box
                         component="img"
                         src={nhom.icon.props.src}
                         alt={nhom.icon.props.alt}
                         sx={{
                           width: {
-                            xs: 120, // kích thước lớn hơn trên điện thoại
+                            xs: 90,
                             sm: 100,
                             md: 95,
                           },
                           height: {
-                            xs: 120,
+                            xs: 90,
                             sm: 100,
                             md: 95,
                           },
                           objectFit: 'contain',
-                          display: 'block',
-                          mx: 'auto', // căn giữa theo chiều ngang
+                          mx: 'auto',
                         }}
                       />
-
                     </Grid>
 
                     <Grid item xs={12} sm={10} md={11}>
@@ -216,7 +205,11 @@ export default function QuanLy() {
                         {nhom.title}
                       </Typography>
 
-                      <Grid container spacing={2} justifyContent="center">
+                      <Grid
+                        container
+                        spacing={2}
+                        justifyContent={{ xs: 'center', sm: 'flex-start' }}
+                      >
                         {nhom.items.map((item) => (
                           <Grid item xs={12} sm={6} md={4} key={item.code}>
                             <motion.div
@@ -250,7 +243,6 @@ export default function QuanLy() {
                 </Card>
               ))}
             </Stack>
-
           </Box>
         </>
       )}
