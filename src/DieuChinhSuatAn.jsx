@@ -127,13 +127,55 @@ export default function DieuChinhSuatAn({ onBack }) {
         {isLoading && <LinearProgress />}
 
         {/* 🔹 Hiển thị bảng học sinh */}
-        <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
-          <Table size="small">
+        <TableContainer
+          component={Paper}
+          sx={{
+            borderRadius: 2,
+            mt: 2,
+            px: 0,              // ❗️Loại bỏ padding ngang
+            overflowX: "auto",  // 🔄 Cho phép tràn ngang nếu cần
+          }}
+        >
+          <Table size="small" sx={{ width: '100%' }}>
             <TableHead>
               <TableRow>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>STT</TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>HỌ VÀ TÊN</TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>ĐĂNG KÝ</TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    width: 40,
+                    py: 0.25,  // 🔽 Giảm padding dọc
+                    px: 0.5    // 🔽 Giảm padding ngang
+                  }}
+                >
+                  STT
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    py: 0.25,
+                    px: 0.5
+                  }}
+                >
+                  HỌ VÀ TÊN
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    py: 0.25,
+                    px: 0.5
+                  }}
+                >
+                  ĐĂNG KÝ
+                </TableCell>
               </TableRow>
             </TableHead>
 
@@ -142,9 +184,13 @@ export default function DieuChinhSuatAn({ onBack }) {
                 .filter(s => s.LỚP === selectedClass)
                 .map((student, index) => (
                   <TableRow key={student.id} hover>
-                    <TableCell align="center">{index + 1}</TableCell>
-                    <TableCell>{student["HỌ VÀ TÊN"]}</TableCell>
-                    <TableCell align="center">
+                    <TableCell align="center" sx={{ py: 0.25, px: 0.5 }}>
+                      {index + 1}
+                    </TableCell>
+                    <TableCell sx={{ py: 0.25, px: 0.5 }}>
+                      {student["HỌ VÀ TÊN"]}
+                    </TableCell>
+                    <TableCell align="center" sx={{ py: 0.25, px: 0.5 }}>
                       <Checkbox
                         checked={student.registered}
                         onChange={() => toggleRegister(student.id)}
@@ -157,6 +203,7 @@ export default function DieuChinhSuatAn({ onBack }) {
             </TableBody>
           </Table>
         </TableContainer>
+
 
         {/* 🔹 Nút lưu và quay lại */}
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
