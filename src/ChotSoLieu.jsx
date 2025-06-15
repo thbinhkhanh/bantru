@@ -212,7 +212,7 @@ export default function ChotSoLieu({ onBack }) {
             disabled={isLoading}
             sx={{
               fontSize: {
-                xs: "0.85rem", // 👈 trên điện thoại: nhỏ lại (~12px)
+                xs: "0.8rem", // 👈 trên điện thoại: nhỏ lại (~12px)
                 sm: "1rem",    // 👈 từ máy tính trở lên: giữ nguyên (~16px)
               }
             }}
