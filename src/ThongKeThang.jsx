@@ -80,7 +80,7 @@ export default function ThongKeThang({ onBack }) {
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
               label="Chọn tháng"
-              views={["year", "month"]}
+              views={["month"]}
               openTo="month"
               value={selectedDate}
               onChange={(newValue) => {
@@ -92,8 +92,8 @@ export default function ThongKeThang({ onBack }) {
                 textField: {
                   size: "small",
                   sx: {
-                    minWidth: 100,
-                    maxWidth: 185,
+                    minWidth: 80,
+                    maxWidth: 165,
                     "& input": {
                       textAlign: "center",
                     },
