@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Button, LinearProgress, Stack, Alert,
-  TextField, IconButton
+  IconButton
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -11,7 +11,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import vi from "date-fns/locale/vi";
 import { db } from "./firebase";
-import { getDocs, collection } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 
 // Gộp và nhóm dữ liệu
 function groupData(data) {
@@ -142,46 +142,73 @@ export default function ChotSoLieu({ onBack }) {
   const [isLoading, setIsLoading] = useState(false);
   const [summaryData, setSummaryData] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleUpdate = async () => {
     setIsLoading(true);
-    setSummaryData([]);
     setShowSuccess(false);
-    setOpenGroups([]); // Reset các khối đang mở
+    setErrorMessage("");
+    setSummaryData([]);
+
+    const selected = new Date(selectedDate);
+    selected.setHours(0, 0, 0, 0);
+    const adjustedDate = new Date(selected.getTime() + 7 * 60 * 60 * 1000); // GMT+7
+    const formattedDate = adjustedDate.toISOString().split("T")[0];
 
     try {
-      const snapshot = await getDocs(collection(db, "BANTRU"));
-      const allData = snapshot.docs.map(doc => doc.data());
-      const summary = groupData(allData);
-      setSummaryData(summary);
-      setShowSuccess(true);
+      const hocSinhSnap = await getDocs(collection(db, "BANTRU"));
+      const hocSinhData = hocSinhSnap.docs.map(doc => ({
+        id: doc.id,
+        "HỌ VÀ TÊN": doc.data()["HỌ VÀ TÊN"],
+        LỚP: doc.data().LỚP,
+        STT: doc.data().STT,
+        "HỦY ĐK": doc.data()["HỦY ĐK"] ?? "",
+        DATA: doc.data().DATA ?? {}
+      }));
+
+      // ✅ Tổng hợp dữ liệu trước khi ghi
+      const updatedSummary = groupData(hocSinhData);
+      setSummaryData(updatedSummary);
+      setShowSuccess(true); // Thông báo cập nhật xong
+
+      // 🔄 Ghi dữ liệu lên Firestore chạy nền
+      setTimeout(async () => {
+        try {
+          await Promise.all(hocSinhData.map(async (hs) => {
+            const studentRef = doc(db, "BANTRU", hs.id);
+            await setDoc(studentRef, {
+              "HỌ VÀ TÊN": hs["HỌ VÀ TÊN"],
+              LỚP: hs.LỚP,
+              STT: hs.STT,
+              DATA: {
+                ...hs.DATA,
+                [formattedDate]: hs["HỦY ĐK"]
+              }
+            }, { merge: true });
+          }));
+        } catch (err) {
+          console.error("❌ Lỗi khi ghi dữ liệu lên Firestore:", err);
+          setErrorMessage("❌ Không thể ghi dữ liệu vào Firestore!");
+        }
+      }, 1000); // Chạy nền sau 2 giây
+
     } catch (err) {
       console.error("Lỗi Firestore:", err);
-      alert("Không thể cập nhật dữ liệu từ Firestore!");
+      setErrorMessage("❌ Không thể tải dữ liệu!");
     } finally {
       setIsLoading(false);
     }
   };
 
+
   return (
-    <Box sx={{ maxWidth: 500, marginLeft: "auto", marginRight: "auto", paddingLeft: 0.5, paddingRight:0.5, mt: 4 }}>
+    <Box sx={{ maxWidth: 500, mx: "auto", mt: 0, px: 1 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography variant="h5" fontWeight="bold" color="primary" align="center">
           CHỐT SỐ LIỆU HỌC SINH
         </Typography>
 
-        {/* Đường gạch dưới tiêu đề */}
-        <Box
-          sx={{
-            height: "2px",
-            width: "100%",
-            backgroundColor: "#1976d2",
-            borderRadius: 1,
-            mt: 1,
-            mb: 3,
-          }}
-        />
-
+        <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 1, mb: 3 }} />
 
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" sx={{ mt: 3 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
@@ -195,14 +222,11 @@ export default function ChotSoLieu({ onBack }) {
                   sx: {
                     minWidth: 80,
                     maxWidth: 165,
-                    "& input": {
-                      textAlign: "center",
-                    },
+                    "& input": { textAlign: "center" },
                   },
                 },
               }}
             />
-
           </LocalizationProvider>
 
           <Button
@@ -212,15 +236,13 @@ export default function ChotSoLieu({ onBack }) {
             disabled={isLoading}
             sx={{
               fontSize: {
-                xs: "0.8rem", // 👈 trên điện thoại: nhỏ lại (~12px)
-                sm: "1rem",    // 👈 từ máy tính trở lên: giữ nguyên (~16px)
+                xs: "0.8rem",
+                sm: "1rem",
               }
             }}
           >
             Cập nhật
           </Button>
-
-
         </Stack>
 
         {isLoading && (
@@ -244,7 +266,6 @@ export default function ChotSoLieu({ onBack }) {
                   <TableCell align="center" sx={{ fontWeight: "bold", color: "white" }}>ĂN BÁN TRÚ</TableCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
                 {summaryData
                   .filter(row => row.isGroup)
@@ -271,3 +292,5 @@ export default function ChotSoLieu({ onBack }) {
     </Box>
   );
 }
+
+
