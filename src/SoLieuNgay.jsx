@@ -168,7 +168,7 @@ export default function SoLieuTrongNgay({ onBack }) {
   }, []);
 
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", mt: 0, px: 1 }}>
+    <Box sx={{ maxWidth: 500, marginLeft: "auto", marginRight: "auto", paddingLeft: 0.5, paddingRight: 0.5, mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography variant="h5" fontWeight="bold" color="primary" align="center">
           SỐ LIỆU TRONG NGÀY
@@ -199,12 +199,13 @@ export default function SoLieuTrongNgay({ onBack }) {
           <TableContainer component={Paper} sx={{ mt: 2, borderRadius: 2 }}>
             <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: "bold" }}>LỚP / KHỐI</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: "bold" }}>SĨ SỐ</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: "bold" }}>ĂN BÁN TRÚ</TableCell>
+                <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                  <TableCell align="center" sx={{ fontWeight: "bold", color: "white" }}>LỚP / KHỐI</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold", color: "white" }}>SĨ SỐ</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold", color: "white" }}>ĂN BÁN TRÚ</TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
                 {summaryData
                   .filter(row => row.isGroup)

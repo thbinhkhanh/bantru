@@ -161,7 +161,7 @@ export default function ThongKeTheoNgay({ onBack }) {
   }, []);
 
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", mt: 0, px: 1 }}>
+    <Box sx={{ maxWidth: 500, marginLeft: "auto", marginRight: "auto", paddingLeft: 0.5, paddingRight: 0.5, mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Box sx={{ mb: 5 }}>
           <Typography
@@ -188,7 +188,7 @@ export default function ThongKeTheoNgay({ onBack }) {
                     size: "small",
                     sx: {
                       minWidth: 130,
-                      maxWidth: 185,
+                      maxWidth: 165,
                       "& input": {
                         textAlign: "center",
                         height: "1.4375em", // giữ chiều cao tương thích với các control khác
@@ -206,33 +206,30 @@ export default function ThongKeTheoNgay({ onBack }) {
         {isLoading && <LinearProgress />}
 
         <TableContainer component={Paper} sx={{ mt: 2, borderRadius: 2 }}>
-          <Table size="small">
+          <Table>
             <TableHead>
-              <TableRow>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>
-                  LỚP / KHỐI
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>
-                  SĨ SỐ
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>
-                  ĂN BÁN TRÚ
-                </TableCell>
+              <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                <TableCell align="center" sx={{ fontWeight: "bold", color: "white" }}>LỚP / KHỐI</TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", color: "white" }}>SĨ SỐ</TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", color: "white" }}>ĂN BÁN TRÚ</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {summaryData.filter(row => row.isGroup).map((row, idx) => (
-                <Row
-                  key={idx}
-                  row={row}
-                  openGroups={openGroups}
-                  setOpenGroups={setOpenGroups}
-                  summaryData={summaryData}
-                />
-              ))}
+              {summaryData
+                .filter(row => row.isGroup)
+                .map((row, index) => (
+                  <Row
+                    key={index}
+                    row={row}
+                    openGroups={openGroups}
+                    setOpenGroups={setOpenGroups}
+                    summaryData={summaryData}
+                  />
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
+
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
           <Button onClick={onBack} color="secondary">

@@ -19,15 +19,15 @@ export default function LapDanhSach({ onBack }) { // ✅ Nhận `onBack` từ pr
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // 🔹 Truy vấn dữ liệu từ Firebase
         const snapshot = await getDocs(collection(db, 'BANTRU'));
         const studentData = snapshot.docs.map(doc => {
           const data = doc.data();
+          const huyDK = data['HỦY ĐK'];
           return {
             id: doc.id,
             ...data,
-            registered: data['HỦY ĐK'] === '',  // ✅ Nếu "HỦY ĐK" rỗng, chọn ô
-            isLocked: data['HỦY ĐK'] === ''    // ✅ Nếu "HỦY ĐK" rỗng, khóa ô
+            registered: huyDK !== 'x',   // nếu không phải 'x' thì là đăng ký (checkbox = true)
+            isLocked: huyDK !== 'x'      // nếu không phải 'x' thì không được sửa (disabled = true)
           };
         });
 
@@ -51,6 +51,7 @@ export default function LapDanhSach({ onBack }) { // ✅ Nhận `onBack` từ pr
 
     fetchData();
   }, []);
+
 
   const handleClassChange = (event) => {
     const selected = event.target.value;

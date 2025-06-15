@@ -127,7 +127,7 @@ export default function XoaDLNgay({ onBack }) {
                     size: "small",
                     sx: {
                       minWidth: 130,
-                      maxWidth: 185,
+                      maxWidth: 165,
                       "& input": {
                         textAlign: "center",
                         height: "1.4375em",

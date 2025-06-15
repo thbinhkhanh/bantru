@@ -108,8 +108,8 @@ export default function DieuChinhSuatAn({ onBack }) {
                 textField: {
                   size: "small",
                   sx: {
-                    minWidth: 130,
-                    maxWidth: 185,
+                    minWidth: 100,
+                    maxWidth: 165,
                     "& input": {
                       textAlign: "center",
                     },

@@ -92,8 +92,8 @@ export default function ThongKeNam({ onBack }) {
                 textField: {
                   size: "small",
                   sx: {
-                    minWidth: 130,
-                    maxWidth: 185,
+                    minWidth: 100,
+                    maxWidth: 145,
                     "& input": {
                       textAlign: "center",
                     },
@@ -149,7 +149,7 @@ export default function ThongKeNam({ onBack }) {
                     backgroundColor: "#1976d2",
                     color: "white",
                     py: 0.5,
-                    px: 1
+                    px: 1,
                   }}
                 >
                   HỌ VÀ TÊN
@@ -161,10 +161,10 @@ export default function ThongKeNam({ onBack }) {
                     backgroundColor: "#1976d2",
                     color: "white",
                     py: 0.5,
-                    px: 1
+                    px: 1,
                   }}
                 >
-                  ĐĂNG KÝ
+                  ĂN BÁN TRÚ
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -173,22 +173,21 @@ export default function ThongKeNam({ onBack }) {
               {dataList
                 .filter((s) => s.LỚP === selectedClass)
                 .map((student, index) => (
-                  <TableRow key={student.id} hover>
+                  <TableRow key={student.id} hover sx={{ height: 48 }}>
                     <TableCell align="center" sx={{ py: 0.5, px: 1 }}>
                       {index + 1}
                     </TableCell>
-                    <TableCell sx={{ py: 0.5, px: 1 }}>{student["HỌ VÀ TÊN"]}</TableCell>
+                    <TableCell sx={{ py: 0.5, px: 1 }}>
+                      {student["HỌ VÀ TÊN"]}
+                    </TableCell>
                     <TableCell align="center" sx={{ py: 0.5, px: 1 }}>
-                      <Checkbox
-                        checked={student.registered}
-                        onChange={() => toggleRegister(student.id)}
-                        size="small"
-                        color="primary"
-                      />
+                      {/* 👉 Thay thế bằng giá trị thực nếu có, ví dụ: */}
+                      {/* {student.total || 0} */}
                     </TableCell>
                   </TableRow>
                 ))}
             </TableBody>
+
           </Table>
         </TableContainer>
 

@@ -92,20 +92,33 @@ export default function CapNhatDS({ onBack }) {
           alert("Vui lòng chọn học sinh");
           return;
         }
+
+        const currentStatus = selectedStudentData["ĐĂNG KÝ"] || "";
+        if (dangKy === currentStatus) {
+          alert("⚠️ Vui lòng chọn trạng thái đăng ký");
+          return;
+        }
+
         console.log("🔁 Cập nhật học sinh từ danh sách:", {
           id: selectedStudentData.id,
           dangKy,
         });
+
+        // TODO: Ghi cập nhật mới vào Firestore (bạn có thể thêm tại đây)
       } else {
         if (!customHoTen.trim() || !customMaDinhDanh.trim()) {
           alert("Vui lòng nhập đầy đủ họ tên và mã định danh");
           return;
         }
+
+        // Nếu muốn kiểm tra trùng mã định danh, có thể thêm tại đây
         console.log("➕ Cập nhật thủ công:", {
           id: customMaDinhDanh,
           hoTen: customHoTen,
           dangKy,
         });
+
+        // TODO: Ghi dữ liệu mới vào Firestore (bạn có thể thêm tại đây)
       }
 
       alert("✅ Cập nhật thành công!");
@@ -116,6 +129,7 @@ export default function CapNhatDS({ onBack }) {
       setSaving(false);
     }
   };
+
 
   return (
     <Box
@@ -272,12 +286,13 @@ export default function CapNhatDS({ onBack }) {
                 <Button
                   variant="contained"
                   color="primary"
-                  fullWidth
                   onClick={handleUpdate}
                   disabled={saving}
+                  sx={{ width: 160, fontWeight: 600, py: 1, alignSelf: 'center' }}
                 >
                   {saving ? "🔄 Đang cập nhật..." : "Cập nhật"}
                 </Button>
+
                 <Button onClick={onBack} color="secondary">
                   ⬅️ Quay lại
                 </Button>
