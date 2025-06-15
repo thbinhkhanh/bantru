@@ -114,16 +114,31 @@ export default function XoaDLNgay({ onBack }) {
 
         <Stack spacing={3} alignItems="center">
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
-            <DatePicker
-              label="Chọn ngày"
-              value={selectedDate}
-              onChange={(newValue) => {
-                setSelectedDate(newValue);
-                setShowSuccess(false);
-              }}
-              renderInput={(params) => <TextField {...params} size="small" />}
-            />
+            <Box sx={{ width: 185 }}>
+              <DatePicker
+                label="Chọn ngày"
+                value={selectedDate}
+                onChange={(newValue) => {
+                  setSelectedDate(newValue);
+                  setShowSuccess(false);
+                }}
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    sx: {
+                      minWidth: 130,
+                      maxWidth: 185,
+                      "& input": {
+                        textAlign: "center",
+                        height: "1.4375em",
+                      },
+                    },
+                  },
+                }}
+              />
+            </Box>
           </LocalizationProvider>
+
 
           <RadioGroup
             row

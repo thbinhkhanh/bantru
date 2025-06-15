@@ -178,15 +178,30 @@ export default function ThongKeTheoNgay({ onBack }) {
 
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
           <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
-            <DatePicker
-              label="Chọn ngày"
-              value={selectedDate}
-              onChange={(newValue) => setSelectedDate(newValue)}
-              renderInput={(params) => <TextField {...params} size="small" />}
-            />
+            <Box sx={{ width: 185 }}>
+              <DatePicker
+                label="Chọn ngày"
+                value={selectedDate}
+                onChange={(newValue) => setSelectedDate(newValue)}
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    sx: {
+                      minWidth: 130,
+                      maxWidth: 185,
+                      "& input": {
+                        textAlign: "center",
+                        height: "1.4375em", // giữ chiều cao tương thích với các control khác
+                      },
+                    },
+                  },
+                }}
+              />
+
+
+            </Box>
           </Box>
         </LocalizationProvider>
-
 
         {isLoading && <LinearProgress />}
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Stack, TextField, MenuItem,
+  TableHead, TableRow, Paper, Stack, MenuItem,
   Select, FormControl, InputLabel, LinearProgress, Button, Checkbox
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -12,7 +12,10 @@ import { getDocs, collection } from "firebase/firestore";
 import { db } from "./firebase";
 
 export default function ThongKeThang({ onBack }) {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  });
   const [selectedClass, setSelectedClass] = useState("");
   const [classList, setClassList] = useState([]);
   const [dataList, setDataList] = useState([]);
@@ -80,23 +83,31 @@ export default function ThongKeThang({ onBack }) {
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
               label="Chọn tháng"
-              views={['year', 'month']} // Hiển thị chọn năm và tháng
-              openTo="month"            // Mở mặc định ở bảng chọn tháng
-              inputFormat="MM/yyyy"
+              views={["year", "month"]}
+              openTo="month"
               value={selectedDate}
               onChange={(newValue) => {
                 if (newValue instanceof Date && !isNaN(newValue)) {
-                  setSelectedDate(newValue);
+                  // Đảm bảo luôn trả về ngày đầu tháng
+                  setSelectedDate(new Date(newValue.getFullYear(), newValue.getMonth(), 1));
                 }
               }}
-              renderInput={(params) => <TextField {...params} size="small" />}
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: {
+                    minWidth: 130,
+                    maxWidth: 185,
+                    "& input": {
+                      textAlign: "center",
+                    },
+                  },
+                },
+              }}
             />
-
-
-
           </LocalizationProvider>
 
-          <FormControl size="small" sx={{ minWidth: 140 }}>
+          <FormControl size="small" sx={{ minWidth: 80 }}>
             <InputLabel>Lớp</InputLabel>
             <Select value={selectedClass} label="Lớp" onChange={handleClassChange}>
               {classList.map((cls, idx) => (
@@ -137,13 +148,25 @@ export default function ThongKeThang({ onBack }) {
                 </TableCell>
                 <TableCell
                   align="center"
-                  sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", py: 0.5, px: 1 }}
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    py: 0.5,
+                    px: 1
+                  }}
                 >
                   HỌ VÀ TÊN
                 </TableCell>
                 <TableCell
                   align="center"
-                  sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", py: 0.5, px: 1 }}
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    py: 0.5,
+                    px: 1
+                  }}
                 >
                   ĐĂNG KÝ
                 </TableCell>

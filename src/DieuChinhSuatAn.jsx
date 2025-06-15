@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Stack, TextField, MenuItem,
+  TableHead, TableRow, Paper, Stack, MenuItem,
   Select, FormControl, InputLabel, LinearProgress, Button, Checkbox
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -19,7 +19,6 @@ export default function DieuChinhSuatAn({ onBack }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  // 🔁 Tải dữ liệu từ Firestore
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -30,18 +29,14 @@ export default function DieuChinhSuatAn({ onBack }) {
           return {
             id: doc.id,
             ...data,
-            registered: data["HỦY ĐK"] === "T"  // ✅ Nếu HỦY ĐK là "T", coi là đã đăng ký
+            registered: data["HỦY ĐK"] === "T"
           };
         });
 
         setDataList(studentData);
-
         const classes = [...new Set(studentData.map(s => s.LỚP))].sort();
         setClassList(classes);
-
-        if (classes.length > 0) {
-          setSelectedClass(classes[0]);
-        }
+        if (classes.length > 0) setSelectedClass(classes[0]);
       } catch (err) {
         console.error("❌ Lỗi khi tải dữ liệu từ Firebase:", err);
       } finally {
@@ -52,13 +47,10 @@ export default function DieuChinhSuatAn({ onBack }) {
     fetchData();
   }, []);
 
-
-  // 🔄 Khi người dùng chọn lớp
   const handleClassChange = (event) => {
     setSelectedClass(event.target.value);
   };
 
-  // ✅ Toggle trạng thái đăng ký của học sinh
   const toggleRegister = (id) => {
     const updated = dataList.map(student =>
       student.id === id
@@ -68,7 +60,6 @@ export default function DieuChinhSuatAn({ onBack }) {
     setDataList(updated);
   };
 
-  // 💾 Xử lý lưu (tùy chỉnh phần này để ghi lại HỦY ĐK nếu muốn)
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -76,7 +67,6 @@ export default function DieuChinhSuatAn({ onBack }) {
         id: s.id,
         registered: s.registered
       }));
-
       console.log("📤 Gửi lên dữ liệu:", JSON.stringify(dataToSave, null, 2));
       alert("Lưu thành công!");
     } catch (err) {
@@ -109,14 +99,33 @@ export default function DieuChinhSuatAn({ onBack }) {
             <DatePicker
               label="Chọn ngày"
               value={selectedDate}
-              onChange={(newValue) => setSelectedDate(newValue)}
-              renderInput={(params) => <TextField {...params} size="small" />}
+              onChange={(newValue) => {
+                if (newValue instanceof Date && !isNaN(newValue)) {
+                  setSelectedDate(newValue);
+                }
+              }}
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: {
+                    minWidth: 130,
+                    maxWidth: 185,
+                    "& input": {
+                      textAlign: "center",
+                    },
+                  },
+                },
+              }}
             />
           </LocalizationProvider>
 
-          <FormControl size="small" sx={{ minWidth: 140 }}>
+          <FormControl size="small" sx={{ minWidth: 80, maxWidth: 80 }}>
             <InputLabel>Lớp</InputLabel>
-            <Select value={selectedClass} label="Lớp" onChange={handleClassChange}>
+            <Select
+              value={selectedClass}
+              label="Lớp"
+              onChange={handleClassChange}
+            >
               {classList.map((cls, idx) => (
                 <MenuItem key={idx} value={cls}>{cls}</MenuItem>
               ))}
@@ -132,10 +141,8 @@ export default function DieuChinhSuatAn({ onBack }) {
           sx={{
             borderRadius: 2,
             mt: 2,
-            // Chỉ áp dụng trên điện thoại: đẩy lề trái phải âm 1 đơn vị để bảng rộng hơn
             ml: { xs: -1, sm: 0 },
             mr: { xs: -1, sm: 0 },
-            // Chiều rộng bảng lớn hơn khung ở xs, bình thường 100%
             width: { xs: "calc(100% + 16px)", sm: "100%" },
           }}
         >
@@ -192,7 +199,6 @@ export default function DieuChinhSuatAn({ onBack }) {
             </TableBody>
           </Table>
         </TableContainer>
-
 
         {/* 🔹 Nút lưu và quay lại */}
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>

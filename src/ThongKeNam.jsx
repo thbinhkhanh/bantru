@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Stack, TextField, MenuItem,
+  TableHead, TableRow, Paper, Stack, MenuItem,
   Select, FormControl, InputLabel, LinearProgress, Button, Checkbox
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -75,25 +75,35 @@ export default function ThongKeNam({ onBack }) {
           <Box sx={{ height: "1.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1 }} />
         </Box>
 
-        {/* 🔹 Chọn ngày và lớp */}
+        {/* 🔹 Chọn năm và lớp */}
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center" justifyContent="center" sx={{ mb: 4 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
               label="Chọn năm"
-              views={['year']}
+              views={["year"]}
               openTo="year"
-              inputFormat="yyyy"
               value={selectedDate}
               onChange={(newValue) => {
                 if (newValue instanceof Date && !isNaN(newValue)) {
                   setSelectedDate(newValue);
                 }
               }}
-              renderInput={(params) => <TextField {...params} size="small" />}
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: {
+                    minWidth: 130,
+                    maxWidth: 185,
+                    "& input": {
+                      textAlign: "center",
+                    },
+                  },
+                },
+              }}
             />
           </LocalizationProvider>
 
-          <FormControl size="small" sx={{ minWidth: 140 }}>
+          <FormControl size="small" sx={{ minWidth: 80 }}>
             <InputLabel>Lớp</InputLabel>
             <Select value={selectedClass} label="Lớp" onChange={handleClassChange}>
               {classList.map((cls, idx) => (
@@ -134,13 +144,25 @@ export default function ThongKeNam({ onBack }) {
                 </TableCell>
                 <TableCell
                   align="center"
-                  sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", py: 0.5, px: 1 }}
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    py: 0.5,
+                    px: 1
+                  }}
                 >
                   HỌ VÀ TÊN
                 </TableCell>
                 <TableCell
                   align="center"
-                  sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", py: 0.5, px: 1 }}
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    py: 0.5,
+                    px: 1
+                  }}
                 >
                   ĐĂNG KÝ
                 </TableCell>

@@ -189,8 +189,20 @@ export default function ChotSoLieu({ onBack }) {
               label="Chọn ngày"
               value={selectedDate}
               onChange={(newValue) => setSelectedDate(newValue)}
-              renderInput={(params) => <TextField {...params} size="small" />}
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: {
+                    minWidth: 130,
+                    maxWidth: 185,
+                    "& input": {
+                      textAlign: "center",
+                    },
+                  },
+                },
+              }}
             />
+
           </LocalizationProvider>
 
           <Button variant="contained" color="primary" onClick={handleUpdate} disabled={isLoading}>
