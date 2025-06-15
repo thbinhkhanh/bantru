@@ -128,8 +128,8 @@ export default function TaiDanhSach({ onBack }) {
       sx={{
         minHeight: '100vh',
         background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)',
-        py: 6,
-        px: 2,
+        pt: 0,
+        px: 1,
       }}
     >
       <Box maxWidth={420} mx="auto">

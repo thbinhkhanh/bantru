@@ -164,7 +164,7 @@ export default function ChotSoLieu({ onBack }) {
   };
 
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", mt: 6 }}>
+    <Box sx={{ maxWidth: 500, mx: "auto", mt: 0, px: 1 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography variant="h5" fontWeight="bold" color="primary" align="center">
           CHỐT SỐ LIỆU HỌC SINH
@@ -181,6 +181,7 @@ export default function ChotSoLieu({ onBack }) {
             mb: 3,
           }}
         />
+
 
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" sx={{ mt: 3 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>

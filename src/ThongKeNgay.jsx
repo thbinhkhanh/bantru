@@ -1,94 +1,112 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-  Box,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  TextField,
-  Button,
-  LinearProgress,
-  Stack,
-  Alert,
-} from '@mui/material';
+  Box, Typography, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper, Stack, MenuItem, Select, FormControl,
+  InputLabel, LinearProgress, Button, IconButton, TextField
+} from "@mui/material";
+
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import vi from "date-fns/locale/vi";
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "./firebase";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import vi from 'date-fns/locale/vi';
 
-const summaryData = [
-  { group: '1.1', siSo: 14, anBanTru: 14 },
-  { group: '1.2', siSo: 7, anBanTru: 7 },
-  { group: '1.3', siSo: 13, anBanTru: 13 },
-  { group: '1.4', siSo: 12, anBanTru: 12 },
-  { group: '1.5', siSo: 8, anBanTru: 8 },
-  { group: '1.6', siSo: 7, anBanTru: 7 },
-  { group: 'KHỐI 1', siSo: 61, anBanTru: 61, isGroup: true },
+function groupData(data) {
+  const khoiData = {};
+  let truongSiSo = 0;
+  let truongAn = 0;
 
-  { group: '2.1', siSo: 11, anBanTru: 11 },
-  { group: '2.2', siSo: 12, anBanTru: 12 },
-  { group: '2.3', siSo: 6, anBanTru: 6 },
-  { group: '2.4', siSo: 4, anBanTru: 4 },
-  { group: '2.5', siSo: 3, anBanTru: 3 },
-  { group: '2.6', siSo: 4, anBanTru: 4 },
-  { group: 'KHỐI 2', siSo: 40, anBanTru: 40, isGroup: true },
+  data.forEach(item => {
+    const lop = item.LỚP?.toString().trim();
+    const khoi = lop?.split(".")[0];
+    const huyDK = (item["HỦY ĐK"] || "").toUpperCase();
 
-  { group: '3.1', siSo: 5, anBanTru: 5 },
-  { group: '3.2', siSo: 11, anBanTru: 11 },
-  { group: '3.3', siSo: 10, anBanTru: 10 },
-  { group: '3.4', siSo: 4, anBanTru: 4 },
-  { group: '3.5', siSo: 5, anBanTru: 5 },
-  { group: '3.6', siSo: 10, anBanTru: 10 },
-  { group: 'KHỐI 3', siSo: 45, anBanTru: 45, isGroup: true },
+    if (!lop || !khoi) return;
 
-  { group: '4.1', siSo: 5, anBanTru: 5 },
-  { group: '4.2', siSo: 14, anBanTru: 14 },
-  { group: '4.3', siSo: 14, anBanTru: 14 },
-  { group: '4.4', siSo: 4, anBanTru: 4 },
-  { group: '4.5', siSo: 5, anBanTru: 5 },
-  { group: '4.6', siSo: 10, anBanTru: 10 },
-  { group: 'KHỐI 4', siSo: 52, anBanTru: 52, isGroup: true },
+    khoiData[khoi] = khoiData[khoi] || {
+      group: `KHỐI ${khoi}`,
+      siSo: 0,
+      anBanTru: 0,
+      isGroup: true,
+      children: {},
+    };
 
-  { group: '5.1', siSo: 10, anBanTru: 10 },
-  { group: '5.2', siSo: 8, anBanTru: 8 },
-  { group: '5.3', siSo: 7, anBanTru: 7 },
-  { group: '5.4', siSo: 6, anBanTru: 6 },
-  { group: '5.5', siSo: 6, anBanTru: 6 },
-  { group: '5.6', siSo: 0, anBanTru: 0 },
-  { group: 'KHỐI 5', siSo: 37, anBanTru: 37, isGroup: true },
+    khoiData[khoi].children[lop] = khoiData[khoi].children[lop] || {
+      group: lop,
+      siSo: 0,
+      anBanTru: 0,
+      isGroup: false,
+    };
 
-  { group: 'TRƯỜNG', siSo: 235, anBanTru: 235, isGroup: true },
-];
+    if (huyDK !== "X") {
+      khoiData[khoi].children[lop].siSo += 1;
+      khoiData[khoi].siSo += 1;
+      truongSiSo += 1;
+    }
 
-function Row({ row, openGroups, setOpenGroups }) {
+    if (huyDK === "T") {
+      khoiData[khoi].children[lop].anBanTru += 1;
+      khoiData[khoi].anBanTru += 1;
+      truongAn += 1;
+    }
+  });
+
+  const summaryData = [];
+  const khoiList = Object.keys(khoiData).sort();
+
+  for (const khoi of khoiList) {
+    const khoiItem = khoiData[khoi];
+    summaryData.push({
+      group: khoiItem.group,
+      siSo: khoiItem.siSo,
+      anBanTru: khoiItem.anBanTru,
+      isGroup: true,
+    });
+
+    const lopList = Object.keys(khoiItem.children).sort();
+    for (const lop of lopList) {
+      summaryData.push(khoiItem.children[lop]);
+    }
+  }
+
+  summaryData.push({
+    group: "TRƯỜNG",
+    siSo: truongSiSo,
+    anBanTru: truongAn,
+    isGroup: true,
+  });
+
+  return summaryData;
+}
+
+function Row({ row, openGroups, setOpenGroups, summaryData }) {
   const isOpen = openGroups.includes(row.group);
-  const groupNumber = row.group.split(' ')[1];
-  const isTruong = row.group === 'TRƯỜNG';
-  const subRows = summaryData.filter((r) => !r.isGroup && r.group.startsWith(groupNumber + '.'));
+  const isTruong = row.group === "TRƯỜNG";
+  const isGroup = row.isGroup;
+
+  const subRows = summaryData.filter(
+    r => !r.isGroup && r.group.startsWith(row.group.split(" ")[1] + ".")
+  );
 
   return (
     <>
       <TableRow
         sx={{
-          backgroundColor: isTruong ? '#fff3e0' : '#e3f2fd',
-          cursor: isTruong ? 'default' : 'pointer',
-          '&:hover': { backgroundColor: isTruong ? '#ffe0b2' : '#bbdefb' },
+          backgroundColor: isTruong ? "#fff3e0" : "#e3f2fd",
+          cursor: isGroup && !isTruong ? "pointer" : "default",
+          "&:hover": { backgroundColor: isGroup && !isTruong ? "#bbdefb" : undefined },
         }}
         onClick={() => {
-          if (!isTruong) {
+          if (isGroup && !isTruong) {
             setOpenGroups(isOpen ? openGroups.filter(g => g !== row.group) : [...openGroups, row.group]);
           }
         }}
       >
-        <TableCell sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-          {!isTruong && (
+        <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
+          {isGroup && !isTruong && (
             <IconButton
               size="small"
               onClick={(e) => {
@@ -101,118 +119,111 @@ function Row({ row, openGroups, setOpenGroups }) {
           )}
           {row.group}
         </TableCell>
-        <TableCell align="center" sx={{ fontWeight: 'bold' }}>{row.siSo}</TableCell>
-        <TableCell align="center" sx={{ fontWeight: 'bold' }}>{row.anBanTru}</TableCell>
+        <TableCell align="center" sx={{ fontWeight: "bold" }}>{row.siSo}</TableCell>
+        <TableCell align="center" sx={{ fontWeight: "bold" }}>{row.anBanTru}</TableCell>
       </TableRow>
 
-      {isOpen && subRows.map((subRow, i) => (
-        <TableRow key={i} sx={{ backgroundColor: '#f9fbe7', '&:hover': { backgroundColor: '#f0f4c3' } }}>
-          <TableCell sx={{ pl: 6, textAlign: 'center' }}>{subRow.group}</TableCell>
-          <TableCell align="center">{subRow.siSo}</TableCell>
-          <TableCell align="center">{subRow.anBanTru}</TableCell>
-        </TableRow>
-      ))}
+      {isGroup && isOpen &&
+        subRows.map((subRow, i) => (
+          <TableRow key={i} sx={{ backgroundColor: "#f9fbe7", "&:hover": { backgroundColor: "#f0f4c3" } }}>
+            <TableCell sx={{ pl: 6, textAlign: "center" }}>{subRow.group}</TableCell>
+            <TableCell align="center">{subRow.siSo}</TableCell>
+            <TableCell align="center">{subRow.anBanTru}</TableCell>
+          </TableRow>
+        ))}
     </>
   );
 }
 
-export default function ChotSoLieu() {
-  const [openGroups, setOpenGroups] = useState([]);
+export default function ThongKeTheoNgay({ onBack }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isLoading, setIsLoading] = useState(false);
-  const [isUpdated, setIsUpdated] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [dataList, setDataList] = useState([]);
+  const [summaryData, setSummaryData] = useState([]);
+  const [openGroups, setOpenGroups] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleUpdate = () => {
-    setIsLoading(true);
-    setIsUpdated(false);
-    setShowSuccess(false);
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsUpdated(true);
-      setShowSuccess(true);
-    }, 2000);
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const snapshot = await getDocs(collection(db, "BANTRU"));
+        const studentData = snapshot.docs.map(doc => doc.data());
+        setDataList(studentData);
+        setSummaryData(groupData(studentData));
+      } catch (err) {
+        console.error("❌ Lỗi khi tải dữ liệu từ Firebase:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
-    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4, p: 3 }}>
+    <Box sx={{ maxWidth: 500, mx: "auto", mt: 0, px: 1 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
-        <Typography
-          variant="h5"
-          align="center"
-          gutterBottom
-          fontWeight="bold"
-          color="primary"
-          sx={{ mb: 5 }}
-        >
-          TỔNG HỢP NGÀY
-          <Box sx={{ height: '2px', width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 1, mb: 4 }} />
-        </Typography>
+        <Box sx={{ mb: 5 }}>
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            color="primary"
+            align="center"
+            sx={{ mb: 1 }}
+          >
+            TỔNG HỢP NGÀY
+          </Typography>
+          <Box sx={{ height: "1.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1 }} />
+        </Box>
 
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" justifyContent="center">
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
+          <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
             <DatePicker
               label="Chọn ngày"
               value={selectedDate}
               onChange={(newValue) => setSelectedDate(newValue)}
               renderInput={(params) => <TextField {...params} size="small" />}
             />
-          </LocalizationProvider>
+          </Box>
+        </LocalizationProvider>
 
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleUpdate}
-            disabled={isLoading}
-            sx={{ minWidth: 140 }}
-          >
-            Cập nhật
+
+        {isLoading && <LinearProgress />}
+
+        <TableContainer component={Paper} sx={{ mt: 2, borderRadius: 2 }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>
+                  LỚP / KHỐI
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>
+                  SĨ SỐ
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>
+                  ĂN BÁN TRÚ
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {summaryData.filter(row => row.isGroup).map((row, idx) => (
+                <Row
+                  key={idx}
+                  row={row}
+                  openGroups={openGroups}
+                  setOpenGroups={setOpenGroups}
+                  summaryData={summaryData}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
+          <Button onClick={onBack} color="secondary">
+            ⬅️ Quay lại
           </Button>
         </Stack>
-
-        {isLoading && (
-          <Box sx={{ width: '100%', mt: 3 }}>
-            <LinearProgress />
-            <Typography align="center" mt={1}>Đang cập nhật dữ liệu...</Typography>
-          </Box>
-        )}
-
-        {showSuccess && (
-          <>
-            <Alert severity="success" sx={{ mt: 3, textAlign: 'center' }}>
-              Cập nhật dữ liệu thành công!
-            </Alert>
-
-            <Typography
-              align="center"
-              sx={{ mt: 4, color: 'error.main', fontWeight: 'bold' }}
-            >
-              Dữ liệu cập nhật đến ngày: {selectedDate.toLocaleDateString('vi-VN')}
-            </Typography>
-          </>
-        )}
-
-
-        {isUpdated && (
-          <TableContainer component={Paper} sx={{ mt: 4, borderRadius: 2 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>LỚP / KHỐI</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>SĨ SỐ</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold' }}>ĂN BÁN TRÚ</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {summaryData
-                  .filter(row => row.isGroup || row.group === 'TRƯỜNG')
-                  .map((row, index) => (
-                    <Row key={index} row={row} openGroups={openGroups} setOpenGroups={setOpenGroups} />
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
       </Paper>
     </Box>
   );

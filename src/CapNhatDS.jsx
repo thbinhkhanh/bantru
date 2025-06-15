@@ -122,8 +122,9 @@ export default function CapNhatDS({ onBack }) {
       sx={{
         minHeight: "100vh",
         background: "linear-gradient(to bottom, #e3f2fd, #bbdefb)",
-        py: 6,
-        px: 2,
+        //py: 6,
+        pt: 1,
+        px: 1,
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",

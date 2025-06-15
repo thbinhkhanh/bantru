@@ -88,7 +88,7 @@ export default function DieuChinhSuatAn({ onBack }) {
   };
 
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", mt: 8 }}>
+    <Box sx={{ maxWidth: 500, mx: "auto", mt: 0, px: 1 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Box sx={{ mb: 5 }}>
           <Typography

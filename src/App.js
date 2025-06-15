@@ -19,15 +19,18 @@ export default function App() {
   return (
     <Router>
       <Navigation />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/lop1" element={<Lop1 />} />
-        <Route path="/lop2" element={<Lop2 />} />
-        <Route path="/lop3" element={<Lop3 />} />
-        <Route path="/lop4" element={<Lop4 />} />
-        <Route path="/lop5" element={<Lop5 />} />
-        <Route path="/quanly" element={<QuanLy />} />
-      </Routes>
+      {/* Thêm phần đệm top để không bị che */}
+      <div style={{ paddingTop: '72px' }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/lop1" element={<Lop1 />} />
+          <Route path="/lop2" element={<Lop2 />} />
+          <Route path="/lop3" element={<Lop3 />} />
+          <Route path="/lop4" element={<Lop4 />} />
+          <Route path="/lop5" element={<Lop5 />} />
+          <Route path="/quanly" element={<QuanLy />} />
+        </Routes>
+      </div>
     </Router>
   );
 }
@@ -48,16 +51,29 @@ function Navigation() {
   return (
     <nav
       style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
         padding: '12px',
         background: '#1976d2',
         color: 'white',
-        marginBottom: '20px',
         display: 'flex',
+        alignItems: 'center',
         overflowX: 'auto',
         whiteSpace: 'nowrap',
         gap: '10px',
       }}
     >
+      {/* Logo */}
+      <img
+        src="/Logo.png"
+        alt="Logo"
+        style={{ height: '40px', marginRight: '16px' }}
+      />
+
+      {/* Navigation Links */}
       {navItems.map((item, index) => (
         <Link
           key={index}
@@ -80,3 +96,4 @@ function Navigation() {
     </nav>
   );
 }
+

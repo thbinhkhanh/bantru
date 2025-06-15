@@ -27,7 +27,7 @@ import vi from 'date-fns/locale/vi';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
 
-export default function ChotSoLieu({ onBack }) {
+export default function XoaDLNgay({ onBack }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [option, setOption] = useState('toantruong');
   const [selectedClass, setSelectedClass] = useState('');
@@ -89,7 +89,7 @@ export default function ChotSoLieu({ onBack }) {
   };
 
   return (
-    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4, p: 2 }}>
+    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 0, px: 1 }}>
       <Paper elevation={3} sx={{ p: 3, borderRadius: 4 }}>
         <Typography
           variant="h5"
