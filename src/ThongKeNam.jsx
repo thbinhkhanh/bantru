@@ -76,7 +76,15 @@ export default function ThongKeNam({ onBack }) {
         </Box>
 
         {/* 🔹 Chọn năm và lớp */}
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center" justifyContent="center" sx={{ mb: 4 }}>
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="center"
+            justifyContent="center"
+            flexWrap="wrap"
+            sx={{ mb: 4 }}
+          >
+
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
               label="Chọn năm"

@@ -193,7 +193,7 @@ export default function ChotSoLieu({ onBack }) {
                 textField: {
                   size: "small",
                   sx: {
-                    minWidth: 100,
+                    minWidth: 80,
                     maxWidth: 165,
                     "& input": {
                       textAlign: "center",

@@ -94,7 +94,15 @@ export default function DieuChinhSuatAn({ onBack }) {
         </Box>
 
         {/* 🔹 Chọn ngày và lớp */}
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center" justifyContent="center" sx={{ mb: 4 }}>
+       <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          justifyContent="center"
+          flexWrap="wrap"
+          sx={{ mb: 4 }}
+        >
+
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
               label="Chọn ngày"
@@ -108,7 +116,7 @@ export default function DieuChinhSuatAn({ onBack }) {
                 textField: {
                   size: "small",
                   sx: {
-                    minWidth: 100,
+                    minWidth: 80,
                     maxWidth: 165,
                     "& input": {
                       textAlign: "center",
