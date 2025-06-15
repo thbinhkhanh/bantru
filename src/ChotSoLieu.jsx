@@ -205,9 +205,16 @@ export default function ChotSoLieu({ onBack }) {
 
           </LocalizationProvider>
 
-          <Button variant="contained" color="primary" onClick={handleUpdate} disabled={isLoading}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleUpdate}
+            disabled={isLoading}
+            sx={{ fontSize: "1rem" }} // 👈 Chỉnh cỡ chữ tại đây
+          >
             Cập nhật
           </Button>
+
         </Stack>
 
         {isLoading && (
