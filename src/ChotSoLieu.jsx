@@ -210,7 +210,7 @@ export default function ChotSoLieu({ onBack }) {
             color="primary"
             onClick={handleUpdate}
             disabled={isLoading}
-            sx={{ fontSize: "1rem" }} // 👈 Chỉnh cỡ chữ tại đây
+            sx={{ fontSize: "0.5rem" }} // 👈 Chỉnh cỡ chữ tại đây
           >
             Cập nhật
           </Button>
