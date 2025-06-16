@@ -69,30 +69,28 @@ export default function TaiDanhSach({ onBack }) {
   };
 
   const processStudentData = async (jsonData) => {
-    // Lấy danh sách mã định danh đã tồn tại trên Firebase
     const snapshot = await getDocs(collection(db, 'BANTRU'));
     const existingIds = new Set(snapshot.docs.map(doc => doc.id));
 
-    // Danh sách học sinh mới cần thêm
-    const studentsNew = jsonData.filter(row => {
-      const ma = row['MÃ ĐỊNH DANH']?.toString().trim();
-      return ma && !existingIds.has(ma);
-    }).map(row => ({
-      STT: row['STT'] || '',
-      'MÃ ĐỊNH DANH': row['MÃ ĐỊNH DANH']?.toString().trim(),
-      'HỌ VÀ TÊN': row['HỌ VÀ TÊN'] || '',
-      LỚP: row['LỚP'] || '',
-      'HỦY ĐK': (row['ĐĂNG KÝ']?.toString().trim().toLowerCase() === 'x') ? '' : 'x',
-    }));
+    const studentsNew = jsonData
+      .filter(row => {
+        const ma = row['MÃ ĐỊNH DANH']?.toString().trim();
+        return ma && !existingIds.has(ma);
+      })
+      .map(row => ({
+        stt: row['STT'] || '',
+        maDinhDanh: row['MÃ ĐỊNH DANH']?.toString().trim(),
+        hoVaTen: row['HỌ VÀ TÊN'] || '',
+        lop: row['LỚP']?.toString().trim(),
+        huyDangKy: row['ĐĂNG KÝ']?.toString().trim().toLowerCase() === 'x' ? '' : 'x',
+      }));
 
-    // Nếu không có học sinh mới
     if (studentsNew.length === 0) {
       setSuccess(true);
       setMessage('📌 Toàn bộ dữ liệu đã tồn tại trên hệ thống.');
       return;
     }
 
-    // Tiến hành thêm dữ liệu mới vào Firebase
     let successCount = 0;
     let errorCount = 0;
     setTotalCount(studentsNew.length);
@@ -100,10 +98,10 @@ export default function TaiDanhSach({ onBack }) {
     for (let i = 0; i < studentsNew.length; i++) {
       const student = studentsNew[i];
       try {
-        await setDoc(doc(db, 'BANTRU', student['MÃ ĐỊNH DANH']), student);
+        await setDoc(doc(db, 'BANTRU', student.maDinhDanh), student);
         successCount++;
       } catch (err) {
-        console.error(`❌ Lỗi khi ghi mã ${student['MÃ ĐỊNH DANH']}:`, err.message);
+        console.error(`❌ Lỗi khi ghi mã ${student.maDinhDanh}:`, err.message);
         errorCount++;
       }
 
@@ -111,17 +109,41 @@ export default function TaiDanhSach({ onBack }) {
       setProgress(Math.round(((i + 1) / studentsNew.length) * 100));
     }
 
-    // Cập nhật trạng thái sau khi tải xong
-    if (successCount > 0) {
-      setSelectedFile(null); // Xóa file đã chọn để tránh lỗi giao diện
+    // Cập nhật danh sách lớp
+    const allClasses = new Set();
+    studentsNew.forEach(student => {
+      const lop = student.lop?.toString().trim();
+      if (lop) allClasses.add(lop);
+    });
+
+    const classArray = Array.from(allClasses).sort();
+    const grouped = { K1: [], K2: [], K3: [], K4: [], K5: [] };
+
+    classArray.forEach(lop => {
+      const kh = lop.split('.')[0];
+      if (grouped['K' + kh]) grouped['K' + kh].push(lop);
+    });
+
+    try {
+      await setDoc(doc(db, 'DANHSACH', 'TRUONG'), { list: classArray });
+      for (const key in grouped) {
+        await setDoc(doc(db, 'DANHSACH', key), { list: grouped[key] });
+      }
+      console.log('✅ Cập nhật danh sách lớp thành công');
+    } catch (e) {
+      console.error('❌ Lỗi khi cập nhật danh sách lớp:', e.message);
     }
 
-    // Hiển thị kết quả chính xác
+    if (successCount > 0) {
+      setSelectedFile(null);
+    }
+
     setSuccess(errorCount === 0);
     setMessage(errorCount === 0
       ? `✅ Đã thêm thành công ${successCount} học sinh mới.`
       : `⚠️ Có ${errorCount} lỗi khi thêm ${studentsNew.length} học sinh mới.`);
   };
+
 
   return (
     <Box
@@ -205,3 +227,4 @@ export default function TaiDanhSach({ onBack }) {
     </Box>
   );
 }
+

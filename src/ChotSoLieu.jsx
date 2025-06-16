@@ -236,7 +236,7 @@ export default function ChotSoLieu({ onBack }) {
             disabled={isLoading}
             sx={{
               fontSize: {
-                xs: "0.8rem",
+                xs: "0.75rem",
                 sm: "1rem",
               }
             }}
