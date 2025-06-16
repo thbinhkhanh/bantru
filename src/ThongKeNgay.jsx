@@ -176,7 +176,7 @@ export default function ThongKeTheoNgay({ onBack }) {
           >
             TỔNG HỢP NGÀY
           </Typography>
-          <Box sx={{ height: "1.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1 }} />
+           <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
 
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>

@@ -8,7 +8,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import vi from "date-fns/locale/vi";
-import { getDocs, collection } from "firebase/firestore";
+import { getDoc, getDocs, doc, collection, query, where } from "firebase/firestore";
 import { db } from "./firebase";
 
 export default function ThongKeThang({ onBack }) {
@@ -19,64 +19,87 @@ export default function ThongKeThang({ onBack }) {
   const [selectedClass, setSelectedClass] = useState("");
   const [classList, setClassList] = useState([]);
   const [dataList, setDataList] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [daySet, setDaySet] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchClassList = async () => {
+      try {
+        const docRef = doc(db, "DANHSACH", "TRUONG");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const list = docSnap.data().list || [];
+          setClassList(list);
+          if (list.length > 0) setSelectedClass(list[0]);
+        }
+      } catch (err) {
+        console.error("❌ Lỗi khi tải danh sách lớp:", err);
+      }
+    };
+    fetchClassList();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedClass || !selectedDate) return;
+
+    const fetchStudents = async () => {
       setIsLoading(true);
       try {
-        const snapshot = await getDocs(collection(db, "BANTRU"));
-        const studentData = snapshot.docs.map(doc => {
-          const data = doc.data();
+        const q = query(collection(db, "BANTRU"), where("lop", "==", selectedClass));
+        const snapshot = await getDocs(q);
+        const students = snapshot.docs.map((docSnap, index) => {
+          const d = docSnap.data();
+          const data = d.data || {};
+          const daySummary = {};
+          let total = 0;
+
+          Object.entries(data).forEach(([dateStr, val]) => {
+            const date = new Date(dateStr);
+            if (!isNaN(date) && date.getMonth() === selectedDate.getMonth() && date.getFullYear() === selectedDate.getFullYear()) {
+              const day = date.getDate();
+              daySummary[day] = val === "T" ? "✓" : "";
+              if (val === "T") total += 1;
+            }
+          });
+
           return {
-            id: doc.id,
-            ...data
+            id: docSnap.id,
+            hoVaTen: d.hoVaTen,
+            stt: index + 1,
+            daySummary,
+            total,
           };
         });
 
-        setDataList(studentData);
-        const classes = [...new Set(studentData.map(s => s.LỚP))].sort();
-        setClassList(classes);
-        if (classes.length > 0) setSelectedClass(classes[0]);
+        const allDays = new Set();
+        students.forEach((s) => {
+          Object.keys(s.daySummary).forEach((d) => allDays.add(parseInt(d)));
+        });
+
+        const days = Array.from(allDays).sort((a, b) => a - b);
+        setDaySet(days);
+        setDataList(students);
       } catch (err) {
-        console.error("❌ Lỗi khi tải dữ liệu từ Firebase:", err);
+        console.error("❌ Lỗi khi tải học sinh lớp:", err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
-
-  const handleClassChange = (event) => {
-    setSelectedClass(event.target.value);
-  };
+    fetchStudents();
+  }, [selectedClass, selectedDate]);
 
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", mt: 0, px: 1 }}>
+    <Box sx={{ maxWidth: 750, mx: "auto", mt: 0, px: 1 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Box sx={{ mb: 5 }}>
-          <Typography
-            variant="h5"
-            fontWeight="bold"
-            color="primary"
-            align="center"
-            sx={{ mb: 1 }}
-          >
+          <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mb: 1 }}>
             SỐ LIỆU THÁNG
           </Typography>
-          <Box sx={{ height: "1.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1 }} />
+           <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
 
-        <Stack
-          direction="row"
-          spacing={2}
-          alignItems="center"
-          justifyContent="center"
-          flexWrap="wrap"
-          sx={{ mb: 4 }}
-        >
-
+        <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 4 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
               label="Chọn tháng"
@@ -94,103 +117,68 @@ export default function ThongKeThang({ onBack }) {
                   sx: {
                     minWidth: 80,
                     maxWidth: 165,
-                    "& input": {
-                      textAlign: "center",
-                    },
-                  },
-                },
+                    "& input": { textAlign: "center" }
+                  }
+                }
               }}
             />
           </LocalizationProvider>
 
-          <FormControl size="small" sx={{ minWidth: 80 }}>
+          <FormControl size="small" sx={{ minWidth: 100 }}>
             <InputLabel>Lớp</InputLabel>
-            <Select value={selectedClass} label="Lớp" onChange={handleClassChange}>
+            <Select
+              value={selectedClass}
+              label="Lớp"
+              onChange={(e) => setSelectedClass(e.target.value)}
+            >
               {classList.map((cls, idx) => (
-                <MenuItem key={idx} value={cls}>{cls}</MenuItem>
+                <MenuItem key={idx} value={cls}>
+                  {cls}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
         </Stack>
 
-        {isLoading && <LinearProgress />}
+        {isLoading && <LinearProgress sx={{ width: "50%", mx: "auto", my: 2 }} />}
 
-        <TableContainer
-          component={Paper}
-          sx={{
-            borderRadius: 2,
-            mt: 2,
-            ml: { xs: -1, sm: 0 },
-            mr: { xs: -1, sm: 0 },
-            width: { xs: "calc(100% + 16px)", sm: "100%" },
-          }}
-        >
+        <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontWeight: "bold",
-                    backgroundColor: "#1976d2",
-                    color: "white",
-                    width: 40,
-                    py: 0.5,
-                    px: 1,
-                  }}
-                >
-                  STT
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontWeight: "bold",
-                    backgroundColor: "#1976d2",
-                    color: "white",
-                    py: 0.5,
-                    px: 1
-                  }}
-                >
-                  HỌ VÀ TÊN
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontWeight: "bold",
-                    backgroundColor: "#1976d2",
-                    color: "white",
-                    py: 0.5,
-                    px: 1
-                  }}
-                >
-                  ĂN BÁN TRÚ
-                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", px: 1 }}>STT</TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 140, px: 1 }}>HỌ VÀ TÊN</TableCell>
+                {daySet.map((d) => {
+                  const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), d);
+                  const isWeekend = date.getDay() === 6 || date.getDay() === 0;
+                  return (
+                    <TableCell key={d} align="center" sx={{ fontWeight: "bold", backgroundColor: isWeekend ? "#d32f2f" : "#1976d2", color: "white", minWidth: 40, px: 1 }}>
+                      Ngày {d}
+                    </TableCell>
+                  );
+                })}
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 70, px: 1 }}>Tổng cộng</TableCell>
               </TableRow>
             </TableHead>
-
             <TableBody>
-              {dataList
-                .filter((s) => s.LỚP === selectedClass)
-                .map((student, index) => (
-                  //<TableRow key={student.id} hover>
-                  <TableRow key={student.id} hover sx={{ height: 48 }}>
-                    <TableCell align="center" sx={{ py: 0.5, px: 1 }}>
-                      {index + 1}
+              {dataList.map((student) => (
+                <TableRow key={student.id} sx={{ height: 56 }}>
+                  <TableCell align="center" sx={{ px: 1 }}>{student.stt}</TableCell>
+                  <TableCell sx={{ px: 1 }}>{student.hoVaTen}</TableCell>
+                  {daySet.map((d) => (
+                    <TableCell key={d} align="center" sx={{ color: student.daySummary[d] ? "#1976d2" : "inherit", px: 1 }}>
+                      {student.daySummary[d] || ""}
                     </TableCell>
-                    <TableCell sx={{ py: 0.5, px: 1 }}>{student["HỌ VÀ TÊN"]}</TableCell>
-                    <TableCell align="center" sx={{ py: 0.5, px: 1 }}>
-                      {/* Tạm thời để trống */}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                  ))}
+                  <TableCell align="center" sx={{ fontWeight: "bold", px: 1 }}>{student.total}</TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
-          <Button onClick={onBack} color="secondary">
-            ⬅️ Quay lại
-          </Button>
+          <Button onClick={onBack} color="secondary">⬅️ Quay lại</Button>
         </Stack>
       </Paper>
     </Box>

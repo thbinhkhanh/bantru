@@ -100,10 +100,10 @@ export default function LapDanhSach({ onBack }) { // ✅ Nhận `onBack` từ pr
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)', pt: 0, px: 1, display: 'flex', justifyContent: 'center' }}>
       <Card sx={{ p: 4, maxWidth: 450, width: '100%', borderRadius: 4, boxShadow: '0 8px 30px rgba(0,0,0,0.15)', backgroundColor: 'white' }} elevation={10}>
-        <Typography variant="h5" align="center" gutterBottom fontWeight="bold" color="primary" sx={{ mb: 4, textShadow: '2px 2px 5px rgba(0,0,0,0.1)', borderBottom: '3px solid #1976d2', pb: 1 }}>
+        <Typography variant="h5" align="center" gutterBottom fontWeight="bold" color="primary" sx={{ mb: 2, textShadow: '2px 2px 5px rgba(0,0,0,0.1)',  pb: 1 }}>
           LẬP DANH SÁCH BÁN TRÚ
         </Typography>
-
+        <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 0, mb: 4 }} />
         <Stack direction="row" justifyContent="center" sx={{ mb: 4 }}>
           <FormControl size="small" sx={{ minWidth: 120 }}>
             <InputLabel>Lớp</InputLabel>

@@ -205,7 +205,7 @@ export default function ChotSoLieu({ onBack }) {
           CHỐT SỐ LIỆU HỌC SINH
         </Typography>
 
-        <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 1, mb: 3 }} />
+        <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
 
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" sx={{ mt: 3 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>

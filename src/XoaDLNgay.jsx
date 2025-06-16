@@ -100,16 +100,7 @@ export default function XoaDLNgay({ onBack }) {
           sx={{ mb: 4 }}
         >
           XÓA DỮ LIỆU
-          <Box
-            sx={{
-              height: '2px',
-              width: '100%',
-              backgroundColor: '#1976d2',
-              borderRadius: 1,
-              mt: 1,
-              mb: 4,
-            }}
-          />
+           <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Typography>
 
         <Stack spacing={3} alignItems="center">

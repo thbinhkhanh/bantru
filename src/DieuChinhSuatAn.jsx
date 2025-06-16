@@ -162,9 +162,9 @@ export default function DieuChinhSuatAn({ onBack }) {
   return (
     <Box sx={{ maxWidth: 500, mx: "auto", px: 1 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
-        <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mb: 2 }}>
+        <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mt: 2 }}>
           ĐIỀU CHỈNH SUẤT ĂN
-          <Box sx={{ height: 2, width: "100%", backgroundColor: "#1976d2", mt: 1, mb: 4 }} />
+           <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Typography>
 
         <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }} flexWrap="wrap">
@@ -182,7 +182,7 @@ export default function DieuChinhSuatAn({ onBack }) {
             />
           </LocalizationProvider>
 
-          <FormControl size="small" sx={{ minWidth: 80, width: 120 }}>
+          <FormControl size="small" sx={{ minWidth: 60, width: 120 }}>
             <InputLabel>Lớp</InputLabel>
             <Select value={selectedClass || ""} label="Lớp" onChange={handleClassChange}>
               {classList.map((cls, idx) => (
@@ -200,7 +200,7 @@ export default function DieuChinhSuatAn({ onBack }) {
           <Table size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: "#1976d2" }}>
-                <TableCell align="center" sx={{ color: "white", width: 40 }}>STT</TableCell>
+                <TableCell align="center" sx={{ color: "white", width: 25 }}>STT</TableCell>
                 <TableCell align="center" sx={{ color: "white" }}>HỌ VÀ TÊN</TableCell>
                 <TableCell align="center" sx={{ color: "white" }}>ĐĂNG KÝ</TableCell>
               </TableRow>

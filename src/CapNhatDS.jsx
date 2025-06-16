@@ -152,10 +152,12 @@ export default function CapNhatDS({ onBack }) {
             fontWeight="bold"
             color="primary"
             gutterBottom
-            sx={{ borderBottom: "3px solid #1976d2", pb: 1, mb: 3 }}
+            //sx={{ borderBottom: "3px solid #1976d2", pb: 1, mb: 3 }}
           >
             CẬP NHẬT DANH SÁCH
           </Typography>
+
+           <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
 
           {loading ? (
             <Box sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", my: 2 }}>

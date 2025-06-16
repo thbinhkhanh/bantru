@@ -162,11 +162,11 @@ export default function TaiDanhSach({ onBack }) {
             fontWeight="bold"
             align="center"
             gutterBottom
-            sx={{ borderBottom: '2px solid #1976d2', pb: 1, mb: 3 }}
+            //sx={{ borderBottom: '2px solid #1976d2', pb: 1, mb: 3 }}
           >
             TẢI DANH SÁCH HỌC SINH
           </Typography>
-
+          <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
           <Stack spacing={2}>
             <Button
               variant="outlined"

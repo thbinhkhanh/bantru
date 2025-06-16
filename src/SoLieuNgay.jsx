@@ -168,7 +168,7 @@ export default function SoLieuTrongNgay({ onBack }) {
   }, []);
 
   return (
-    <Box sx={{ maxWidth: 500, marginLeft: "auto", marginRight: "auto", paddingLeft: 0.5, paddingRight: 0.5, mt: 1 }}>
+    <Box sx={{ maxWidth: 500, marginLeft: "auto", marginRight: "auto", paddingLeft: 0.5, paddingRight: 0.5, mt: 0, px:1 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography variant="h5" fontWeight="bold" color="primary" align="center">
           SỐ LIỆU TRONG NGÀY
@@ -184,7 +184,7 @@ export default function SoLieuTrongNgay({ onBack }) {
             fontSize: "1.1rem",
           }}
         >
-          <Box sx={{ height: "2px", backgroundColor: "#1976d2", borderRadius: 1, mb: 2 }} />
+          <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 1, mb: 3 }} />
           {today}
         </Typography>
 
