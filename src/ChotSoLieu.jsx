@@ -11,18 +11,17 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import vi from "date-fns/locale/vi";
 import { db } from "./firebase";
-import { collection, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, setDoc } from "firebase/firestore";
 
-// Gộp và nhóm dữ liệu
 function groupData(data) {
   const khoiData = {};
   let truongSiSo = 0;
   let truongAn = 0;
 
   data.forEach(item => {
-    const lop = item.LỚP?.toString().trim();
+    const lop = item.lop?.toString().trim();
     const khoi = lop?.split(".")[0];
-    const huyDK = (item["HỦY ĐK"] || "").toUpperCase();
+    const huyDK = (item.huyDangKy || "").toUpperCase();
 
     if (!lop || !khoi) return;
 
@@ -82,7 +81,6 @@ function groupData(data) {
   return summaryData;
 }
 
-// Dòng hiển thị khối hoặc lớp
 function SummaryRow({ row, openGroups, setOpenGroups, summaryData }) {
   const isOpen = openGroups.includes(row.group);
   const isTruong = row.group === "TRƯỜNG";
@@ -152,37 +150,37 @@ export default function ChotSoLieu({ onBack }) {
 
     const selected = new Date(selectedDate);
     selected.setHours(0, 0, 0, 0);
-    const adjustedDate = new Date(selected.getTime() + 7 * 60 * 60 * 1000); // GMT+7
+    const adjustedDate = new Date(selected.getTime() + 7 * 60 * 60 * 1000);
     const formattedDate = adjustedDate.toISOString().split("T")[0];
 
     try {
       const hocSinhSnap = await getDocs(collection(db, "BANTRU"));
       const hocSinhData = hocSinhSnap.docs.map(doc => ({
         id: doc.id,
-        "HỌ VÀ TÊN": doc.data()["HỌ VÀ TÊN"],
-        LỚP: doc.data().LỚP,
-        STT: doc.data().STT,
-        "HỦY ĐK": doc.data()["HỦY ĐK"] ?? "",
-        DATA: doc.data().DATA ?? {}
+        hoVaTen: doc.data().hoVaTen,
+        lop: doc.data().lop,
+        stt: doc.data().stt,
+        maDinhDanh: doc.data().maDinhDanh,
+        huyDangKy: doc.data().huyDangKy ?? "",
+        data: doc.data().data ?? {}
       }));
 
-      // ✅ Tổng hợp dữ liệu trước khi ghi
       const updatedSummary = groupData(hocSinhData);
       setSummaryData(updatedSummary);
-      setShowSuccess(true); // Thông báo cập nhật xong
+      setShowSuccess(true);
 
-      // 🔄 Ghi dữ liệu lên Firestore chạy nền
       setTimeout(async () => {
         try {
           await Promise.all(hocSinhData.map(async (hs) => {
             const studentRef = doc(db, "BANTRU", hs.id);
             await setDoc(studentRef, {
-              "HỌ VÀ TÊN": hs["HỌ VÀ TÊN"],
-              LỚP: hs.LỚP,
-              STT: hs.STT,
-              DATA: {
-                ...hs.DATA,
-                [formattedDate]: hs["HỦY ĐK"]
+              hoVaTen: hs.hoVaTen,
+              lop: hs.lop,
+              stt: hs.stt,
+              maDinhDanh: hs.maDinhDanh,
+              data: {
+                ...hs.data,
+                [formattedDate]: hs.huyDangKy
               }
             }, { merge: true });
           }));
@@ -190,7 +188,7 @@ export default function ChotSoLieu({ onBack }) {
           console.error("❌ Lỗi khi ghi dữ liệu lên Firestore:", err);
           setErrorMessage("❌ Không thể ghi dữ liệu vào Firestore!");
         }
-      }, 1000); // Chạy nền sau 2 giây
+      }, 1000);
 
     } catch (err) {
       console.error("Lỗi Firestore:", err);
@@ -199,7 +197,6 @@ export default function ChotSoLieu({ onBack }) {
       setIsLoading(false);
     }
   };
-
 
   return (
     <Box sx={{ maxWidth: 500, mx: "auto", mt: 0, px: 1 }}>
@@ -254,8 +251,6 @@ export default function ChotSoLieu({ onBack }) {
           </Box>
         )}
 
-        {showSuccess && <Alert severity="success" sx={{ mt: 2 }}>✅ Dữ liệu đã được cập nhật!</Alert>}
-
         {summaryData.length > 0 && (
           <TableContainer component={Paper} sx={{ mt: 4, borderRadius: 2 }}>
             <Table>
@@ -282,6 +277,7 @@ export default function ChotSoLieu({ onBack }) {
             </Table>
           </TableContainer>
         )}
+        {showSuccess && <Alert severity="success" sx={{ mt: 3 }}>✅ Dữ liệu đã được cập nhật!</Alert>}
 
         <Stack sx={{ mt: 3 }}>
           <Button onClick={onBack} color="secondary" fullWidth>
@@ -292,5 +288,3 @@ export default function ChotSoLieu({ onBack }) {
     </Box>
   );
 }
-
-

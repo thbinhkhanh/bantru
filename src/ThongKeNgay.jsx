@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Stack, MenuItem, Select, FormControl,
-  InputLabel, LinearProgress, Button, IconButton, TextField
+  TableHead, TableRow, Paper, Stack, Button, IconButton, LinearProgress
 } from "@mui/material";
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -11,18 +10,20 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import vi from "date-fns/locale/vi";
 import { getDocs, collection } from "firebase/firestore";
 import { db } from "./firebase";
+import { format } from "date-fns";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-function groupData(data) {
+function groupData(data, selectedDate) {
   const khoiData = {};
   let truongSiSo = 0;
   let truongAn = 0;
+  const ngayChon = format(selectedDate, "yyyy-MM-dd");
 
-  data.forEach(item => {
-    const lop = item.LỚP?.toString().trim();
+  data.forEach(student => {
+    const lop = student.lop?.toString().trim();
     const khoi = lop?.split(".")[0];
-    const huyDK = (item["HỦY ĐK"] || "").toUpperCase();
+    const huyDK = (student.huyDangKy || "").toUpperCase();
 
     if (!lop || !khoi) return;
 
@@ -41,13 +42,15 @@ function groupData(data) {
       isGroup: false,
     };
 
+    // Đếm sĩ số
     if (huyDK !== "X") {
       khoiData[khoi].children[lop].siSo += 1;
       khoiData[khoi].siSo += 1;
       truongSiSo += 1;
     }
 
-    if (huyDK === "T") {
+    // Đếm ăn bán trú
+    if (student.data && student.data[ngayChon] === "T") {
       khoiData[khoi].children[lop].anBanTru += 1;
       khoiData[khoi].anBanTru += 1;
       truongAn += 1;
@@ -149,7 +152,7 @@ export default function ThongKeTheoNgay({ onBack }) {
         const snapshot = await getDocs(collection(db, "BANTRU"));
         const studentData = snapshot.docs.map(doc => doc.data());
         setDataList(studentData);
-        setSummaryData(groupData(studentData));
+        setSummaryData(groupData(studentData, selectedDate));
       } catch (err) {
         console.error("❌ Lỗi khi tải dữ liệu từ Firebase:", err);
       } finally {
@@ -158,7 +161,7 @@ export default function ThongKeTheoNgay({ onBack }) {
     };
 
     fetchData();
-  }, []);
+  }, [selectedDate]); // Cập nhật khi chọn ngày mới
 
   return (
     <Box sx={{ maxWidth: 500, marginLeft: "auto", marginRight: "auto", paddingLeft: 0.5, paddingRight: 0.5, mt: 1 }}>
@@ -191,14 +194,12 @@ export default function ThongKeTheoNgay({ onBack }) {
                       maxWidth: 165,
                       "& input": {
                         textAlign: "center",
-                        height: "1.4375em", // giữ chiều cao tương thích với các control khác
+                        height: "1.4375em",
                       },
                     },
                   },
                 }}
               />
-
-
             </Box>
           </Box>
         </LocalizationProvider>
@@ -229,7 +230,6 @@ export default function ThongKeTheoNgay({ onBack }) {
             </TableBody>
           </Table>
         </TableContainer>
-
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
           <Button onClick={onBack} color="secondary">

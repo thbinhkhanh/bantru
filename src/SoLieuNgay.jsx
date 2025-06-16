@@ -19,16 +19,16 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
 
-// Hàm gom nhóm dữ liệu
+// Hàm gom nhóm dữ liệu theo mẫu
 function groupData(data) {
   const khoiData = {};
   let truongSiSo = 0;
   let truongAn = 0;
 
   data.forEach(item => {
-    const lop = item.LỚP?.toString().trim();
+    const lop = item.lop?.toString().trim();
     const khoi = lop?.split(".")[0];
-    const huyDK = (item["HỦY ĐK"] || "").toUpperCase();
+    const huyDK = (item.huyDangKy || "").toUpperCase();
 
     if (!lop || !khoi) return;
 
@@ -231,5 +231,4 @@ export default function SoLieuTrongNgay({ onBack }) {
       </Paper>
     </Box>
   );
-
 }

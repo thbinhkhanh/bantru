@@ -146,17 +146,6 @@ export default function Lop4() {
           </FormControl>
         </Stack>
 
-        {isSaving && (
-          <Alert severity="info" sx={{ mb: 2 }}>
-            Đang lưu dữ liệu...
-          </Alert>
-        )}
-        {lastSaved && !isSaving && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            Đã lưu lúc {lastSaved.toLocaleTimeString()}
-          </Alert>
-        )}
-
         {isLoading ? (
           <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', my: 2 }}>
             <Box sx={{ width: '50%' }}>
@@ -195,6 +184,16 @@ export default function Lop4() {
             </Table>
           </TableContainer>
         )}
+        {isSaving && (
+          <Alert severity="info" sx={{ mt: 3 }}>
+            Đang lưu dữ liệu...
+          </Alert>
+        )}
+        {lastSaved && !isSaving && (
+          <Alert severity="success" sx={{ mt: 3 }}>
+            Đã lưu lúc {lastSaved.toLocaleTimeString()}
+          </Alert>
+        )}        
       </Card>
     </Box>
   );

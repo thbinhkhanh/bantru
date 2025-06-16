@@ -2,87 +2,92 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Stack, MenuItem, Select,
-  FormControl, InputLabel, Checkbox, Card, LinearProgress, Snackbar
+  FormControl, InputLabel, Checkbox, Card, LinearProgress, Alert
 } from '@mui/material';
-import { getDocs, collection, doc, updateDoc } from 'firebase/firestore';
+import { getDocs, getDoc, collection, doc, updateDoc, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 
 export default function Lop5() {
-  const [allStudents, setAllStudents] = useState([]);
-  const [selectedClass, setSelectedClass] = useState('');
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [originalChecked, setOriginalChecked] = useState({});
   const [classList, setClassList] = useState([]);
+  const [selectedClass, setSelectedClass] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [lastSaved, setLastSaved] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [lastSaved, setLastSaved] = useState(null);
 
   const saveTimeout = useRef(null);
   const intervalRef = useRef(null);
 
-  // Fetch dữ liệu ban đầu
+  const fetchStudents = async (className) => {
+    setIsLoading(true);
+    try {
+      const q = query(collection(db, 'BANTRU'), where('lop', '==', className));
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map((doc, idx) => {
+        const d = doc.data();
+        return {
+          id: doc.id,
+          ...d,
+          stt: idx + 1,
+          registered: d['huyDangKy'] === 'T',
+        };
+      });
+
+      setFilteredStudents(data);
+
+      const checkedMap = {};
+      data.forEach(s => (checkedMap[s.id] = s.registered));
+      setOriginalChecked(checkedMap);
+    } catch (err) {
+      console.error('❌ Lỗi khi tải học sinh:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
+    const fetchClassList = async () => {
       try {
-        const snapshot = await getDocs(collection(db, 'BANTRU'));
-        const studentData = snapshot.docs.map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            registered: data['HỦY ĐK'] === 'T'
-          };
-        }).filter(student => student.LỚP.toString().startsWith('5'));
+        const docRef = doc(db, 'DANHSACH', 'K5');
+        const docSnap = await getDoc(docRef);
 
-        setAllStudents(studentData);
-
-        const classes = [...new Set(studentData.map(s => s.LỚP))].sort();
-        setClassList(classes);
-
-        if (classes.length > 0) {
-          const firstClass = classes[0];
-          setSelectedClass(firstClass);
-          const filtered = studentData.filter(s => s.LỚP === firstClass)
-            .map((s, idx) => ({ ...s, stt: idx + 1 }));
-
-          setFilteredStudents(filtered);
-
-          const checkedMap = {};
-          filtered.forEach(s => checkedMap[s.id] = s.registered);
-          setOriginalChecked(checkedMap);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const classes = data.list || [];
+          setClassList(classes);
+          if (classes.length > 0) {
+            const firstClass = classes[0];
+            setSelectedClass(firstClass);
+            await fetchStudents(firstClass);
+          }
+        } else {
+          console.error('❌ Không tìm thấy document K5 trong DANHSACH');
         }
-      } catch (err) {
-        console.error('❌ Lỗi khi tải dữ liệu:', err);
-      } finally {
-        setIsLoading(false);
+      } catch (error) {
+        console.error('❌ Lỗi khi tải danh sách lớp:', error);
       }
     };
 
-    fetchData();
+    fetchClassList();
   }, []);
 
-  // Lưu dữ liệu những dòng có thay đổi
   const saveData = async () => {
-    if (isSaving) return; // tránh ghi đè
-
+    if (isSaving) return;
     const changed = filteredStudents.filter(s => s.registered !== originalChecked[s.id]);
     if (changed.length === 0) return;
 
     setIsSaving(true);
     try {
-      const promises = changed.map(s => {
-        const ref = doc(db, 'BANTRU', s.id);
-        return updateDoc(ref, { 'HỦY ĐK': s.registered ? 'T' : '' });
-      });
-      await Promise.all(promises);
+      const updates = changed.map(s =>
+        updateDoc(doc(db, 'BANTRU', s.id), { 'huyDangKy': s.registered ? 'T' : '' })
+      );
+      await Promise.all(updates);
 
-      const newChecked = { ...originalChecked };
-      changed.forEach(s => newChecked[s.id] = s.registered);
-      setOriginalChecked(newChecked);
+      const updatedChecked = { ...originalChecked };
+      changed.forEach(s => (updatedChecked[s.id] = s.registered));
+      setOriginalChecked(updatedChecked);
       setLastSaved(new Date());
-      setSnackbarOpen(true);
     } catch (err) {
       console.error('❌ Lỗi khi lưu:', err);
     } finally {
@@ -90,24 +95,13 @@ export default function Lop5() {
     }
   };
 
-  // Thay đổi lớp → lưu trước rồi mới chuyển
   const handleClassChange = async (event) => {
-    await saveData(); // lưu trước khi chuyển lớp
+    await saveData(); // lưu dữ liệu lớp cũ trước
     const selected = event.target.value;
     setSelectedClass(selected);
-
-    const filtered = allStudents
-      .filter(s => s.LỚP === selected)
-      .map((s, idx) => ({ ...s, stt: idx + 1 }));
-
-    setFilteredStudents(filtered);
-
-    const checkedMap = {};
-    filtered.forEach(s => checkedMap[s.id] = s.registered);
-    setOriginalChecked(checkedMap);
+    fetchStudents(selected);
   };
 
-  // Cập nhật checkbox + debounce lưu sau 5s
   const toggleRegister = (index) => {
     const updated = [...filteredStudents];
     updated[index].registered = !updated[index].registered;
@@ -117,15 +111,11 @@ export default function Lop5() {
     saveTimeout.current = setTimeout(saveData, 5000);
   };
 
-  // Lưu định kỳ mỗi 2 phút
   useEffect(() => {
-    intervalRef.current = setInterval(saveData, 120000); // 2 phút
-    return () => {
-      clearInterval(intervalRef.current);
-    };
+    intervalRef.current = setInterval(saveData, 120000);
+    return () => clearInterval(intervalRef.current);
   }, [filteredStudents, originalChecked]);
 
-  // Lưu khi rời tab, reload
   useEffect(() => {
     const beforeUnload = (e) => {
       if (filteredStudents.some(s => s.registered !== originalChecked[s.id])) {
@@ -145,10 +135,10 @@ export default function Lop5() {
           DANH SÁCH HỌC SINH
         </Typography>
 
-        <Stack direction="row" justifyContent="center" sx={{ mb: 4 }}>
+        <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
           <FormControl size="small" sx={{ minWidth: 120 }}>
             <InputLabel>Lớp</InputLabel>
-            <Select value={selectedClass || ""} label="Lớp" onChange={handleClassChange}>
+            <Select value={selectedClass} label="Lớp" onChange={handleClassChange}>
               {classList.map((cls, idx) => (
                 <MenuItem key={idx} value={cls}>{cls}</MenuItem>
               ))}
@@ -166,20 +156,20 @@ export default function Lop5() {
             </Typography>
           </Box>
         ) : (
-          <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2, width: '100%' }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', width: 40, py: 0.5, px: 1 }}>STT</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', py: 0.5, px: 1 }}>HỌ VÀ TÊN</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', py: 0.5, px: 1 }}>ĐĂNG KÝ</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>STT</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>HỌ VÀ TÊN</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>ĐĂNG KÝ</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredStudents.map((student, index) => (
-                  <TableRow key={index} hover>
+                  <TableRow key={student.id}>
                     <TableCell align="center">{index + 1}</TableCell>
-                    <TableCell>{student['HỌ VÀ TÊN']}</TableCell>
+                    <TableCell>{student['hoVaTen'] || 'Không có tên'}</TableCell>
                     <TableCell align="center">
                       <Checkbox
                         checked={student.registered ?? false}
@@ -194,27 +184,16 @@ export default function Lop5() {
             </Table>
           </TableContainer>
         )}
-
         {isSaving && (
-          <Box sx={{ width: '100%', mt: 2 }}>
-            <LinearProgress />
-            <Typography variant="body2" align="center" sx={{ mt: 1 }}>Đang lưu...</Typography>
-          </Box>
+          <Alert severity="info" sx={{ mt: 3 }}>
+            Đang lưu dữ liệu...
+          </Alert>
         )}
-
         {lastSaved && !isSaving && (
-          <Typography variant="body2" align="center" color="text.secondary" sx={{ mt: 2 }}>
+          <Alert severity="success" sx={{ mt: 3 }}>
             Đã lưu lúc {lastSaved.toLocaleTimeString()}
-          </Typography>
-        )}
-
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={2000}
-          onClose={() => setSnackbarOpen(false)}
-          message="✅ Đã lưu thành công"
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        />
+          </Alert>
+        )}        
       </Card>
     </Box>
   );
