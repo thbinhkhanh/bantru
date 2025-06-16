@@ -172,14 +172,20 @@ export default function DieuChinhSuatAn({ onBack }) {
             />
           </LocalizationProvider>
 
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+          <FormControl size="small" sx={{ minWidth: 80, width: 120, px: 1 }}>
             <InputLabel>Lớp</InputLabel>
-            <Select value={selectedClass || ""} label="Lớp" onChange={handleClassChange}>
+            <Select
+              value={selectedClass || ""}
+              label="Lớp"
+              onChange={handleClassChange}
+              sx={{ px: 1 }}
+            >
               {classList.map((cls, idx) => (
                 <MenuItem key={idx} value={cls}>{cls}</MenuItem>
               ))}
             </Select>
           </FormControl>
+
         </Stack>
 
         {isLoading && <LinearProgress />}
@@ -187,24 +193,37 @@ export default function DieuChinhSuatAn({ onBack }) {
         <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
           <Table size="small">
             <TableHead>
-              <TableRow>
-                <TableCell align="center">STT</TableCell>
-                <TableCell align="center">HỌ VÀ TÊN</TableCell>
-                <TableCell align="center">ĐĂNG KÝ</TableCell>
+              <TableRow sx={{ backgroundColor: "#1976d2" }}>
+                <TableCell align="center" sx={{ color: "white", width: 40, px: 1 }}>
+                  STT
+                </TableCell>
+                <TableCell align="center" sx={{ color: "white", px: 1 }}>
+                  HỌ VÀ TÊN
+                </TableCell>
+                <TableCell align="center" sx={{ color: "white", px: 1 }}>
+                  ĐĂNG KÝ
+                </TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
               {dataList.map((student, index) => (
                 <TableRow key={student.id} hover>
-                  <TableCell align="center">{student.stt}</TableCell>
-                  <TableCell>{student.hoVaTen}</TableCell>
-                  <TableCell align="center">
-                    <Checkbox checked={student.registered} onChange={() => toggleRegister(index)} disabled={student.disabled} size="small" color="primary" />
+                  <TableCell align="center" sx={{ px: 1 }}>{student.stt}</TableCell>
+                  <TableCell sx={{ px: 1 }}>{student.hoVaTen}</TableCell>
+                  <TableCell align="center" sx={{ px: 1 }}>
+                    <Checkbox
+                      checked={student.registered}
+                      onChange={() => toggleRegister(index)}
+                      disabled={student.disabled}
+                      size="small"
+                      color="primary"
+                    />
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
+
           </Table>
         </TableContainer>
 
