@@ -202,7 +202,7 @@ export default function ChotSoLieu({ onBack }) {
     <Box sx={{ maxWidth: 500, mx: "auto", mt: 0, px: 1 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography variant="h5" fontWeight="bold" color="primary" align="center">
-          CHỐT SỐ LIỆU HỌC SINH
+          CHỐT SỐ LIỆU
         </Typography>
 
         <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
