@@ -207,7 +207,13 @@ export default function ChotSoLieu({ onBack }) {
 
         <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
 
-        <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" sx={{ mt: 3 }}>
+        <Stack
+          direction="row"
+          spacing={2}
+          justifyContent="center"
+          alignItems="center"
+          sx={{ mb: 3, mt: 3 }}
+        >
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
               label="Chọn ngày"
@@ -217,8 +223,8 @@ export default function ChotSoLieu({ onBack }) {
                 textField: {
                   size: "small",
                   sx: {
-                    minWidth: 80,
-                    maxWidth: 165,
+                    minWidth: 150,
+                    maxWidth: 180,
                     "& input": { textAlign: "center" },
                   },
                 },
@@ -235,12 +241,16 @@ export default function ChotSoLieu({ onBack }) {
               fontSize: {
                 xs: "0.75rem",
                 sm: "1rem",
-              }
+              },
+              minWidth: 120,
+              height: 40,
+              textTransform: "none",
             }}
           >
             Cập nhật
           </Button>
         </Stack>
+
 
         {isLoading && (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>

@@ -80,8 +80,32 @@ export default function CapNhatDS({ onBack }) {
 
   const handleUpdate = async () => {
     setSaving(true);
+
+    // 1. Kiểm tra lớp
+    if (!selectedClass) {
+      showSnackbar("⚠️ Vui lòng chọn lớp!", "warning");
+      setSaving(false);
+      return;
+    }
+
+    // 2. Kiểm tra học sinh hoặc nhập tay
+    if (nhapTuDanhSach === "danhSach") {
+      if (!selectedStudentId || !selectedStudentData) {
+        showSnackbar("⚠️ Vui lòng chọn học sinh!", "warning");
+        setSaving(false);
+        return;
+      }
+    } else {
+      if (!customHoTen.trim() || !customMaDinhDanh.trim()) {
+        showSnackbar("⚠️ Vui lòng nhập đầy đủ họ tên và mã định danh!", "warning");
+        setSaving(false);
+        return;
+      }
+    }
+
+    // 3. Kiểm tra trạng thái đăng ký
     if (!dangKy) {
-      showSnackbar("⚠️ Vui lòng chọn trạng thái đăng ký", "warning");
+      showSnackbar("⚠️ Vui lòng chọn trạng thái đăng ký!", "warning");
       setSaving(false);
       return;
     }
@@ -90,11 +114,6 @@ export default function CapNhatDS({ onBack }) {
       const huyDangKy = dangKy === "Hủy đăng ký" ? "x" : "T";
 
       if (nhapTuDanhSach === "danhSach") {
-        if (!selectedStudentData) {
-          showSnackbar("Vui lòng chọn học sinh", "warning");
-          return;
-        }
-
         const currentStatus = selectedStudentData.huyDangKy || "";
 
         if (
@@ -102,6 +121,7 @@ export default function CapNhatDS({ onBack }) {
           (dangKy === "Đăng ký mới" && currentStatus === "T")
         ) {
           showSnackbar("⚠️ Trạng thái đăng ký không thay đổi", "info");
+          setSaving(false);
           return;
         }
 
@@ -112,11 +132,6 @@ export default function CapNhatDS({ onBack }) {
         showSnackbar("✅ Cập nhật thành công!");
       } else {
         // Nhập thủ công
-        if (!customHoTen.trim() || !customMaDinhDanh.trim()) {
-          showSnackbar("Vui lòng nhập đầy đủ họ tên và mã định danh", "warning");
-          return;
-        }
-
         const maDinhDanh = customMaDinhDanh.trim();
         const docRef = doc(db, "BANTRU", maDinhDanh);
         const docSnap = await getDoc(docRef);
@@ -142,6 +157,7 @@ export default function CapNhatDS({ onBack }) {
       setSaving(false);
     }
   };
+
 
 
 
@@ -226,31 +242,38 @@ export default function CapNhatDS({ onBack }) {
                 </Select>
               </FormControl>
 
-              <Stack spacing={2}>
-                <Button variant="contained" color="primary" onClick={handleUpdate} disabled={saving} sx={{ width: 160, fontWeight: 600, py: 1, alignSelf: 'center' }}>
+              <Stack spacing={2} alignItems="center">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleUpdate}
+                  disabled={saving}
+                  sx={{ width: 160, fontWeight: 600, py: 1 }}
+                >
                   {saving ? "🔄 Đang cập nhật..." : "Cập nhật"}
                 </Button>
-                <Button onClick={onBack} color="secondary">⬅️ Quay lại</Button>
+
+                {snackbar.open && (
+                  <Alert
+                    severity={snackbar.severity}
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    sx={{ width: "100%", borderRadius: 2, fontWeight: 500 }}
+                  >
+                    {snackbar.message}
+                  </Alert>
+                )}
+
+                <Button onClick={onBack} color="secondary">
+                  ⬅️ Quay lại
+                </Button>
               </Stack>
+
             </>
           )}
         </Card>
       </Box>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} // ← Đây là phần quan trọng
-      >
-        <Alert
-          onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      
 
     </Box>
   );
