@@ -136,7 +136,14 @@ export default function QuanLy() {
               {chucNangNhom.map((nhom, index) => (
                 nhom.items.length > 0 && (
                   <Card key={index} elevation={6} sx={{ p: 3, borderRadius: 4, width: '100%', maxWidth: { xs: 360, sm: 720, md: 1055 }, mx: 'auto' }}>
-                    <Grid container spacing={3} alignItems="center" justifyContent={{ xs: 'center', sm: 'flex-start' }} textAlign={{ xs: 'center', sm: 'left' }}>
+                    <Grid
+                      container
+                      spacing={3}
+                      direction={nhom.title === 'QUẢN LÝ HỆ THỐNG' ? { xs: 'column', sm: 'row' } : 'row'}
+                      alignItems="center"
+                      justifyContent="flex-start"
+                      textAlign={nhom.title === 'QUẢN LÝ HỆ THỐNG' ? { xs: 'center', sm: 'left' } : { xs: 'center', sm: 'left' }}
+                    >
                       <Grid item xs={12} sm={2} md={1} textAlign="center">
                         <Box component="img" src={nhom.icon.props.src} alt={nhom.icon.props.alt} sx={{ width: { xs: 90, sm: 100, md: 95 }, height: { xs: 90, sm: 100, md: 95 }, objectFit: 'contain', mx: 'auto' }} />
                       </Grid>
