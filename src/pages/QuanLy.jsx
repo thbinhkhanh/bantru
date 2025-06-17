@@ -22,7 +22,6 @@ export default function QuanLy() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [selectedFunction, setSelectedFunction] = useState('');
-
   const [adminVisible, setAdminVisible] = useState(false);
   const [firestoreEnabled, setFirestoreEnabled] = useState(false);
 
@@ -36,13 +35,10 @@ export default function QuanLy() {
   };
 
   const handleFunctionSelect = (code) => {
-    switch (code) {
-      case 'ADMINLOGIN':
-        setAdminVisible(true);
-        break;
-      default:
-        setSelectedFunction(code);
-        break;
+    if (code === 'ADMINLOGIN') {
+      setAdminVisible(true);
+    } else {
+      setSelectedFunction(code);
     }
   };
 
@@ -131,21 +127,24 @@ export default function QuanLy() {
             HỆ THỐNG QUẢN LÝ BÁN TRÚ
           </Typography>
 
-          <Box display="flex" flexDirection="column" alignItems="center">
-            <Stack spacing={4} alignItems="center">
+          <Box display="flex" flexDirection="column" alignItems="center" width="100%">
+            <Stack spacing={4} alignItems="center" sx={{ width: '100%', maxWidth: 1080 }}>
               {chucNangNhom.map((nhom, index) => (
                 nhom.items.length > 0 && (
-                  <Card key={index} elevation={6} sx={{ p: 3, borderRadius: 4, width: '100%', maxWidth: { xs: 360, sm: 720, md: 1055 }, mx: 'auto' }}>
-                    <Grid
-                      container
-                      spacing={3}
-                      direction={nhom.title === 'QUẢN LÝ HỆ THỐNG' ? { xs: 'column', sm: 'row' } : 'row'}
-                      alignItems="center"
-                      justifyContent="flex-start"
-                      textAlign={nhom.title === 'QUẢN LÝ HỆ THỐNG' ? { xs: 'center', sm: 'left' } : { xs: 'center', sm: 'left' }}
-                    >
+                  <Card key={index} elevation={6} sx={{
+                    p: 3,
+                    borderRadius: 4,
+                    width: '100%',
+                    maxWidth: { xs: 360, sm: 720, md: 1055 },
+                    mx: { xs: 'auto', sm: 0 }
+                  }}>
+                    <Grid container spacing={3} alignItems="center" justifyContent={{ xs: 'center', sm: 'flex-start' }} textAlign={{ xs: 'center', sm: 'left' }}>
                       <Grid item xs={12} sm={2} md={1} textAlign="center">
-                        <Box component="img" src={nhom.icon.props.src} alt={nhom.icon.props.alt} sx={{ width: { xs: 90, sm: 100, md: 95 }, height: { xs: 90, sm: 100, md: 95 }, objectFit: 'contain', mx: 'auto' }} />
+                        <Box component="img" src={nhom.icon.props.src} alt={nhom.icon.props.alt} sx={{
+                          width: { xs: 90, sm: 100, md: 95 },
+                          height: { xs: 90, sm: 100, md: 95 },
+                          objectFit: 'contain', mx: 'auto'
+                        }} />
                       </Grid>
                       <Grid item xs={12} sm={10} md={11}>
                         <Typography variant="h6" fontWeight="bold" mb={2} sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
@@ -163,7 +162,10 @@ export default function QuanLy() {
                                     backgroundColor: item.color,
                                     fontWeight: 600,
                                     height: 48,
-                                    '&:hover': { backgroundColor: item.color, filter: 'brightness(0.9)' },
+                                    '&:hover': {
+                                      backgroundColor: item.color,
+                                      filter: 'brightness(0.9)',
+                                    },
                                   }}
                                   onClick={() => handleFunctionSelect(item.code)}
                                 >
