@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Stack, MenuItem,
-  Select, FormControl, InputLabel, LinearProgress, Button
+  TableHead, TableRow, Paper, Stack, MenuItem, Select,
+  FormControl, InputLabel, LinearProgress, Button
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -126,11 +126,7 @@ export default function ThongKeNam({ onBack }) {
 
           <FormControl size="small" sx={{ minWidth: 80, maxWidth: 100 }}>
             <InputLabel>Lớp</InputLabel>
-            <Select
-              value={selectedClass}
-              label="Lớp"
-              onChange={(e) => setSelectedClass(e.target.value)}
-            >
+            <Select value={selectedClass} label="Lớp" onChange={(e) => setSelectedClass(e.target.value)}>
               {classList.map((cls, idx) => (
                 <MenuItem key={idx} value={cls}>{cls}</MenuItem>
               ))}
@@ -153,41 +149,25 @@ export default function ThongKeNam({ onBack }) {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 48, px: 1, py: 0.5 }}>
-                    STT
-                  </TableCell>
-                  <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 200, whiteSpace: "nowrap", px: 1, py: 0.5 }}>
-                    HỌ VÀ TÊN
-                  </TableCell>
-                  {showMonths &&
-                    monthSet.map((m) => (
-                      <TableCell key={m} align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 80, px: 1, py: 0.5 }}>
-                        Tháng {m}
-                      </TableCell>
-                    ))}
-                  <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 100, px: 1, py: 0.5 }}>
-                    TỔNG CỘNG
-                  </TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>STT</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>HỌ VÀ TÊN</TableCell>
+                  {showMonths && monthSet.map((m) => (
+                    <TableCell key={m} align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>
+                      Tháng {m}
+                    </TableCell>
+                  ))}
+                  <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>TỔNG CỘNG</TableCell>
                 </TableRow>
               </TableHead>
-
               <TableBody>
                 {dataList.map((student) => (
-                  <TableRow
-                    key={student.id}
-                    sx={{ height: 48, backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit" }}
-                  >
-                    <TableCell align="center" sx={{ px: 1, py: 0.5 }}>{student.stt}</TableCell>
-                    <TableCell sx={{ width: 200, whiteSpace: "nowrap", px: 1, py: 0.5 }}>{student.hoVaTen}</TableCell>
-                    {showMonths &&
-                      monthSet.map((m) => (
-                        <TableCell key={m} align="center" sx={{ width: 80, px: 1, py: 0.5 }}>
-                          {student.monthSummary[m] > 0 ? student.monthSummary[m] : ""}
-                        </TableCell>
-                      ))}
-                    <TableCell align="center" sx={{ width: 100, px: 1, py: 0.5 }}>
-                      {student.total > 0 ? student.total : ""}
-                    </TableCell>
+                  <TableRow key={student.id}>
+                    <TableCell align="center">{student.stt}</TableCell>
+                    <TableCell>{student.hoVaTen}</TableCell>
+                    {showMonths && monthSet.map((m) => (
+                      <TableCell key={m} align="center">{student.monthSummary[m] > 0 ? student.monthSummary[m] : ""}</TableCell>
+                    ))}
+                    <TableCell align="center" sx={{ fontWeight: "bold" }}>{student.total > 0 ? student.total : ""}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -195,10 +175,8 @@ export default function ThongKeNam({ onBack }) {
           </TableContainer>
         </Box>
 
-        <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
-          <Button onClick={onBack} color="secondary">
-            ⬅️ Quay lại
-          </Button>
+        <Stack sx={{ mt: 4 }}>
+          <Button onClick={onBack} color="secondary">⬅️ Quay lại</Button>
         </Stack>
       </Paper>
     </Box>
