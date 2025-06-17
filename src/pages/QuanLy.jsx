@@ -22,7 +22,6 @@ export default function QuanLy() {
   const [message, setMessage] = useState('');
   const [selectedFunction, setSelectedFunction] = useState('');
   const [adminVisible, setAdminVisible] = useState(false);
-  const [firestoreEnabled, setFirestoreEnabled] = useState(false);
 
   const handleLogin = () => {
     if (password === '@bc') {
@@ -34,13 +33,22 @@ export default function QuanLy() {
   };
 
   const handleFunctionSelect = (code) => {
-    switch (code) {
-      case 'ADMINLOGIN':
-        setAdminVisible(true);
-        break;
-      default:
-        setSelectedFunction(code);
-        break;
+    setSelectedFunction(code);
+  };
+
+  const renderSelectedFunction = () => {
+    switch (selectedFunction) {
+      case 'CHOT': return <ChotSoLieu onBack={() => setSelectedFunction('')} />;
+      case 'SONGAY': return <SoLieuNgay onBack={() => setSelectedFunction('')} />;
+      case 'SUATAN': return <DieuChinhSuatAn onBack={() => setSelectedFunction('')} />;
+      case 'XOANGAY': return <XoaDLNgay onBack={() => setSelectedFunction('')} />;
+      case 'TKNGAY': return <ThongkeNgay onBack={() => setSelectedFunction('')} />;
+      case 'TKTHANG': return <ThongkeThang onBack={() => setSelectedFunction('')} />;
+      case 'TKNAM': return <ThongkeNam onBack={() => setSelectedFunction('')} />;
+      case 'CAPNHAT': return <CapNhatDS onBack={() => setSelectedFunction('')} />;
+      case 'LAPDS': return <LapDanhSach onBack={() => setSelectedFunction('')} />;
+      case 'TAIDS': return <TaiDanhSach onBack={() => setSelectedFunction('')} />;
+      default: return null;
     }
   };
 
@@ -51,7 +59,7 @@ export default function QuanLy() {
       items: [
         { label: 'CHỐT SỐ LIỆU', code: 'CHOT', color: '#42a5f5' },
         { label: 'SỐ LIỆU TRONG NGÀY', code: 'SONGAY', color: '#66bb6a' },
-        { label: 'ĐIỀU CHỈNH SUẤT ĂN', code: 'SUATAN', color: '#ffb300' },
+        { label: 'ĐIỀU CHỈNH SUẤT Ăn', code: 'SUATAN', color: '#ffb300' },
         { label: 'XÓA DỮ LIỆU THEO NGÀY', code: 'XOANGAY', color: '#ef5350' },
       ],
     },
@@ -87,7 +95,13 @@ export default function QuanLy() {
       {!loginSuccess ? (
         <Box maxWidth={360} mx="auto">
           <Card elevation={8} sx={{ p: 4, borderRadius: 4 }}>
-            <Typography variant="h5" color="primary" fontWeight="bold" align="center" gutterBottom>
+            <Typography
+              variant="h5"
+              color="primary"
+              fontWeight="bold"
+              align="center"
+              gutterBottom
+            >
               ĐĂNG NHẬP QUẢN LÝ
             </Typography>
             <TextField label="Tên đăng nhập" fullWidth margin="normal" value="TH Bình Khánh" disabled />
@@ -97,6 +111,10 @@ export default function QuanLy() {
               Đăng nhập
             </Button>
           </Card>
+        </Box>
+      ) : selectedFunction ? (
+        <Box maxWidth={selectedFunction === 'CAPNHAT' ? 1000 : 700} mx="auto">
+          {renderSelectedFunction()}
         </Box>
       ) : (
         <>
@@ -117,47 +135,41 @@ export default function QuanLy() {
           </Typography>
           <Stack spacing={4} alignItems="center">
             {chucNangNhom.map((nhom, index) => (
-              nhom.items.length > 0 && (
-                <Card key={index} elevation={6} sx={{ p: 3, borderRadius: 4, width: '100%', maxWidth: { xs: 360, sm: 720, md: 1055 }, mx: 'auto' }}>
-                  <Grid container spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center" justifyContent={{ xs: 'center', sm: 'flex-start' }}>
-                    <Grid item xs={12} sm={2} md={1} textAlign="center">
-                      <Box component="img" src={nhom.icon.props.src} alt={nhom.icon.props.alt} sx={{ width: { xs: 90, sm: 100, md: 95 }, height: { xs: 90, sm: 100, md: 95 }, objectFit: 'contain', mx: 'auto' }} />
-                    </Grid>
-                    <Grid item xs={12} sm={10} md={11}>
-                      <Typography variant="h6" fontWeight="bold" mb={2} sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-                        {nhom.title}
-                      </Typography>
-                      <Grid container spacing={2} direction={{ xs: 'column', sm: 'row' }} justifyContent={{ xs: 'center', sm: 'flex-start' }}>
-                        {nhom.items.map((item) => (
-                          <Grid item xs={12} sm={6} md={4} key={item.code}>
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }} transition={{ duration: 0.2 }}>
-                              <Button
-                                  variant="contained"
-                                  fullWidth
-                                  sx={{
-                                    minWidth: 220,
-                                    maxWidth: '100%',
-                                    height: 48,
-                                    fontWeight: 600,
-                                    backgroundColor: item.color,
-                                    '&:hover': {
-                                      backgroundColor: item.color,
-                                      filter: 'brightness(0.9)',
-                                    },
-                                  }}
-                                  onClick={() => handleFunctionSelect(item.code)}
-                                >
-                                  {item.label}
-                                </Button>
-
-                            </motion.div>
-                          </Grid>
-                        ))}
-                      </Grid>
+              <Card key={index} elevation={6} sx={{ p: 3, borderRadius: 4, width: '100%', maxWidth: { xs: 360, sm: 720, md: 1055 }, mx: 'auto' }}>
+                <Grid container spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center" justifyContent={{ xs: 'center', sm: 'flex-start' }}>
+                  <Grid item xs={12} sm={2} md={1} textAlign="center">
+                    <Box component="img" src={nhom.icon.props.src} alt={nhom.icon.props.alt} sx={{ width: { xs: 90, sm: 100, md: 95 }, height: 90, objectFit: 'contain', mx: 'auto' }} />
+                  </Grid>
+                  <Grid item xs={12} sm={10} md={11}>
+                    <Typography variant="h6" fontWeight="bold" mb={2}>
+                      {nhom.title}
+                    </Typography>
+                    <Grid container spacing={2} direction={{ xs: 'column', sm: 'row' }}>
+                      {nhom.items.map((item) => (
+                        <Grid item xs={12} sm={6} md={4} key={item.code}>
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            sx={{
+                              minWidth: 220, // Giữ nguyên chiều rộng mặc định
+                              backgroundColor: item.color,
+                              fontWeight: 600,
+                              height: 48, // Giữ nguyên chiều cao
+                              '&:hover': {
+                                backgroundColor: item.color,
+                                filter: 'brightness(0.9)',
+                              },
+                            }}
+                            onClick={() => handleFunctionSelect(item.code)}
+                          >
+                            {item.label}
+                          </Button>
+                        </Grid>
+                      ))}
                     </Grid>
                   </Grid>
-                </Card>
-              )
+                </Grid>
+              </Card>
             ))}
           </Stack>
         </>
