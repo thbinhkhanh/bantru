@@ -50,6 +50,7 @@ export default function ThongKeThang({ onBack }) {
         const students = snapshot.docs.map((docSnap, index) => {
           const d = docSnap.data();
           const data = d.data || {};
+          const huyDangKy = d.huyDangKy || ""; // LẤY TRƯỜNG NÀY
           const daySummary = {};
           let total = 0;
 
@@ -68,6 +69,7 @@ export default function ThongKeThang({ onBack }) {
             stt: index + 1,
             daySummary,
             total,
+            huyDangKy,
           };
         });
 
@@ -96,7 +98,7 @@ export default function ThongKeThang({ onBack }) {
           <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mb: 1 }}>
             SỐ LIỆU THÁNG
           </Typography>
-           <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
+          <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
 
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 4 }}>
@@ -116,7 +118,7 @@ export default function ThongKeThang({ onBack }) {
                   size: "small",
                   sx: {
                     minWidth: 80,
-                    maxWidth: 165,
+                    maxWidth: 160,
                     "& input": { textAlign: "center" }
                   }
                 }
@@ -124,7 +126,7 @@ export default function ThongKeThang({ onBack }) {
             />
           </LocalizationProvider>
 
-          <FormControl size="small" sx={{ minWidth: 100 }}>
+          <FormControl size="small" sx={{ minWidth: 80, maxWidth: 100 }}>
             <InputLabel>Lớp</InputLabel>
             <Select
               value={selectedClass}
@@ -157,20 +159,32 @@ export default function ThongKeThang({ onBack }) {
                     </TableCell>
                   );
                 })}
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 70, px: 1 }}>Tổng cộng</TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 70, px: 1 }}>TỔNG CỘNG</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {dataList.map((student) => (
-                <TableRow key={student.id} sx={{ height: 56 }}>
+                <TableRow
+                  key={student.id}
+                  sx={{
+                    height: 48,
+                    backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit"
+                  }}
+                >
                   <TableCell align="center" sx={{ px: 1 }}>{student.stt}</TableCell>
                   <TableCell sx={{ px: 1 }}>{student.hoVaTen}</TableCell>
                   {daySet.map((d) => (
-                    <TableCell key={d} align="center" sx={{ color: student.daySummary[d] ? "#1976d2" : "inherit", px: 1 }}>
+                    <TableCell
+                      key={d}
+                      align="center"
+                      sx={{ color: student.daySummary[d] ? "#1976d2" : "inherit", px: 1 }}
+                    >
                       {student.daySummary[d] || ""}
                     </TableCell>
                   ))}
-                  <TableCell align="center" sx={{ fontWeight: "bold", px: 1 }}>{student.total}</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold", px: 1 }}>
+                    {student.total}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

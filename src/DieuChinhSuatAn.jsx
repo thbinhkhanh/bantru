@@ -167,7 +167,13 @@ export default function DieuChinhSuatAn({ onBack }) {
            <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Typography>
 
-        <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }} flexWrap="wrap">
+        <Stack
+          direction="row"
+          spacing={2}
+          justifyContent="center"
+          alignItems="center"
+          sx={{ mb: 3 }}
+        >
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
               label="Chọn ngày"
@@ -176,13 +182,17 @@ export default function DieuChinhSuatAn({ onBack }) {
               slotProps={{
                 textField: {
                   size: "small",
-                  sx: { minWidth: 80, maxWidth: 165, "& input": { textAlign: "center" } },
+                  sx: {
+                    minWidth: 150,
+                    maxWidth: 180,
+                    "& input": { textAlign: "center" },
+                  },
                 },
               }}
             />
           </LocalizationProvider>
 
-          <FormControl size="small" sx={{ minWidth: 60, width: 120 }}>
+          <FormControl size="small" sx={{ minWidth: 120, maxWidth: 150 }}>
             <InputLabel>Lớp</InputLabel>
             <Select value={selectedClass || ""} label="Lớp" onChange={handleClassChange}>
               {classList.map((cls, idx) => (
@@ -193,6 +203,7 @@ export default function DieuChinhSuatAn({ onBack }) {
             </Select>
           </FormControl>
         </Stack>
+
 
         {isLoading && <LinearProgress />}
 

@@ -24,15 +24,18 @@ export default function Lop1() {
     try {
       const q = query(collection(db, 'BANTRU'), where('lop', '==', className));
       const snapshot = await getDocs(q);
-      const data = snapshot.docs.map((doc, idx) => {
-        const d = doc.data();
-        return {
-          id: doc.id,
-          ...d,
-          stt: idx + 1,
-          registered: d['huyDangKy'] === 'T',
-        };
-      });
+
+      const data = snapshot.docs
+        .map((doc, idx) => {
+          const d = doc.data();
+          return {
+            id: doc.id,
+            ...d,
+            stt: idx + 1,
+            registered: d['huyDangKy'] === 'T',
+          };
+        })
+        .filter(student => student.huyDangKy !== 'x' && student.huyDangKy !== 'X'); // ⚠️ Lọc học sinh chưa hủy đăng ký
 
       setFilteredStudents(data);
 
@@ -45,6 +48,7 @@ export default function Lop1() {
       setIsLoading(false);
     }
   };
+
 
   useEffect(() => {
     const fetchClassList = async () => {
