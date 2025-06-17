@@ -18,6 +18,7 @@ export default function ThongKeNam({ onBack }) {
   const [dataList, setDataList] = useState([]);
   const [monthSet, setMonthSet] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showMonths, setShowMonths] = useState(false);
 
   useEffect(() => {
     const fetchClassList = async () => {
@@ -135,6 +136,10 @@ export default function ThongKeNam({ onBack }) {
               ))}
             </Select>
           </FormControl>
+
+          <Button variant="outlined" onClick={() => setShowMonths(prev => !prev)}>
+            {showMonths ? "ẨN THÁNG" : "HIỆN THÁNG"}
+          </Button>
         </Stack>
 
         {isLoading && (
@@ -143,66 +148,52 @@ export default function ThongKeNam({ onBack }) {
           </Box>
         )}
 
-        <TableContainer
-          component={Paper}
-          sx={{
-            borderRadius: 2,
-            mt: 2,
-            minWidth: "max-content"
-          }}
-        >
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 48, px: 1, py: 0.5 }}>
-                  STT
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontWeight: "bold",
-                    backgroundColor: "#1976d2",
-                    color: "white",
-                    width: 200,
-                    whiteSpace: "nowrap",
-                    px: 1, py: 0.5
-                  }}
-                >
-                  HỌ VÀ TÊN
-                </TableCell>
-                {monthSet.map((m) => (
-                  <TableCell key={m} align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 80, px: 1, py: 0.5 }}>
-                    Tháng {m}
+        <Box sx={{ width: "100%", overflowX: "auto", mt: 2 }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 2, minWidth: "max-content" }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 48, px: 1, py: 0.5 }}>
+                    STT
                   </TableCell>
-                ))}
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 100, px: 1, py: 0.5 }}>
-                  TỔNG CỘNG
-                </TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {dataList.map((student) => (
-                <TableRow
-                  key={student.id}
-                  sx={{
-                    height: 48,
-                    backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit"
-                  }}
-                >
-                  <TableCell align="center" sx={{ px: 1, py: 0.5 }}>{student.stt}</TableCell>
-                  <TableCell sx={{ width: 200, whiteSpace: "nowrap", px: 1, py: 0.5 }}>{student.hoVaTen}</TableCell>
-                  {monthSet.map((m) => (
-                    <TableCell key={m} align="center" sx={{ width: 80, px: 1, py: 0.5 }}>
-                      {student.monthSummary[m] || 0}
-                    </TableCell>
-                  ))}
-                  <TableCell align="center" sx={{ width: 100, px: 1, py: 0.5 }}>{student.total}</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 200, whiteSpace: "nowrap", px: 1, py: 0.5 }}>
+                    HỌ VÀ TÊN
+                  </TableCell>
+                  {showMonths &&
+                    monthSet.map((m) => (
+                      <TableCell key={m} align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 80, px: 1, py: 0.5 }}>
+                        Tháng {m}
+                      </TableCell>
+                    ))}
+                  <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 100, px: 1, py: 0.5 }}>
+                    TỔNG CỘNG
+                  </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+
+              <TableBody>
+                {dataList.map((student) => (
+                  <TableRow
+                    key={student.id}
+                    sx={{ height: 48, backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit" }}
+                  >
+                    <TableCell align="center" sx={{ px: 1, py: 0.5 }}>{student.stt}</TableCell>
+                    <TableCell sx={{ width: 200, whiteSpace: "nowrap", px: 1, py: 0.5 }}>{student.hoVaTen}</TableCell>
+                    {showMonths &&
+                      monthSet.map((m) => (
+                        <TableCell key={m} align="center" sx={{ width: 80, px: 1, py: 0.5 }}>
+                          {student.monthSummary[m] > 0 ? student.monthSummary[m] : ""}
+                        </TableCell>
+                      ))}
+                    <TableCell align="center" sx={{ width: 100, px: 1, py: 0.5 }}>
+                      {student.total > 0 ? student.total : ""}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
           <Button onClick={onBack} color="secondary">

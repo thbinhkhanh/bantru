@@ -21,6 +21,7 @@ export default function ThongKeThang({ onBack }) {
   const [dataList, setDataList] = useState([]);
   const [daySet, setDaySet] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDays, setShowDays] = useState(false);
 
   useEffect(() => {
     const fetchClassList = async () => {
@@ -92,8 +93,8 @@ export default function ThongKeThang({ onBack }) {
   }, [selectedClass, selectedDate]);
 
   return (
-    <Box sx={{ maxWidth: 750, mx: "auto", mt: 0, px: 1 }}>
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
+    <Box sx={{ width: "100%", overflowX: "auto", mt: 0, px: 1 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 4, width: "max-content", mx: "auto" }}>
         <Box sx={{ mb: 5 }}>
           <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mb: 1 }}>
             SỐ LIỆU THÁNG
@@ -101,13 +102,7 @@ export default function ThongKeThang({ onBack }) {
           <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
 
-        <Stack
-          direction="row"
-          spacing={2}
-          alignItems="center"
-          justifyContent="center"
-          sx={{ mb: 2, flexWrap: "nowrap", flexDirection: "row", gap: 2 }}
-        >
+        <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 2 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
               label="Chọn tháng"
@@ -123,14 +118,13 @@ export default function ThongKeThang({ onBack }) {
                 textField: {
                   size: "small",
                   sx: {
-                    minWidth: 80,
-                    maxWidth: 160, // 👈 giữ nguyên như ban đầu
-                    "& input": { textAlign: "center" }
-                  }
-                }
+                    minWidth: 100,
+                    maxWidth: 160,
+                    "& input": { textAlign: "center" },
+                  },
+                },
               }}
             />
-
           </LocalizationProvider>
 
           <FormControl size="small" sx={{ minWidth: 100 }}>
@@ -141,12 +135,14 @@ export default function ThongKeThang({ onBack }) {
               onChange={(e) => setSelectedClass(e.target.value)}
             >
               {classList.map((cls, idx) => (
-                <MenuItem key={idx} value={cls}>
-                  {cls}
-                </MenuItem>
+                <MenuItem key={idx} value={cls}>{cls}</MenuItem>
               ))}
             </Select>
           </FormControl>
+
+          <Button variant="outlined" onClick={() => setShowDays(!showDays)}>
+            {showDays ? "Ẩn ngày" : "Hiện ngày"}
+          </Button>
         </Stack>
 
         {isLoading && <LinearProgress sx={{ width: "50%", mx: "auto", my: 2 }} />}
@@ -154,15 +150,15 @@ export default function ThongKeThang({ onBack }) {
         <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
           <Table size="small">
             <TableHead>
-              <TableRow>
+              <TableRow sx={{ height: 48 }}>
                 <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", px: 1 }}>STT</TableCell>
                 <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 140, px: 1 }}>HỌ VÀ TÊN</TableCell>
-                {daySet.map((d) => {
+                {showDays && daySet.map((d) => {
                   const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), d);
                   const isWeekend = date.getDay() === 6 || date.getDay() === 0;
                   return (
                     <TableCell key={d} align="center" sx={{ fontWeight: "bold", backgroundColor: isWeekend ? "#d32f2f" : "#1976d2", color: "white", minWidth: 40, px: 1 }}>
-                      Ngày {d}
+                      {d}
                     </TableCell>
                   );
                 })}
@@ -180,7 +176,7 @@ export default function ThongKeThang({ onBack }) {
                 >
                   <TableCell align="center" sx={{ px: 1 }}>{student.stt}</TableCell>
                   <TableCell sx={{ px: 1 }}>{student.hoVaTen}</TableCell>
-                  {daySet.map((d) => (
+                  {showDays && daySet.map((d) => (
                     <TableCell
                       key={d}
                       align="center"
@@ -190,7 +186,7 @@ export default function ThongKeThang({ onBack }) {
                     </TableCell>
                   ))}
                   <TableCell align="center" sx={{ fontWeight: "bold", px: 1 }}>
-                    {student.total}
+                    {student.total > 0 ? student.total : ""}
                   </TableCell>
                 </TableRow>
               ))}
