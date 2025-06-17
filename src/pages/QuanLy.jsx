@@ -144,7 +144,15 @@ export default function QuanLy() {
                     <Box component="img" src={nhom.icon.props.src} alt={nhom.icon.props.alt} sx={{ width: { xs: 90, sm: 100, md: 95 }, height: 90, objectFit: 'contain', mx: 'auto' }} />
                   </Grid>
                   <Grid item xs={12} sm={10} md={11}>
-                    <Typography variant="h6" fontWeight="bold" mb={2}>{nhom.title}</Typography>
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      mb={2}
+                      sx={{ textAlign: { xs: 'center', sm: 'left' } }}
+                    >
+                      {nhom.title}
+                    </Typography>
+
                     <Grid container spacing={2} direction={{ xs: 'column', sm: 'row' }}>
                       {nhom.items.map(item => (
                         <Grid item xs={12} sm={6} md={4} key={item.code}>
