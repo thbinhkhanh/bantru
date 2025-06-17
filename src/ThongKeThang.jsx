@@ -50,7 +50,7 @@ export default function ThongKeThang({ onBack }) {
         const students = snapshot.docs.map((docSnap, index) => {
           const d = docSnap.data();
           const data = d.data || {};
-          const huyDangKy = d.huyDangKy || ""; // LẤY TRƯỜNG NÀY
+          const huyDangKy = d.huyDangKy || "";
           const daySummary = {};
           let total = 0;
 
@@ -101,7 +101,13 @@ export default function ThongKeThang({ onBack }) {
           <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
 
-        <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 4 }}>
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          justifyContent="center"
+          sx={{ mb: 2, flexWrap: "nowrap", flexDirection: "row", gap: 2 }}
+        >
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
               label="Chọn tháng"
@@ -118,15 +124,16 @@ export default function ThongKeThang({ onBack }) {
                   size: "small",
                   sx: {
                     minWidth: 80,
-                    maxWidth: 160,
+                    maxWidth: 160, // 👈 giữ nguyên như ban đầu
                     "& input": { textAlign: "center" }
                   }
                 }
               }}
             />
+
           </LocalizationProvider>
 
-          <FormControl size="small" sx={{ minWidth: 80, maxWidth: 100 }}>
+          <FormControl size="small" sx={{ minWidth: 100 }}>
             <InputLabel>Lớp</InputLabel>
             <Select
               value={selectedClass}

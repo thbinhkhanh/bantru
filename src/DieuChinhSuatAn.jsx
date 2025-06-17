@@ -211,7 +211,10 @@ export default function DieuChinhSuatAn({ onBack }) {
           <Table size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: "#1976d2" }}>
-                <TableCell align="center" sx={{ color: "white", width: 25 }}>STT</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', width: 40, py: 0.5, px: 1 }}>
+                  STT
+                </TableCell>
+
                 <TableCell align="center" sx={{ color: "white" }}>HỌ VÀ TÊN</TableCell>
                 <TableCell align="center" sx={{ color: "white" }}>ĐĂNG KÝ</TableCell>
               </TableRow>
@@ -219,7 +222,7 @@ export default function DieuChinhSuatAn({ onBack }) {
             <TableBody>
               {dataList.map((student, index) => (
                 <TableRow key={student.maDinhDanh}>
-                  <TableCell align="center">{student.stt}</TableCell>
+                  <TableCell align="center" sx={{ py: 0.5, px: 1 }}>{student.stt}</TableCell>
                   <TableCell>{student.hoVaTen}</TableCell>
                   <TableCell align="center">
                     <Checkbox
