@@ -247,7 +247,7 @@ export default function ChotSoLieu({ onBack }) {
               textTransform: "none",
             }}
           >
-            Cập nhật
+            CẬP NHẬT
           </Button>
         </Stack>
 
