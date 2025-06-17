@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, Stack, MenuItem, Select,
-  FormControl, InputLabel, LinearProgress, Button
+  TableHead, TableRow, Paper, Stack, MenuItem,
+  Select, FormControl, InputLabel, LinearProgress, Button
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -129,7 +129,11 @@ export default function ThongKeThang({ onBack }) {
 
           <FormControl size="small" sx={{ minWidth: 100 }}>
             <InputLabel>Lớp</InputLabel>
-            <Select value={selectedClass} label="Lớp" onChange={(e) => setSelectedClass(e.target.value)}>
+            <Select
+              value={selectedClass}
+              label="Lớp"
+              onChange={(e) => setSelectedClass(e.target.value)}
+            >
               {classList.map((cls, idx) => (
                 <MenuItem key={idx} value={cls}>{cls}</MenuItem>
               ))}
@@ -143,36 +147,54 @@ export default function ThongKeThang({ onBack }) {
 
         {isLoading && <LinearProgress sx={{ width: "50%", mx: "auto", my: 2 }} />}
 
-        <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2, overflowX: "auto" }}>
+        <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
           <Table size="small">
             <TableHead>
-              <TableRow>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white" }}>STT</TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 140 }}>HỌ VÀ TÊN</TableCell>
-                {showDays && daySet.map((d) => (
-                  <TableCell key={d} align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 40 }}>
-                    {d}
-                  </TableCell>
-                ))}
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 70 }}>TỔNG CỘNG</TableCell>
+              <TableRow sx={{ height: 48 }}>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", px: 1 }}>STT</TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 140, px: 1 }}>HỌ VÀ TÊN</TableCell>
+                {showDays && daySet.map((d) => {
+                  const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), d);
+                  const isWeekend = date.getDay() === 6 || date.getDay() === 0;
+                  return (
+                    <TableCell key={d} align="center" sx={{ fontWeight: "bold", backgroundColor: isWeekend ? "#d32f2f" : "#1976d2", color: "white", minWidth: 40, px: 1 }}>
+                      {d}
+                    </TableCell>
+                  );
+                })}
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 70, px: 1 }}>TỔNG CỘNG</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {dataList.map((student) => (
-                <TableRow key={student.id}>
-                  <TableCell align="center">{student.stt}</TableCell>
-                  <TableCell>{student.hoVaTen}</TableCell>
+                <TableRow
+                  key={student.id}
+                  sx={{
+                    height: 48,
+                    backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit"
+                  }}
+                >
+                  <TableCell align="center" sx={{ px: 1 }}>{student.stt}</TableCell>
+                  <TableCell sx={{ px: 1 }}>{student.hoVaTen}</TableCell>
                   {showDays && daySet.map((d) => (
-                    <TableCell key={d} align="center">{student.daySummary[d] || ""}</TableCell>
+                    <TableCell
+                      key={d}
+                      align="center"
+                      sx={{ color: student.daySummary[d] ? "#1976d2" : "inherit", px: 1 }}
+                    >
+                      {student.daySummary[d] || ""}
+                    </TableCell>
                   ))}
-                  <TableCell align="center" sx={{ fontWeight: "bold" }}>{student.total > 0 ? student.total : ""}</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold", px: 1 }}>
+                    {student.total > 0 ? student.total : ""}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
 
-        <Stack sx={{ mt: 4 }}>
+        <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
           <Button onClick={onBack} color="secondary">⬅️ Quay lại</Button>
         </Stack>
       </Paper>
