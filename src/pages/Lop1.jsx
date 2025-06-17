@@ -1,17 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Stack, MenuItem, Select,
   FormControl, InputLabel, Checkbox, Card, LinearProgress, Alert
-} from '@mui/material';
-import { getDocs, getDoc, collection, doc, updateDoc, query, where } from 'firebase/firestore';
-import { db } from '../firebase';
+} from "@mui/material";
+import { getDoc, getDocs, collection, query, where, doc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { useLocation } from "react-router-dom";
 
 export default function Lop1() {
+  const location = useLocation();
+  const useNewVersion = location.state?.useNewVersion ?? false; // Nhận trạng thái từ Home.js
+
   const [filteredStudents, setFilteredStudents] = useState([]);
   const [originalChecked, setOriginalChecked] = useState({});
   const [classList, setClassList] = useState([]);
-  const [selectedClass, setSelectedClass] = useState('');
+  const [selectedClass, setSelectedClass] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
@@ -22,8 +26,13 @@ export default function Lop1() {
   const fetchStudents = async (className) => {
     setIsLoading(true);
     try {
-      const q = query(collection(db, 'BANTRU'), where('lop', '==', className));
-      const snapshot = await getDocs(q);
+      let snapshot;
+      if (useNewVersion) {
+        const q = query(collection(db, "BANTRU"), where("lop", "==", className));
+        snapshot = await getDocs(q);
+      } else {
+        snapshot = await getDocs(collection(db, "BANTRU"));
+      }
 
       const data = snapshot.docs
         .map((doc, idx) => {
@@ -32,10 +41,10 @@ export default function Lop1() {
             id: doc.id,
             ...d,
             stt: idx + 1,
-            registered: d['huyDangKy'] === 'T',
+            registered: d["huyDangKy"] === "T",
           };
         })
-        .filter(student => student.huyDangKy !== 'x' && student.huyDangKy !== 'X');
+        .filter(student => useNewVersion || student.lop === className);
 
       setFilteredStudents(data);
 
@@ -43,7 +52,7 @@ export default function Lop1() {
       data.forEach(s => (checkedMap[s.id] = s.registered));
       setOriginalChecked(checkedMap);
     } catch (err) {
-      console.error('❌ Lỗi khi tải học sinh:', err);
+      console.error("❌ Lỗi khi tải học sinh:", err);
     } finally {
       setIsLoading(false);
     }
@@ -52,23 +61,22 @@ export default function Lop1() {
   useEffect(() => {
     const fetchClassList = async () => {
       try {
-        const docRef = doc(db, 'DANHSACH', 'K1');
-        const docSnap = await getDoc(docRef);
+        const docRef = doc(db, "DANHSACH", "K1");
+        const docSnap = await getDoc(docRef); // ✅ Đúng
 
         if (docSnap.exists()) {
           const data = docSnap.data();
           const classes = data.list || [];
           setClassList(classes);
           if (classes.length > 0) {
-            const firstClass = classes[0];
-            setSelectedClass(firstClass);
-            await fetchStudents(firstClass);
+            setSelectedClass(classes[0]);
+            await fetchStudents(classes[0]);
           }
         } else {
-          console.error('❌ Không tìm thấy document K1 trong DANHSACH');
+          console.error("❌ Không tìm thấy document K1 trong DANHSACH");
         }
       } catch (error) {
-        console.error('❌ Lỗi khi tải danh sách lớp:', error);
+        console.error("❌ Lỗi khi tải danh sách lớp:", error);
       }
     };
 
@@ -83,7 +91,7 @@ export default function Lop1() {
     setIsSaving(true);
     try {
       const updates = changed.map(s =>
-        updateDoc(doc(db, 'BANTRU', s.id), { 'huyDangKy': s.registered ? 'T' : '' })
+        updateDoc(doc(db, "BANTRU", s.id), { "huyDangKy": s.registered ? "T" : "" })
       );
       await Promise.all(updates);
 
@@ -92,7 +100,7 @@ export default function Lop1() {
       setOriginalChecked(updatedChecked);
       setLastSaved(new Date());
     } catch (err) {
-      console.error('❌ Lỗi khi lưu:', err);
+      console.error("❌ Lỗi khi lưu:", err);
     } finally {
       setIsSaving(false);
     }
@@ -124,17 +132,17 @@ export default function Lop1() {
       if (filteredStudents.some(s => s.registered !== originalChecked[s.id])) {
         saveData();
         e.preventDefault();
-        e.returnValue = '';
+        e.returnValue = "";
       }
     };
-    window.addEventListener('beforeunload', beforeUnload);
-    return () => window.removeEventListener('beforeunload', beforeUnload);
+    window.addEventListener("beforeunload", beforeUnload);
+    return () => window.removeEventListener("beforeunload", beforeUnload);
   }, [filteredStudents, originalChecked]);
 
   return (
-    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)', py: 6, px: 2, display: 'flex', justifyContent: 'center' }}>
-      <Card sx={{ p: 4, maxWidth: 450, width: '100%', borderRadius: 4, boxShadow: '0 8px 30px rgba(0,0,0,0.15)', backgroundColor: 'white' }} elevation={10}>
-        <Typography variant="h5" align="center" gutterBottom fontWeight="bold" color="primary" sx={{ mb: 4, borderBottom: '3px solid #1976d2', pb: 1 }}>
+    <Box sx={{ minHeight: "100vh", background: "linear-gradient(to bottom, #e3f2fd, #bbdefb)", py: 6, px: 2, display: "flex", justifyContent: "center" }}>
+      <Card sx={{ p: 4, maxWidth: 450, width: "100%", borderRadius: 4, boxShadow: "0 8px 30px rgba(0,0,0,0.15)", backgroundColor: "white" }} elevation={10}>
+        <Typography variant="h5" align="center" gutterBottom fontWeight="bold" color="primary" sx={{ mb: 4, borderBottom: "3px solid #1976d2", pb: 1 }}>
           DANH SÁCH HỌC SINH
         </Typography>
 
@@ -150,8 +158,8 @@ export default function Lop1() {
         </Stack>
 
         {isLoading ? (
-          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', my: 2 }}>
-            <Box sx={{ width: '50%' }}>
+          <Box sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", my: 2 }}>
+            <Box sx={{ width: "50%" }}>
               <LinearProgress />
             </Box>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
@@ -159,47 +167,28 @@ export default function Lop1() {
             </Typography>
           </Box>
         ) : (
-          <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2, width: '100%' }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2, width: "100%" }}>
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', width: 40, px: 1 }}>STT</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    HỌ VÀ TÊN
-                  </TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', width: 70, px: 1 }}>ĐĂNG KÝ</TableCell>
+                  <TableCell align="center">STT</TableCell>
+                  <TableCell align="center">HỌ VÀ TÊN</TableCell>
+                  <TableCell align="center">ĐĂNG KÝ</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredStudents.map((student, index) => (
                   <TableRow key={student.id}>
-                    <TableCell align="center" sx={{ px: 1 }}>{index + 1}</TableCell>
-                    <TableCell sx={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', px: 1 }}>
-                      {student['hoVaTen'] || 'Không có tên'}
-                    </TableCell>
-                    <TableCell align="center" sx={{ px: 1 }}>
-                      <Checkbox
-                        checked={student.registered ?? false}
-                        onChange={() => toggleRegister(index)}
-                        size="small"
-                        color="primary"
-                      />
+                    <TableCell align="center">{index + 1}</TableCell>
+                    <TableCell>{student["hoVaTen"] || "Không có tên"}</TableCell>
+                    <TableCell align="center">
+                      <Checkbox checked={student.registered ?? false} onChange={() => toggleRegister(index)} />
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
-        )}
-        {isSaving && (
-          <Alert severity="info" sx={{ mt: 3 }}>
-            Đang lưu dữ liệu...
-          </Alert>
-        )}
-        {lastSaved && !isSaving && (
-          <Alert severity="success" sx={{ mt: 3 }}>
-            Đã lưu lúc {lastSaved.toLocaleTimeString()}
-          </Alert>
         )}
       </Card>
     </Box>
