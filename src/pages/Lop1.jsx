@@ -35,7 +35,7 @@ export default function Lop1() {
             registered: d['huyDangKy'] === 'T',
           };
         })
-        .filter(student => student.huyDangKy !== 'x' && student.huyDangKy !== 'X'); // ⚠️ Lọc học sinh chưa hủy đăng ký
+        .filter(student => student.huyDangKy !== 'x' && student.huyDangKy !== 'X');
 
       setFilteredStudents(data);
 
@@ -48,7 +48,6 @@ export default function Lop1() {
       setIsLoading(false);
     }
   };
-
 
   useEffect(() => {
     const fetchClassList = async () => {
@@ -100,7 +99,7 @@ export default function Lop1() {
   };
 
   const handleClassChange = async (event) => {
-    await saveData(); // lưu dữ liệu lớp cũ trước
+    await saveData();
     const selected = event.target.value;
     setSelectedClass(selected);
     fetchStudents(selected);
@@ -160,21 +159,25 @@ export default function Lop1() {
             </Typography>
           </Box>
         ) : (
-          <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2, width: '100%' }}>
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>STT</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>HỌ VÀ TÊN</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>ĐĂNG KÝ</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', width: 40, px: 1 }}>STT</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    HỌ VÀ TÊN
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', width: 70, px: 1 }}>ĐĂNG KÝ</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredStudents.map((student, index) => (
                   <TableRow key={student.id}>
-                    <TableCell align="center">{index + 1}</TableCell>
-                    <TableCell>{student['hoVaTen'] || 'Không có tên'}</TableCell>
-                    <TableCell align="center">
+                    <TableCell align="center" sx={{ px: 1 }}>{index + 1}</TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', px: 1 }}>
+                      {student['hoVaTen'] || 'Không có tên'}
+                    </TableCell>
+                    <TableCell align="center" sx={{ px: 1 }}>
                       <Checkbox
                         checked={student.registered ?? false}
                         onChange={() => toggleRegister(index)}

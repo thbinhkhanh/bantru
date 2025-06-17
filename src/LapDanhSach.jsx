@@ -149,17 +149,17 @@ export default function LapDanhSach({ onBack }) {
                     <TableCell sx={{ py: 0.5, px: 1 }}>{student.hoVaTen}</TableCell>
                     <TableCell align="center" sx={{ py: 0.5, px: 1 }}>
                       <Checkbox
-                        checked={student.registered}
+                        checked={student.huyDangKy !== 'x' || student.registered}
                         onChange={() => toggleRegister(index)}
                         size="small"
                         color="primary"
-                        disabled={student.huyDangKy !== 'x'} // 🔒 Chỉ cho sửa nếu huyDangKy là "x"
+                        disabled={student.huyDangKy !== 'x'}
                       />
-
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
+
             </Table>
           </TableContainer>
         )}

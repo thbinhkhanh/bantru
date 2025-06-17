@@ -17,6 +17,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  FormControl,
 } from "@mui/material";
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -106,7 +107,7 @@ export default function XoaDLNgay({ onBack }) {
 
         if (data?.data?.hasOwnProperty(selectedDateStr)) {
           if (option === "toantruong" || (option === "chonlop" && maLop === selectedClass)) {
-            docsToUpdate.push({ id: studentId, registered: !!data.data[selectedDateStr] });
+            docsToUpdate.push({ id: studentId });
           }
         }
       });
@@ -153,7 +154,11 @@ export default function XoaDLNgay({ onBack }) {
         <Stack spacing={3} alignItems="center">
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <Box sx={{ width: 185 }}>
-              <DatePicker label="Chọn ngày" value={selectedDate} onChange={(newValue) => setSelectedDate(newValue)} />
+              <DatePicker
+                label="Chọn ngày"
+                value={selectedDate}
+                onChange={(newValue) => setSelectedDate(newValue)}
+              />
             </Box>
           </LocalizationProvider>
 
@@ -163,14 +168,18 @@ export default function XoaDLNgay({ onBack }) {
           </RadioGroup>
 
           {option === "chonlop" && (
-            <Select size="small" value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)}>
-              <MenuItem value="" disabled>-- Chọn lớp --</MenuItem>
-              {classList.map((cls) => (
-                <MenuItem key={cls} value={cls}>
-                  {cls}
-                </MenuItem>
-              ))}
-            </Select>
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <Select
+                value={selectedClass}
+                displayEmpty
+                onChange={(e) => setSelectedClass(e.target.value)}
+              >
+                <MenuItem value="" disabled>-- Chọn lớp --</MenuItem>
+                {classList.map((cls) => (
+                  <MenuItem key={cls} value={cls}>{cls}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           )}
 
           <Button variant="contained" color="primary" onClick={handleSubmit}>
