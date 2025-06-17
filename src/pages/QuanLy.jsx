@@ -33,7 +33,13 @@ export default function QuanLy() {
   };
 
   const handleFunctionSelect = (code) => {
-    setSelectedFunction(code);
+    if (code === 'ADMINLOGIN') {
+      setAdminVisible(true);
+      setSelectedFunction('');
+    } else {
+      setSelectedFunction(code);
+      setAdminVisible(false);
+    }
   };
 
   const renderSelectedFunction = () => {
@@ -95,19 +101,25 @@ export default function QuanLy() {
       {!loginSuccess ? (
         <Box maxWidth={360} mx="auto">
           <Card elevation={8} sx={{ p: 4, borderRadius: 4 }}>
-            <Typography
-              variant="h5"
-              color="primary"
-              fontWeight="bold"
-              align="center"
-              gutterBottom
-            >
+            <Typography variant="h5" color="primary" fontWeight="bold" align="center" gutterBottom>
               ĐĂNG NHẬP QUẢN LÝ
             </Typography>
             <TextField label="Tên đăng nhập" fullWidth margin="normal" value="TH Bình Khánh" disabled />
             <TextField label="Mật khẩu" fullWidth margin="normal" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
             {message && <Alert severity="error" sx={{ mt: 2 }}>{message}</Alert>}
-            <Button variant="contained" color="primary" fullWidth sx={{ mt: 3, fontWeight: 'bold' }} onClick={handleLogin}>
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{
+                fontWeight: 'bold',
+                fontSize: '16px', // Giữ kích thước chữ như gốc
+                py: 1.2, // Điều chỉnh padding dọc
+                height: 48, // Giữ nguyên chiều cao nút
+                width: '100%', // Đảm bảo nút phủ toàn bộ chiều rộng có thể
+              }}
+              onClick={handleLogin}
+            >
               Đăng nhập
             </Button>
           </Card>
@@ -116,42 +128,31 @@ export default function QuanLy() {
         <Box maxWidth={selectedFunction === 'CAPNHAT' ? 1000 : 700} mx="auto">
           {renderSelectedFunction()}
         </Box>
+      ) : adminVisible ? (
+        <AdminLogin onSuccess={() => setAdminVisible(false)} onCancel={() => setAdminVisible(false)} />
       ) : (
         <>
-          <Typography
-            variant="h4"
-            align="center"
-            gutterBottom
-            fontWeight="bold"
-            color="primary"
-            sx={{
-              textShadow: '2px 2px 5px rgba(0,0,0,0.1)',
-              borderBottom: '3px solid #1976d2',
-              pb: 1,
-              mb: 4
-            }}
-          >
+          <Typography variant="h4" align="center" gutterBottom fontWeight="bold" color="primary"
+            sx={{ textShadow: '2px 2px 5px rgba(0,0,0,0.1)', borderBottom: '3px solid #1976d2', pb: 1, mb: 4 }}>
             HỆ THỐNG QUẢN LÝ BÁN TRÚ
           </Typography>
           <Stack spacing={4} alignItems="center">
             {chucNangNhom.map((nhom, index) => (
               <Card key={index} elevation={6} sx={{ p: 3, borderRadius: 4, width: '100%', maxWidth: { xs: 360, sm: 720, md: 1055 }, mx: 'auto' }}>
-                <Grid container spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center" justifyContent={{ xs: 'center', sm: 'flex-start' }}>
+                <Grid container spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center">
                   <Grid item xs={12} sm={2} md={1} textAlign="center">
                     <Box component="img" src={nhom.icon.props.src} alt={nhom.icon.props.alt} sx={{ width: { xs: 90, sm: 100, md: 95 }, height: 90, objectFit: 'contain', mx: 'auto' }} />
                   </Grid>
                   <Grid item xs={12} sm={10} md={11}>
-                    <Typography variant="h6" fontWeight="bold" mb={2}>
-                      {nhom.title}
-                    </Typography>
+                    <Typography variant="h6" fontWeight="bold" mb={2}>{nhom.title}</Typography>
                     <Grid container spacing={2} direction={{ xs: 'column', sm: 'row' }}>
-                      {nhom.items.map((item) => (
+                      {nhom.items.map(item => (
                         <Grid item xs={12} sm={6} md={4} key={item.code}>
                           <Button
                             variant="contained"
                             fullWidth
                             sx={{
-                              minWidth: 220, // Giữ nguyên chiều rộng mặc định
+                              minWidth: 220, // Đảm bảo chiều rộng nút không thay đổi
                               backgroundColor: item.color,
                               fontWeight: 600,
                               height: 48, // Giữ nguyên chiều cao
