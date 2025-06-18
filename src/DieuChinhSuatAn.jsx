@@ -100,6 +100,17 @@ export default function DieuChinhSuatAn({ onBack }) {
   const saveData = async () => {
     if (isSaving) return;
 
+    const now = new Date();
+    const selectedMonth = selectedDate.getMonth();
+    const currentMonth = now.getMonth();
+    const selectedYear = selectedDate.getFullYear();
+    const currentYear = now.getFullYear();
+
+    if (selectedYear < currentYear || (selectedYear === currentYear && selectedMonth < currentMonth)) {
+      setSaveSuccess("tooEarly");
+      return;
+    }
+
     const changed = dataList.filter((s) => s.registered !== originalChecked[s.maDinhDanh]);
     if (changed.length === 0) {
       setSaveSuccess(null);
@@ -116,7 +127,7 @@ export default function DieuChinhSuatAn({ onBack }) {
 
       await Promise.all(
         changed.map(async (s) => {
-          const docRef = doc(db, "BANTRU", s.id); // cập nhật qua doc ID gốc
+          const docRef = doc(db, "BANTRU", s.id);
           await updateDoc(docRef, {
             [`data.${selectedDateStr}`]: s.registered ? "T" : "",
           });
@@ -134,6 +145,7 @@ export default function DieuChinhSuatAn({ onBack }) {
       setIsSaving(false);
     }
   };
+
 
   const handleClassChange = async (event) => {
     await saveData();
@@ -164,23 +176,25 @@ export default function DieuChinhSuatAn({ onBack }) {
       <Paper elevation={3} sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: 4 }}>
         <Typography
           variant="h5"
+          align="center"
+          gutterBottom
           fontWeight="bold"
           color="primary"
-          align="center"
-          sx={{ mt: 2 }}
+          sx={{ mb: 2, textShadow: '2px 2px 5px rgba(0,0,0,0.1)', pb: 1 }}
         >
           ĐIỀU CHỈNH SUẤT ĂN
-          <Box
-            sx={{
-              height: "2px",
-              width: "100%",
-              backgroundColor: "#1976d2",
-              borderRadius: 1,
-              mt: 2,
-              mb: 4,
-            }}
-          />
         </Typography>
+        <Box
+          sx={{
+            height: "2px",
+            width: "100%",
+            backgroundColor: "#1976d2",
+            borderRadius: 1,
+            mt: 0,
+            mb: 4
+          }}
+        />
+
 
         <Stack
           direction="row"
@@ -305,6 +319,12 @@ export default function DieuChinhSuatAn({ onBack }) {
             </Alert>
           )}
 
+          {saveSuccess === "tooEarly" && !isSaving && (
+            <Alert severity="warning" sx={{ mt: 2, width: "100%" }}>
+              ⚠️ Bạn không thể điều chỉnh suất ăn trước tháng {new Date().getMonth() + 1}.
+            </Alert>
+          )}
+
           {saveSuccess === true && !isSaving && (
             <Alert severity="success" sx={{ mt: 2, width: "100%" }}>
               ✅ Cập nhật thành công!
@@ -316,6 +336,7 @@ export default function DieuChinhSuatAn({ onBack }) {
               ❌ Cập nhật thất bại! Vui lòng kiểm tra lại.
             </Alert>
           )}
+
 
           <Button onClick={onBack} color="secondary">
             ⬅️ Quay lại

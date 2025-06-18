@@ -96,7 +96,7 @@ export default function ThongKeNam({ onBack }) {
           <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mb: 1 }}>
             TỔNG HỢP CẢ NĂM
           </Typography>
-          <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
+          <Box sx={{ height: "2.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
 
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 4 }}>
@@ -150,22 +150,72 @@ export default function ThongKeNam({ onBack }) {
 
         <Box sx={{ width: "100%", overflowX: "auto", mt: 2 }}>
           <TableContainer component={Paper} sx={{ borderRadius: 2, minWidth: "max-content" }}>
-            <Table size="small">
+            <Table size="small" sx={{ borderCollapse: "collapse" }}>
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 48, px: 1, py: 0.5 }}>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: "bold",
+                      backgroundColor: "#1976d2",
+                      color: "white",
+                      width: 48,
+                      px: 1,
+                      py: 1,
+                      border: "1px solid #ccc",
+                      height: 48,
+                    }}
+                  >
                     STT
                   </TableCell>
-                  <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 200, whiteSpace: "nowrap", px: 1, py: 0.5 }}>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: "bold",
+                      backgroundColor: "#1976d2",
+                      color: "white",
+                      width: 200,
+                      whiteSpace: "nowrap",
+                      px: 1,
+                      py: 1,
+                      border: "1px solid #ccc",
+                      height: 48,
+                    }}
+                  >
                     HỌ VÀ TÊN
                   </TableCell>
                   {showMonths &&
                     monthSet.map((m) => (
-                      <TableCell key={m} align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 80, px: 1, py: 0.5 }}>
+                      <TableCell
+                        key={m}
+                        align="center"
+                        sx={{
+                          fontWeight: "bold",
+                          backgroundColor: "#1976d2",
+                          color: "white",
+                          width: 80,
+                          px: 1,
+                          py: 1,
+                          border: "1px solid #ccc",
+                          height: 48,
+                        }}
+                      >
                         Tháng {m}
                       </TableCell>
                     ))}
-                  <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", width: 100, px: 1, py: 0.5 }}>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: "bold",
+                      backgroundColor: "#1976d2",
+                      color: "white",
+                      width: 100,
+                      px: 1,
+                      py: 1,
+                      border: "1px solid #ccc",
+                      height: 48,
+                    }}
+                  >
                     TỔNG CỘNG
                   </TableCell>
                 </TableRow>
@@ -175,17 +225,21 @@ export default function ThongKeNam({ onBack }) {
                 {dataList.map((student) => (
                   <TableRow
                     key={student.id}
-                    sx={{ height: 48, backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit" }}
+                    sx={{
+                      height: 44,
+                      backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit",
+                      "& td": { border: "1px solid #ccc", py: 1 },
+                    }}
                   >
-                    <TableCell align="center" sx={{ px: 1, py: 0.5 }}>{student.stt}</TableCell>
-                    <TableCell sx={{ width: 200, whiteSpace: "nowrap", px: 1, py: 0.5 }}>{student.hoVaTen}</TableCell>
+                    <TableCell align="center" sx={{ px: 1 }}>{student.stt}</TableCell>
+                    <TableCell sx={{ width: 200, whiteSpace: "nowrap", px: 1 }}>{student.hoVaTen}</TableCell>
                     {showMonths &&
                       monthSet.map((m) => (
-                        <TableCell key={m} align="center" sx={{ width: 80, px: 1, py: 0.5 }}>
+                        <TableCell key={m} align="center" sx={{ width: 80, px: 1 }}>
                           {student.monthSummary[m] > 0 ? student.monthSummary[m] : ""}
                         </TableCell>
                       ))}
-                    <TableCell align="center" sx={{ width: 100, px: 1, py: 0.5 }}>
+                    <TableCell align="center" sx={{ width: 100, px: 1 }}>
                       {student.total > 0 ? student.total : ""}
                     </TableCell>
                   </TableRow>
@@ -193,6 +247,7 @@ export default function ThongKeNam({ onBack }) {
               </TableBody>
             </Table>
           </TableContainer>
+
         </Box>
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>

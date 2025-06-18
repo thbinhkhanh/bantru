@@ -99,7 +99,7 @@ export default function ThongKeThang({ onBack }) {
           <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mb: 1 }}>
             SỐ LIỆU THÁNG
           </Typography>
-          <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
+          <Box sx={{ height: "2.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
 
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 2 }}>
@@ -148,50 +148,108 @@ export default function ThongKeThang({ onBack }) {
         {isLoading && <LinearProgress sx={{ width: "50%", mx: "auto", my: 2 }} />}
 
         <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
-          <Table size="small">
+          <Table size="small" sx={{ borderCollapse: "collapse" }}>
             <TableHead>
               <TableRow sx={{ height: 48 }}>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", px: 1 }}>STT</TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 140, px: 1 }}>HỌ VÀ TÊN</TableCell>
-                {showDays && daySet.map((d) => {
-                  const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), d);
-                  const isWeekend = date.getDay() === 6 || date.getDay() === 0;
-                  return (
-                    <TableCell key={d} align="center" sx={{ fontWeight: "bold", backgroundColor: isWeekend ? "#d32f2f" : "#1976d2", color: "white", minWidth: 40, px: 1 }}>
-                      {d}
-                    </TableCell>
-                  );
-                })}
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 70, px: 1 }}>TỔNG CỘNG</TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    px: 1,
+                    border: "1px solid #ccc"
+                  }}
+                >
+                  STT
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    minWidth: 140,
+                    px: 1,
+                    border: "1px solid #ccc"
+                  }}
+                >
+                  HỌ VÀ TÊN
+                </TableCell>
+                {showDays &&
+                  daySet.map((d) => {
+                    const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), d);
+                    const isWeekend = date.getDay() === 6 || date.getDay() === 0;
+                    return (
+                      <TableCell
+                        key={d}
+                        align="center"
+                        sx={{
+                          fontWeight: "bold",
+                          backgroundColor: isWeekend ? "#d32f2f" : "#1976d2",
+                          color: "white",
+                          minWidth: 40,
+                          px: 1,
+                          border: "1px solid #ccc"
+                        }}
+                      >
+                        {d}
+                      </TableCell>
+                    );
+                  })}
+                <TableCell
+                  align="center"
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    minWidth: 70,
+                    px: 1,
+                    border: "1px solid #ccc"
+                  }}
+                >
+                  TỔNG CỘNG
+                </TableCell>
               </TableRow>
             </TableHead>
+
             <TableBody>
               {dataList.map((student) => (
                 <TableRow
                   key={student.id}
                   sx={{
                     height: 48,
-                    backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit"
+                    backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit",
                   }}
                 >
-                  <TableCell align="center" sx={{ px: 1 }}>{student.stt}</TableCell>
-                  <TableCell sx={{ px: 1 }}>{student.hoVaTen}</TableCell>
-                  {showDays && daySet.map((d) => (
-                    <TableCell
-                      key={d}
-                      align="center"
-                      sx={{ color: student.daySummary[d] ? "#1976d2" : "inherit", px: 1 }}
-                    >
-                      {student.daySummary[d] || ""}
-                    </TableCell>
-                  ))}
-                  <TableCell align="center" sx={{ fontWeight: "bold", px: 1 }}>
+                  <TableCell align="center" sx={{ width: 48, px: 1, border: "1px solid #ccc" }}>
+                    {student.stt}
+                  </TableCell>
+                  <TableCell sx={{ px: 1, border: "1px solid #ccc" }}>
+                    {student.hoVaTen}
+                  </TableCell>
+                  {showDays &&
+                    daySet.map((d) => (
+                      <TableCell
+                        key={d}
+                        align="center"
+                        sx={{
+                          color: student.daySummary[d] ? "#1976d2" : "inherit",
+                          px: 1,
+                          border: "1px solid #ccc"
+                        }}
+                      >
+                        {student.daySummary[d] || ""}
+                      </TableCell>
+                    ))}
+                  <TableCell align="center" sx={{ fontWeight: "bold", px: 1, border: "1px solid #ccc" }}>
                     {student.total > 0 ? student.total : ""}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+
         </TableContainer>
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>

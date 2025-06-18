@@ -27,6 +27,7 @@ export default function Lop1() {
     setIsLoading(true);
     try {
       let snapshot;
+
       if (useNewVersion) {
         const q = query(collection(db, 'BANTRU'), where('lop', '==', className));
         snapshot = await getDocs(q);
@@ -42,9 +43,13 @@ export default function Lop1() {
             ...d,
             stt: idx + 1,
             registered: d['huyDangKy'] === 'T',
+            huyDangKy: d['huyDangKy'] || ''
           };
         })
-        .filter(student => useNewVersion || student.lop === className);
+        .filter(student =>
+          (useNewVersion || student.lop === className) &&
+          student.huyDangKy !== 'x' // ✅ Lọc theo yêu cầu
+        );
 
       setFilteredStudents(data);
 
