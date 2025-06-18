@@ -131,41 +131,73 @@ export default function LapDanhSach({ onBack }) {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)', pt: 0, px: 1, display: 'flex', justifyContent: 'center' }}>
-      <Card sx={{ p: { xs: 2, sm: 3, md: 4 }, maxWidth: 400, width: '100%', borderRadius: 4, boxShadow: 3 }}>
-        <Typography variant="h5" align="center" fontWeight="bold" color="primary" gutterBottom>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)',
+        py: 6,
+        px: 2,
+        display: 'flex',
+        justifyContent: 'center',
+      }}
+    >
+      <Card
+        sx={{
+          p: { xs: 2, sm: 3, md: 4 },
+          maxWidth: 450,
+          width: '100%',
+          borderRadius: 4,
+          boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+          backgroundColor: 'white',
+        }}
+        elevation={10}
+      >
+        <Typography
+          variant="h5"
+          align="center"
+          gutterBottom
+          fontWeight="bold"
+          color="primary"
+          sx={{ mb: 4, borderBottom: '3px solid #1976d2', pb: 1 }}
+        >
           LẬP DANH SÁCH BÁN TRÚ
         </Typography>
-        <Box sx={{ height: 2, backgroundColor: '#1976d2', borderRadius: 1, mb: 3 }} />
-        <Stack direction="row" justifyContent="center" sx={{ mb: 3 }}>
+
+        <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
           <FormControl size="small" sx={{ minWidth: 120 }}>
             <InputLabel>Lớp</InputLabel>
             <Select value={selectedClass || ''} label="Lớp" onChange={handleClassChange}>
               {classList.map((cls, idx) => (
-                <MenuItem key={idx} value={cls}>{cls}</MenuItem>
+                <MenuItem key={idx} value={cls}>
+                  {cls}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
         </Stack>
 
         {isLoading ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 2 }}>
             <Box sx={{ width: '50%' }}><LinearProgress /></Box>
-            <Typography variant="body2" sx={{ mt: 1 }}>Đang tải dữ liệu học sinh...</Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              Đang tải dữ liệu học sinh...
+            </Typography>
           </Box>
         ) : (
-          <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
             <Table size="small">
               <TableHead>
-                <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 1, sm: 1, md: 2 } }}>STT</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 1 } }}>ĐĂNG KÝ</TableCell>
-                </TableRow>
-              </TableHead>
+                  <TableRow>
+                    <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>STT</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>ĐĂNG KÝ</TableCell>
+  
+                  </TableRow>
+                </TableHead>
+
               <TableBody>
                 {filteredStudents.map((student, index) => (
-                  <TableRow key={index} hover>
+                  <TableRow key={student.id}>
                     <TableCell align="center">{index + 1}</TableCell>
                     <TableCell>{student.hoVaTen}</TableCell>
                     <TableCell align="center">
@@ -196,7 +228,7 @@ export default function LapDanhSach({ onBack }) {
           </Button>
 
           {(isSaving || alertInfo.open) && (
-            <Alert severity={isSaving ? 'info' : alertInfo.severity} sx={{ width: 1 }}>
+            <Alert severity={isSaving ? 'info' : alertInfo.severity} sx={{ width: '100%' }}>
               {isSaving ? '🔄 Đang lưu dữ liệu...' : alertInfo.message}
             </Alert>
           )}

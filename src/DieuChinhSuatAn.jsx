@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Stack, MenuItem,
-  Select, FormControl, InputLabel, LinearProgress, Button, Checkbox, Alert
+  Select, FormControl, InputLabel, LinearProgress, Button,
+  Checkbox, Alert, Card, CardContent
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -21,12 +22,12 @@ export default function DieuChinhSuatAn({ onBack }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(null);
-  
+
   useEffect(() => {
     if (saveSuccess !== null) {
       const timer = setTimeout(() => {
         setSaveSuccess(null);
-      }, 5000); // Ẩn sau 10 giây
+      }, 5000);
       return () => clearTimeout(timer);
     }
   }, [saveSuccess]);
@@ -71,7 +72,7 @@ export default function DieuChinhSuatAn({ onBack }) {
         const maDinhDanh = d.maDinhDanh;
 
         const student = {
-          id: docSnap.id, // vẫn giữ lại để update
+          id: docSnap.id,
           maDinhDanh,
           hoVaTen: d.hoVaTen,
           registered: registeredData === "T",
@@ -83,9 +84,8 @@ export default function DieuChinhSuatAn({ onBack }) {
         checkedMap[maDinhDanh] = student.registered;
       });
 
-      //setDataList(students);
-      const sorted = MySort(students).map((s, idx) => ({ ...s, stt: idx + 1 })); // 🆕 Sắp xếp theo Tên → Đệm → Họ
-      setDataList(sorted);             // 🆕 Cập nhật danh sách đã sắp
+      const sorted = MySort(students).map((s, idx) => ({ ...s, stt: idx + 1 }));
+      setDataList(sorted);
       setOriginalChecked(checkedMap);
     } catch (err) {
       console.error("❌ Lỗi khi tải học sinh:", err);
@@ -149,7 +149,6 @@ export default function DieuChinhSuatAn({ onBack }) {
     }
   };
 
-
   const handleClassChange = async (event) => {
     await saveData();
     const selected = event.target.value;
@@ -175,144 +174,153 @@ export default function DieuChinhSuatAn({ onBack }) {
   };
 
   return (
-    <Box sx={{ maxWidth: { xs: "98%", sm: 450 }, mx: "auto", px: 1 }}>
-      <Paper elevation={3} sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: 4 }}>
-        <Typography
-          variant="h5"
-          align="center"
-          gutterBottom
-          fontWeight="bold"
-          color="primary"
-          sx={{ mb: 2, textShadow: '2px 2px 5px rgba(0,0,0,0.1)', pb: 1 }}
-        >
-          ĐIỀU CHỈNH SUẤT ĂN
-        </Typography>
-        <Box
-          sx={{
-            height: "2px",
-            width: "100%",
-            backgroundColor: "#1976d2",
-            borderRadius: 1,
-            mt: 0,
-            mb: 4
-          }}
-        />
+    <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+      <Card
+        sx={{
+          p: { xs: 2, sm: 3, md: 4 },
+          maxWidth: 450,
+          width: '100%',
+          borderRadius: 4,
+          boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+          backgroundColor: 'white'
+        }}
+        elevation={10}
+      >
 
+        <CardContent sx={{ p: 0 }}>
 
-        <Stack
-          direction="row"
-          spacing={2}
-          justifyContent="center"
-          alignItems="center"
-          sx={{ mb: 3 }}
-        >
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
-            <DatePicker
-              label="Chọn ngày"
-              value={selectedDate}
-              onChange={handleDateChange}
-              slotProps={{
-                textField: {
-                  size: "small",
-                  sx: {
-                    minWidth: 150,
-                    maxWidth: 180,
-                    "& input": { textAlign: "center" },
-                  },
-                },
-              }}
-            />
-          </LocalizationProvider>
-
-          <FormControl size="small" sx={{ minWidth: 120, maxWidth: 150 }}>
-            <InputLabel>Lớp</InputLabel>
-            <Select value={selectedClass || ""} label="Lớp" onChange={handleClassChange}>
-              {classList.map((cls, idx) => (
-                <MenuItem key={idx} value={cls}>
-                  {cls}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Stack>
-
-        {isLoading && <LinearProgress />}
-
-        <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-          <Table size="small">
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#1976d2" }}>
-                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 1, sm: 1, md: 2 } }}>STT</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 1, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 1, sm: 0.5, md: 1 } }}>ĐĂNG KÝ</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {dataList.map((student, index) => (
-                <TableRow key={student.maDinhDanh}>
-                  <TableCell align="center" sx={{ py: 0.5, px: { xs: 1, sm: 1, md: 2 } }}>
-                    {student.stt}
-                  </TableCell>
-                  <TableCell sx={{ px: { xs: 0.5, sm: 1, md: 2 } }}>
-                    {student.hoVaTen}
-                  </TableCell>
-                  <TableCell align="center" sx={{ px: { xs: 0.5, sm: 1, md: 1 } }}>
-                    <Checkbox
-                      checked={student.registered}
-                      onChange={() => toggleRegister(index)}
-                      disabled={student.disabled}
-                      size="small"
-                      color="primary"
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
-          <Button
-            variant="contained"
+          <Typography
+            variant="h5"
+            align="center"
+            fontWeight="bold"
             color="primary"
-            onClick={saveData}
-            sx={{ width: 160, fontWeight: 600, py: 1 }}
-            disabled={isSaving}
+            gutterBottom
           >
-            {isSaving ? "🔄 Cập nhật..." : "Cập nhật"}
-          </Button>
+            ĐIỀU CHỈNH SUẤT ĂN
+          </Typography>
+          <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
 
-          {isSaving && (
-            <Alert severity="info" sx={{ mt: 2, width: "100%" }}>
-              🔄 Đang cập nhật dữ liệu...
-            </Alert>
-          )}
+          <Stack direction="row" spacing={2} justifyContent="center" alignItems="center" sx={{ mb: 3 }}>
+            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
+              <DatePicker
+                label="Chọn ngày"
+                value={selectedDate}
+                onChange={handleDateChange}
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    sx: {
+                      minWidth: 150,
+                      maxWidth: 180,
+                      "& input": { textAlign: "center" },
+                    },
+                  },
+                }}
+              />
+            </LocalizationProvider>
 
-          {saveSuccess === "tooEarly" && !isSaving && (
-            <Alert severity="warning" sx={{ mt: 2, width: "100%" }}>
-              ⚠️ Bạn không thể điều chỉnh suất ăn trước tháng {new Date().getMonth() + 1}.
-            </Alert>
-          )}
+            <FormControl size="small" sx={{ minWidth: 120 }}>
+              <InputLabel>Lớp</InputLabel>
+              <Select value={selectedClass || ""} label="Lớp" onChange={handleClassChange}>
+                {classList.map((cls, idx) => (
+                  <MenuItem key={idx} value={cls}>
+                    {cls}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
 
-          {saveSuccess === true && !isSaving && (
-            <Alert severity="success" sx={{ mt: 2, width: "100%" }}>
-              ✅ Cập nhật thành công!
-            </Alert>
-          )}
+          {isLoading && <LinearProgress />}
 
-          {saveSuccess === false && !isSaving && (
-            <Alert severity="error" sx={{ mt: 2, width: "100%" }}>
-              ❌ Cập nhật thất bại! Vui lòng kiểm tra lại.
-            </Alert>
-          )}
+          <TableContainer
+            component={Paper}
+            elevation={2}
+            sx={{
+              borderRadius: 2,
+              border: "1px solid #e0e0e0",
+              mt: 2
+            }}
+          >
 
+            <Table size="small" stickyHeader>
+              <TableHead>
+                <TableRow>
+                  {["STT", "HỌ VÀ TÊN", "ĐĂNG KÝ"].map((header, idx) => (
+                    <TableCell
+                      key={idx}
+                      align="center"
+                      sx={{
+                        fontWeight: "bold",
+                        color: "white",
+                        backgroundColor: "#1976d2",
+                        fontSize: 14,
+                        py: 1
+                      }}
+                    >
+                      {header}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {dataList.map((student, index) => (
+                  <TableRow key={student.maDinhDanh} hover>
+                    <TableCell align="center">{student.stt}</TableCell>
+                    <TableCell>{student.hoVaTen}</TableCell>
+                    <TableCell align="center">
+                      <Checkbox
+                        checked={student.registered}
+                        onChange={() => toggleRegister(index)}
+                        disabled={student.disabled}
+                        size="small"
+                        color="primary"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-          <Button onClick={onBack} color="secondary">
-            ⬅️ Quay lại
-          </Button>
-        </Stack>
-      </Paper>
+          <Stack spacing={2} sx={{ mt: 3, alignItems: "center" }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={saveData}
+              disabled={isSaving}
+              sx={{ width: 160, fontWeight: 600 }}
+            >
+              {isSaving ? "🔄 Cập nhật..." : "Cập nhật"}
+            </Button>
+
+            {saveSuccess === "tooEarly" && (
+              <Alert severity="warning" sx={{ textAlign: 'left' }}>
+                ⚠️ Không thể điều chỉnh suất ăn trước tháng hiện tại.
+              </Alert>
+            )}
+            {saveSuccess === true && (
+              <Alert severity="success" sx={{ textAlign: 'left' }}>
+                ✅ Cập nhật thành công!
+              </Alert>
+            )}
+            {saveSuccess === false && (
+              <Alert severity="error" sx={{ textAlign: 'left' }}>
+                ❌ Lỗi khi lưu dữ liệu!
+              </Alert>
+            )}
+            {isSaving && (
+              <Alert severity="info" sx={{ textAlign: 'left' }}>
+                🔄 Đang lưu dữ liệu...
+              </Alert>
+            )}
+
+            <Button onClick={onBack} color="secondary">
+              ⬅️ Quay lại
+            </Button>
+          </Stack>
+        </CardContent>
+      </Card>
     </Box>
-
   );
 }
