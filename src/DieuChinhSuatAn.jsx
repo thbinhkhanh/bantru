@@ -242,43 +242,9 @@ export default function DieuChinhSuatAn({ onBack }) {
           <Table size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: "#1976d2" }}>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontWeight: "bold",
-                    backgroundColor: "#1976d2",
-                    color: "white",
-                    py: 0.5,
-                    px: { xs: 0.5, sm: 1, md: 2 },
-                    width: 40,
-                  }}
-                >
-                  STT
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontWeight: "bold",
-                    backgroundColor: "#1976d2",
-                    color: "white",
-                    py: 0.5,
-                    px: { xs: 0.5, sm: 1, md: 2 },
-                  }}
-                >
-                  HỌ VÀ TÊN
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{
-                    fontWeight: "bold",
-                    backgroundColor: "#1976d2",
-                    color: "white",
-                    py: 0.5,
-                    px: { xs: 0.5, sm: 1, md: 2 },
-                  }}
-                >
-                  ĐĂNG KÝ
-                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>STT</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>ĐĂNG KÝ</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

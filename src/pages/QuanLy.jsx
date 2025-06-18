@@ -91,7 +91,7 @@ export default function QuanLy() {
       icon: <img src="/Set.jpg" alt="Admin" width={36} height={36} />,
       title: 'QUẢN LÝ HỆ THỐNG',
       items: [
-        { label: 'ĐĂNG NHẬP HỆ THỐNG', code: 'ADMINLOGIN', color: '#455a64' },
+        { label: 'ĐĂNG NHẬP HỆ THỐNG', code: 'ADMINLOGIN', color: '#42a5f5' },
       ],
     },
   ];
