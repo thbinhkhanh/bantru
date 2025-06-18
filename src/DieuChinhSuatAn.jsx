@@ -242,21 +242,21 @@ export default function DieuChinhSuatAn({ onBack }) {
           <Table size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: "#1976d2" }}>
-                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>STT</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>ĐĂNG KÝ</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 1, sm: 1, md: 2 } }}>STT</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 1, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 1, sm: 1, md: 2 } }}>ĐĂNG KÝ</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {dataList.map((student, index) => (
                 <TableRow key={student.maDinhDanh}>
-                  <TableCell align="center" sx={{ py: 0.5, px: { xs: 0.5, sm: 1, md: 2 } }}>
+                  <TableCell align="center" sx={{ py: 0.5, px: { xs: 1, sm: 1, md: 2 } }}>
                     {student.stt}
                   </TableCell>
-                  <TableCell sx={{ px: { xs: 0.5, sm: 1, md: 2 } }}>
+                  <TableCell sx={{ px: { xs: 1, sm: 1, md: 2 } }}>
                     {student.hoVaTen}
                   </TableCell>
-                  <TableCell align="center" sx={{ px: { xs: 0.5, sm: 1, md: 2 } }}>
+                  <TableCell align="center" sx={{ px: { xs: 1, sm: 1, md: 2 } }}>
                     <Checkbox
                       checked={student.registered}
                       onChange={() => toggleRegister(index)}
