@@ -194,7 +194,7 @@ export default function LapDanhSach({ onBack }) {
 
           {(isSaving || alertInfo.open) && (
             <Alert severity={isSaving ? 'info' : alertInfo.severity} sx={{ width: 1 }}>
-              {isSaving ? '🔄 Đang lưu lưu dữ liệu...' : alertInfo.message}
+              {isSaving ? '🔄 Đang lưu dữ liệu...' : alertInfo.message}
             </Alert>
           )}
 
