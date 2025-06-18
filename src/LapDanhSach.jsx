@@ -145,11 +145,12 @@ export default function LapDanhSach({ onBack }) {
         sx={{
           p: { xs: 2, sm: 3, md: 4 },
           maxWidth: 450,
-          width: '100%',
+          width: { xs: '98%', sm: '100%' }, // ✅ xs: 98%, sm trở lên: 100%
           borderRadius: 4,
           boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
           backgroundColor: 'white',
         }}
+
         elevation={10}
       >
         <Typography
@@ -191,7 +192,6 @@ export default function LapDanhSach({ onBack }) {
                     <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>STT</TableCell>
                     <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
                     <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>ĐĂNG KÝ</TableCell>
-  
                   </TableRow>
                 </TableHead>
 

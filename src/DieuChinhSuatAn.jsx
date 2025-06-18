@@ -179,11 +179,12 @@ export default function DieuChinhSuatAn({ onBack }) {
         sx={{
           p: { xs: 2, sm: 3, md: 4 },
           maxWidth: 450,
-          width: '100%',
+          width: { xs: '98%', sm: '100%' }, // ✅ xs: 98%, sm trở lên: 100%
           borderRadius: 4,
           boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
-          backgroundColor: 'white'
+          backgroundColor: 'white',
         }}
+
         elevation={10}
       >
 
@@ -246,21 +247,9 @@ export default function DieuChinhSuatAn({ onBack }) {
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
-                  {["STT", "HỌ VÀ TÊN", "ĐĂNG KÝ"].map((header, idx) => (
-                    <TableCell
-                      key={idx}
-                      align="center"
-                      sx={{
-                        fontWeight: "bold",
-                        color: "white",
-                        backgroundColor: "#1976d2",
-                        fontSize: 14,
-                        py: 1
-                      }}
-                    >
-                      {header}
-                    </TableCell>
-                  ))}
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>STT</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>ĐĂNG KÝ</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
