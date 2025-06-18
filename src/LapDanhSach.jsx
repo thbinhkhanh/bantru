@@ -94,7 +94,18 @@ export default function LapDanhSach({ onBack }) {
 
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)', pt: 0, px: 1, display: 'flex', justifyContent: 'center' }}>
-      <Card sx={{ p: { xs: 2, sm: 3, md: 4 }, maxWidth: 450, width: '100%', borderRadius: 4, boxShadow: '0 8px 30px rgba(0,0,0,0.15)', backgroundColor: 'white' }} elevation={10}>
+      <Card
+        sx={{
+          p: { xs: 2, sm: 3, md: 4 },
+          maxWidth: { xs: '98%', sm: 390 },
+          width: '100%',
+          borderRadius: 4,
+          boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+          backgroundColor: 'white',
+        }}
+        elevation={10}
+      >
+
         <Typography variant="h5" align="center" gutterBottom fontWeight="bold" color="primary" sx={{ mb: 2, textShadow: '2px 2px 5px rgba(0,0,0,0.1)', pb: 1 }}>
           LẬP DANH SÁCH BÁN TRÚ
         </Typography>

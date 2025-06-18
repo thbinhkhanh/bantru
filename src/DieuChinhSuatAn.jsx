@@ -160,7 +160,7 @@ export default function DieuChinhSuatAn({ onBack }) {
   };
 
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", px: 1 }}>
+    <Box sx={{ maxWidth: { xs: "98%", sm: 450 }, mx: "auto", px: 1 }}>
       <Paper elevation={3} sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: 4 }}>
         <Typography
           variant="h5"
