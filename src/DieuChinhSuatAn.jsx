@@ -253,7 +253,7 @@ export default function DieuChinhSuatAn({ onBack }) {
                   <TableCell align="center" sx={{ py: 0.5, px: { xs: 1, sm: 1, md: 2 } }}>
                     {student.stt}
                   </TableCell>
-                  <TableCell sx={{ px: { xs: 1, sm: 1, md: 2 } }}>
+                  <TableCell sx={{ px: { xs: 0.5, sm: 1, md: 2 } }}>
                     {student.hoVaTen}
                   </TableCell>
                   <TableCell align="center" sx={{ px: { xs: 0.5, sm: 1, md: 1 } }}>
