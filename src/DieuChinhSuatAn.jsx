@@ -161,10 +161,25 @@ export default function DieuChinhSuatAn({ onBack }) {
 
   return (
     <Box sx={{ maxWidth: 500, mx: "auto", px: 1 }}>
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
-        <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mt: 2 }}>
+      <Paper elevation={3} sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: 4 }}>
+        <Typography
+          variant="h5"
+          fontWeight="bold"
+          color="primary"
+          align="center"
+          sx={{ mt: 2 }}
+        >
           ĐIỀU CHỈNH SUẤT ĂN
-           <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
+          <Box
+            sx={{
+              height: "2px",
+              width: "100%",
+              backgroundColor: "#1976d2",
+              borderRadius: 1,
+              mt: 2,
+              mb: 4,
+            }}
+          />
         </Typography>
 
         <Stack
@@ -204,27 +219,61 @@ export default function DieuChinhSuatAn({ onBack }) {
           </FormControl>
         </Stack>
 
-
         {isLoading && <LinearProgress />}
 
         <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
           <Table size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: "#1976d2" }}>
-                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', width: 40, py: 0.5, px: 1 }}>
+                <TableCell
+                  align="center"
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    py: 0.5,
+                    px: { xs: 0.5, sm: 1, md: 2 },
+                    width: 40,
+                  }}
+                >
                   STT
                 </TableCell>
-
-                <TableCell align="center" sx={{ color: "white" }}>HỌ VÀ TÊN</TableCell>
-                <TableCell align="center" sx={{ color: "white" }}>ĐĂNG KÝ</TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    py: 0.5,
+                    px: { xs: 0.5, sm: 1, md: 2 },
+                  }}
+                >
+                  HỌ VÀ TÊN
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    fontWeight: "bold",
+                    backgroundColor: "#1976d2",
+                    color: "white",
+                    py: 0.5,
+                    px: { xs: 0.5, sm: 1, md: 2 },
+                  }}
+                >
+                  ĐĂNG KÝ
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {dataList.map((student, index) => (
                 <TableRow key={student.maDinhDanh}>
-                  <TableCell align="center" sx={{ py: 0.5, px: 1 }}>{student.stt}</TableCell>
-                  <TableCell>{student.hoVaTen}</TableCell>
-                  <TableCell align="center">
+                  <TableCell align="center" sx={{ py: 0.5, px: { xs: 0.5, sm: 1, md: 2 } }}>
+                    {student.stt}
+                  </TableCell>
+                  <TableCell sx={{ px: { xs: 0.5, sm: 1, md: 2 } }}>
+                    {student.hoVaTen}
+                  </TableCell>
+                  <TableCell align="center" sx={{ px: { xs: 0.5, sm: 1, md: 2 } }}>
                     <Checkbox
                       checked={student.registered}
                       onChange={() => toggleRegister(index)}
@@ -250,7 +299,6 @@ export default function DieuChinhSuatAn({ onBack }) {
             {isSaving ? "🔄 Cập nhật..." : "Cập nhật"}
           </Button>
 
-          {/* ✅ Đặt Alert NGAY DƯỚI nút "Lưu" này */}
           {isSaving && (
             <Alert severity="info" sx={{ mt: 2, width: "100%" }}>
               🔄 Đang cập nhật dữ liệu...
@@ -273,8 +321,8 @@ export default function DieuChinhSuatAn({ onBack }) {
             ⬅️ Quay lại
           </Button>
         </Stack>
-
       </Paper>
     </Box>
+
   );
 }
