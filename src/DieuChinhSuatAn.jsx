@@ -174,7 +174,7 @@ export default function DieuChinhSuatAn({ onBack }) {
   };
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+    <Box sx={{ display: "flex", justifyContent: "center", mt: 0 }}>
       <Card
         sx={{
           p: { xs: 2, sm: 3, md: 4 },

@@ -131,16 +131,7 @@ export default function LapDanhSach({ onBack }) {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)',
-        py: 6,
-        px: 2,
-        display: 'flex',
-        justifyContent: 'center',
-      }}
-    >
+    <Box sx={{ display: "flex", justifyContent: "center", mt: 0 }}>
       <Card
         sx={{
           p: { xs: 2, sm: 3, md: 4 },
