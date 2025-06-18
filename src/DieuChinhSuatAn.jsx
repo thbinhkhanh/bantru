@@ -244,7 +244,7 @@ export default function DieuChinhSuatAn({ onBack }) {
               <TableRow sx={{ backgroundColor: "#1976d2" }}>
                 <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 1, sm: 1, md: 2 } }}>STT</TableCell>
                 <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 1, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 1, sm: 1, md: 2 } }}>ĐĂNG KÝ</TableCell>
+                <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 1, sm: 0.5, md: 2 } }}>ĐĂNG KÝ</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -256,7 +256,7 @@ export default function DieuChinhSuatAn({ onBack }) {
                   <TableCell sx={{ px: { xs: 1, sm: 1, md: 2 } }}>
                     {student.hoVaTen}
                   </TableCell>
-                  <TableCell align="center" sx={{ px: { xs: 1, sm: 1, md: 2 } }}>
+                  <TableCell align="center" sx={{ px: { xs: 0.5, sm: 1, md: 2 } }}>
                     <Checkbox
                       checked={student.registered}
                       onChange={() => toggleRegister(index)}
