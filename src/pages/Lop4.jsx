@@ -7,6 +7,7 @@ import {
 import { getDocs, getDoc, collection, doc, updateDoc, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useLocation } from 'react-router-dom';
+import { MySort } from '../utils/MySort'; // 🆕 Thêm dòng này ở đầu file Lop1.
 
 export default function Lop4() {
   const location = useLocation();
@@ -51,7 +52,8 @@ export default function Lop4() {
           student.huyDangKy !== 'x' // ✅ Lọc theo yêu cầu
         );
 
-      setFilteredStudents(data);
+      //setFilteredStudents(data);
+      setFilteredStudents(MySort(data)); // 🆕 Sắp xếp danh sách theo Tên → Đệm →
 
       const checkedMap = {};
       data.forEach(s => (checkedMap[s.id] = s.registered));

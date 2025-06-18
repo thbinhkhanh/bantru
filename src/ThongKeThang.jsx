@@ -10,6 +10,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import vi from "date-fns/locale/vi";
 import { getDoc, getDocs, doc, collection, query, where } from "firebase/firestore";
 import { db } from "./firebase";
+import { MySort } from './utils/MySort'; // 🆕
 
 export default function ThongKeThang({ onBack }) {
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -81,7 +82,9 @@ export default function ThongKeThang({ onBack }) {
 
         const days = Array.from(allDays).sort((a, b) => a - b);
         setDaySet(days);
-        setDataList(students);
+        //setDataList(students);
+        const sorted = MySort(students).map((s, idx) => ({ ...s, stt: idx + 1 })); // 🆕 Sắp xếp & cập nhật STT
+        setDataList(sorted); // 🆕 Gán vào danh sách hiển thị
       } catch (err) {
         console.error("❌ Lỗi khi tải học sinh lớp:", err);
       } finally {

@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import { collection, getDocs, doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
+import { MySort } from './utils/MySort';
 
 export default function CapNhatDS({ onBack }) {
   const [classList, setClassList] = useState([]);
@@ -60,8 +61,11 @@ export default function CapNhatDS({ onBack }) {
       setDangKy("");
       return;
     }
-    const filtered = allStudents.filter((s) => s.lop === selectedClass);
+    //const filtered = allStudents.filter((s) => s.lop === selectedClass);
+    //setFilteredStudents(filtered);
+    const filtered = MySort(allStudents.filter((s) => s.lop === selectedClass));
     setFilteredStudents(filtered);
+
     setSelectedStudentId("");
     setSelectedStudentData(null);
     setDangKy("");
@@ -157,9 +161,6 @@ export default function CapNhatDS({ onBack }) {
       setSaving(false);
     }
   };
-
-
-
 
   return (
     <Box sx={{ minHeight: "100vh", background: "linear-gradient(to bottom, #e3f2fd, #bbdefb)", pt: 1, px: 1, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>

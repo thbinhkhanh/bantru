@@ -7,6 +7,7 @@ import {
 } from '@mui/material';
 import { getDocs, collection, doc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
+import { MySort } from './utils/MySort'; // 🆕
 
 export default function LapDanhSach({ onBack }) {
   const [allStudents, setAllStudents] = useState([]);
@@ -27,17 +28,17 @@ export default function LapDanhSach({ onBack }) {
       try {
         const snapshot = await getDocs(collection(db, 'BANTRU'));
         const studentData = snapshot.docs.map(doc => {
-        const data = doc.data();
-        const huyDangKy = data.huyDangKy || '';
-        const editable = huyDangKy === 'x'; // Chỉ cho phép chỉnh nếu là "x"
-        return {
-          id: doc.id,
-          ...data,
-          registered: !editable, // true nếu không được chỉnh
-          originalRegistered: !editable, // để tránh lưu lại về sau
-          editable,
-        };
-      });
+          const data = doc.data();
+          const huyDangKy = data.huyDangKy || '';
+          const editable = huyDangKy === 'x'; // Chỉ cho phép chỉnh nếu là "x"
+          return {
+            id: doc.id,
+            ...data,
+            registered: !editable, // true nếu không được chỉnh
+            originalRegistered: !editable, // để tránh lưu lại về sau
+            editable,
+          };
+        });
 
         setAllStudents(studentData);
 
@@ -47,12 +48,14 @@ export default function LapDanhSach({ onBack }) {
         if (classes.length > 0) {
           const firstClass = classes[0];
           setSelectedClass(firstClass);
-          setFilteredStudents(
-            studentData
-              .filter(s => s.lop === firstClass)
-              .map((s, idx) => ({ ...s, stt: idx + 1 }))
-          );
+
+          const filtered = MySort(
+            studentData.filter(s => s.lop === firstClass) // ✅ Sử dụng studentData
+          ).map((s, idx) => ({ ...s, stt: idx + 1 })); // 🆕 Sắp xếp và gán lại STT
+
+          setFilteredStudents(filtered);
         }
+
       } catch (err) {
         console.error('❌ Lỗi khi tải dữ liệu từ Firebase:', err);
         setAlertInfo({
@@ -71,9 +74,9 @@ export default function LapDanhSach({ onBack }) {
   const handleClassChange = (event) => {
     const selected = event.target.value;
     setSelectedClass(selected);
-    const filtered = allStudents
-      .filter(s => s.lop === selected)
-      .map((s, idx) => ({ ...s, stt: idx + 1 }));
+    const filtered = MySort(
+      allStudents.filter(s => s.lop === selected)
+    ).map((s, idx) => ({ ...s, stt: idx + 1 })); // ✅ Sắp đúng theo tên
     setFilteredStudents(filtered);
     setAlertInfo({ open: false, message: '', severity: 'success' });
   };
@@ -101,7 +104,7 @@ export default function LapDanhSach({ onBack }) {
       );
 
       for (let student of changedStudents) {
-        const huyDangKy = student.registered ? '' : 'x';
+        const huyDangKy = student.registered ? 'T' : '';
         await updateDoc(doc(db, 'BANTRU', student.id), { huyDangKy });
       }
 

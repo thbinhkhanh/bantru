@@ -10,6 +10,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import vi from "date-fns/locale/vi";
 import { getDocs, getDoc, collection, query, where, doc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase";
+import { MySort } from './utils/MySort';
 
 export default function DieuChinhSuatAn({ onBack }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -82,7 +83,9 @@ export default function DieuChinhSuatAn({ onBack }) {
         checkedMap[maDinhDanh] = student.registered;
       });
 
-      setDataList(students);
+      //setDataList(students);
+      const sorted = MySort(students).map((s, idx) => ({ ...s, stt: idx + 1 })); // 🆕 Sắp xếp theo Tên → Đệm → Họ
+      setDataList(sorted);             // 🆕 Cập nhật danh sách đã sắp
       setOriginalChecked(checkedMap);
     } catch (err) {
       console.error("❌ Lỗi khi tải học sinh:", err);
