@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Grid, Card, TextField, Button, Alert, Stack
 } from '@mui/material';
@@ -15,7 +15,11 @@ import CapNhatDS from '../CapNhatDS';
 import LapDanhSach from '../LapDanhSach';
 import TaiDanhSach from '../TaiDanhSach';
 import AdminLogin from "../AdminLogin";
-import Banner from './Banner2'; // ✅ Thêm dòng này
+import Banner from './Banner2';
+
+// 🔽 Firebase import
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
 export default function QuanLy() {
   const [loginSuccess, setLoginSuccess] = useState(false);
@@ -24,8 +28,25 @@ export default function QuanLy() {
   const [selectedFunction, setSelectedFunction] = useState('');
   const [adminVisible, setAdminVisible] = useState(false);
 
+  const [savedUserPassword, setSavedUserPassword] = useState('@bc'); // mặc định
+
+  // 🔽 Lấy mật khẩu từ Firestore
+  useEffect(() => {
+    const fetchUserPassword = async () => {
+      try {
+        const userSnap = await getDoc(doc(db, 'SETTINGS', 'USER'));
+        if (userSnap.exists()) {
+          setSavedUserPassword(userSnap.data().password || '@bc');
+        }
+      } catch (err) {
+        console.error('❌ Lỗi khi lấy mật khẩu USER:', err);
+      }
+    };
+    fetchUserPassword();
+  }, []);
+
   const handleLogin = () => {
-    if (password === '@bc') {
+    if (password === savedUserPassword) {
       setLoginSuccess(true);
       setMessage('');
     } else {
@@ -99,31 +120,32 @@ export default function QuanLy() {
 
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)', pt: 0, pb: 6, px: 2 }}>
-      <Banner /> {/* ✅ Thêm dòng này để hiện banner */}
+      <Banner />
+
       {!loginSuccess ? (
-        <Box maxWidth={360} mx="auto" mt={8}>
-          <Card elevation={8} sx={{ p: 4, borderRadius: 4 }}>
-            <Typography variant="h5" color="primary" fontWeight="bold" align="center" gutterBottom>
-              ĐĂNG NHẬP QUẢN LÝ
-            </Typography>
-            <TextField label="Tên đăng nhập" fullWidth margin="normal" value="TH Bình Khánh" disabled />
-            <TextField label="Mật khẩu" fullWidth margin="normal" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            {message && <Alert severity="error" sx={{ mt: 2 }}>{message}</Alert>}
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                fontWeight: 'bold',
-                fontSize: '16px', // Giữ kích thước chữ như gốc
-                py: 1.2, // Điều chỉnh padding dọc
-                height: 48, // Giữ nguyên chiều cao nút
-                width: '100%', // Đảm bảo nút phủ toàn bộ chiều rộng có thể
-              }}
-              onClick={handleLogin}
-            >
-              Đăng nhập
-            </Button>
+        <Box maxWidth={400} mx="auto" mt={8}>
+          <Card elevation={10} sx={{
+            p: 4,
+            borderRadius: 3,
+            backgroundColor: '#ffffff',
+            boxShadow: 3,
+          }}>
+            <Stack spacing={3}>
+              <Box textAlign="center">
+                <Typography variant="h5" fontWeight="bold" color="primary" sx={{ mb: 2 }}>
+                  🔐 ĐĂNG NHẬP QUẢN LÝ
+                </Typography>
+              </Box>
+
+              <TextField label="👤 Tên đăng nhập" value="TH Bình Khánh" fullWidth disabled />
+              <TextField label="🔒 Mật khẩu" type="password" value={password} onChange={(e) => setPassword(e.target.value)} fullWidth />
+
+              {message && <Alert severity="error" variant="filled">{message}</Alert>}
+
+              <Button variant="contained" fullWidth color="primary" onClick={handleLogin} sx={{ height: 40, fontWeight: 'bold', fontSize: '16px' }}>
+                🔓 Đăng nhập
+              </Button>
+            </Stack>
           </Card>
         </Box>
       ) : selectedFunction ? (
@@ -133,57 +155,45 @@ export default function QuanLy() {
       ) : adminVisible ? (
         <AdminLogin onSuccess={() => setAdminVisible(false)} onCancel={() => setAdminVisible(false)} />
       ) : (
-        <>
-          {/*<Typography variant="h4" align="center" gutterBottom fontWeight="bold" color="primary"
-            sx={{ textShadow: '2px 2px 5px rgba(0,0,0,0.1)', borderBottom: '3px solid #1976d2', pb: 1, mb: 4 }}>
-            HỆ THỐNG QUẢN LÝ BÁN TRÚ
-          </Typography>*/}
-          <Stack spacing={3} alignItems="center">
-            {chucNangNhom.map((nhom, index) => (
-              <Card key={index} elevation={6} sx={{ p: 3, borderRadius: 4, width: '100%', maxWidth: { xs: 360, sm: 720, md: 1055 }, mx: 'auto' }}>
-                <Grid container spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center">
-                  <Grid item xs={12} sm={2} md={1} textAlign="center">
-                    <Box component="img" src={nhom.icon.props.src} alt={nhom.icon.props.alt} sx={{ width: { xs: 90, sm: 100, md: 95 }, height: 90, objectFit: 'contain', mx: 'auto' }} />
-                  </Grid>
-                  <Grid item xs={12} sm={10} md={11}>
-                    <Typography
-                      variant="h6"
-                      fontWeight="bold"
-                      mb={2}
-                      sx={{ textAlign: { xs: 'center', sm: 'left' } }}
-                    >
-                      {nhom.title}
-                    </Typography>
-
-                    <Grid container spacing={2} direction={{ xs: 'column', sm: 'row' }}>
-                      {nhom.items.map(item => (
-                        <Grid item xs={12} sm={6} md={4} key={item.code}>
-                          <Button
-                            variant="contained"
-                            fullWidth
-                            sx={{
-                              minWidth: 220, // Đảm bảo chiều rộng nút không thay đổi
+        <Stack spacing={1.4} alignItems="center">
+          {chucNangNhom.map((nhom, index) => (
+            <Card key={index} elevation={6} sx={{ p: 3, borderRadius: 4, width: '100%', maxWidth: { xs: 360, sm: 720, md: 1055 }, mx: 'auto' }}>
+              <Grid container spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center">
+                <Grid item xs={12} sm={2} md={1} textAlign="center">
+                  <Box component="img" src={nhom.icon.props.src} alt={nhom.icon.props.alt} sx={{ width: { xs: 90, sm: 100, md: 95 }, height: 90, objectFit: 'contain', mx: 'auto' }} />
+                </Grid>
+                <Grid item xs={12} sm={10} md={11}>
+                  <Typography variant="h6" fontWeight="bold" mb={2} sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
+                    {nhom.title}
+                  </Typography>
+                  <Grid container spacing={2} direction={{ xs: 'column', sm: 'row' }}>
+                    {nhom.items.map(item => (
+                      <Grid item xs={12} sm={6} md={4} key={item.code}>
+                        <Button
+                          variant="contained"
+                          fullWidth
+                          sx={{
+                            minWidth: 220,
+                            backgroundColor: item.color,
+                            fontWeight: 600,
+                            height: 48,
+                            '&:hover': {
                               backgroundColor: item.color,
-                              fontWeight: 600,
-                              height: 48, // Giữ nguyên chiều cao
-                              '&:hover': {
-                                backgroundColor: item.color,
-                                filter: 'brightness(0.9)',
-                              },
-                            }}
-                            onClick={() => handleFunctionSelect(item.code)}
-                          >
-                            {item.label}
-                          </Button>
-                        </Grid>
-                      ))}
-                    </Grid>
+                              filter: 'brightness(0.9)',
+                            },
+                          }}
+                          onClick={() => handleFunctionSelect(item.code)}
+                        >
+                          {item.label}
+                        </Button>
+                      </Grid>
+                    ))}
                   </Grid>
                 </Grid>
-              </Card>
-            ))}
-          </Stack>
-        </>
+              </Grid>
+            </Card>
+          ))}
+        </Stack>
       )}
     </Box>
   );

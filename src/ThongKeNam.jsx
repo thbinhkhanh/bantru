@@ -236,11 +236,18 @@ export default function ThongKeNam({ onBack }) {
               color="success"
               onClick={handleExport}
               fullWidth
-              sx={{ maxWidth: 280 }}
+              sx={{
+                maxWidth: { xs: 220, sm: 280 },       // nhỏ hơn trên điện thoại
+                fontSize: { xs: '13px', sm: '15px' }, // chữ vừa phải
+                height: { xs: 38, sm: 44 },           // tăng chiều cao dễ bấm
+                fontWeight: 'bold',                  // làm đậm
+                px: { xs: 1, sm: 2 },                // padding ngang
+              }}
             >
-              📅 Xuất Excel
+              📥 Xuất Excel
             </Button>
           </Box>
+
         )}
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
