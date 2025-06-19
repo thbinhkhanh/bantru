@@ -91,43 +91,61 @@ export default function AdminLogin({ onCancel }) {
     <Box maxWidth={450} mx="auto" mt={4}>
       <Card elevation={10} sx={{ p: 4, borderRadius: 4 }}>
         <Stack spacing={3}>
-          <Box textAlign="center">
-            <LockIcon sx={{ fontSize: 48, color: 'primary.main' }} />
-            <Typography variant="h5" fontWeight="bold" color="primary" sx={{ mb: 2 }}>
+          <Box textAlign="center" sx={{ mb: 2 }}>
+            <Box sx={{ fontSize: 48, color: 'primary.main', mb: 1 }}>
+              🔐
+            </Box>
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              color="primary"
+              sx={{ mb: 2 }} // 👉 khoảng cách dưới 24px
+            >
               QUẢN TRỊ HỆ THỐNG
             </Typography>
-
-
           </Box>
 
           {!adminLoggedIn ? (
+          <>
+            <TextField
+              label="👤 Tên đăng nhập"
+              value="Admin"
+              fullWidth
+              disabled
+            />
+            <TextField
+              label="🔒 Mật khẩu"
+              type="password"
+              fullWidth
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+            />
+            {adminError && (
+              <Alert severity="error" variant="filled">
+                {adminError}
+              </Alert>
+            )}
+            <Button
+              variant="contained"
+              fullWidth
+              onClick={handleAdminLogin}
+              sx={{
+                height: 40,            // ✅ chiều cao giống bên QuanLy
+                fontWeight: 'bold',
+                fontSize: '16px',
+              }}
+            >
+              🔓 Đăng nhập
+            </Button>
+          </>
+        ) : (
             <>
-              <TextField label="Tên đăng nhập" fullWidth value="Admin" disabled />
-              <TextField
-                label="Mật khẩu"
-                type="password"
-                fullWidth
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-              />
-              {adminError && <Alert severity="error">{adminError}</Alert>}
-              <Button
-                variant="contained"
-                fullWidth
-                onClick={handleAdminLogin}
-                sx={{
-                  height: 40,            // ✅ chiều cao cố định 40px
-                  fontWeight: 'bold',
-                  fontSize: '16px',
-                }}
-              >
-                🔓 Đăng nhập
-              </Button>
+              <Divider>
+                <Typography fontWeight="bold" display="inline">
+                  ⚙️ Cài đặt hệ thống
+                </Typography>
+              </Divider>
 
-            </>
-          ) : (
-            <>
-              <Divider>⚙️ Cài đặt hệ thống</Divider>
 
               <FormControlLabel
                 control={
@@ -161,7 +179,12 @@ export default function AdminLogin({ onCancel }) {
                 Đổi mật khẩu User
               </Button>
 
-              <Divider>💾 Sao lưu & Phục hồi</Divider>
+              <Divider sx={{ my: 2 }}>
+                <Typography fontWeight="bold" color="text.secondary">
+                  💾 Sao lưu & Phục hồi
+                </Typography>
+              </Divider>
+
 
               <Button variant="contained" color="success" onClick={downloadBackupAsJSON}>
                 📥 Sao lưu dữ liệu JSON

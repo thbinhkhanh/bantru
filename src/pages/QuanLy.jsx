@@ -131,11 +131,20 @@ export default function QuanLy() {
             boxShadow: 3,
           }}>
             <Stack spacing={3}>
-              <Box textAlign="center">
-                <Typography variant="h5" fontWeight="bold" color="primary" sx={{ mb: 2 }}>
-                  🔐 ĐĂNG NHẬP QUẢN LÝ
+              <Box textAlign="center" sx={{ mb: 2 }}>
+                <Box sx={{ fontSize: 48, color: 'primary.main', mb: 1 }}>
+                  🔐
+                </Box>
+                <Typography
+                  variant="h5"
+                  fontWeight="bold"
+                  color="primary"
+                  sx={{ mb: 2 }} // 👉 khoảng cách dưới 24px
+                >
+                  ĐĂNG NHẬP QUẢN LÝ
                 </Typography>
               </Box>
+
 
               <TextField label="👤 Tên đăng nhập" value="TH Bình Khánh" fullWidth disabled />
               <TextField label="🔒 Mật khẩu" type="password" value={password} onChange={(e) => setPassword(e.target.value)} fullWidth />
