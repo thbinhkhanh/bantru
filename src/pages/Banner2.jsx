@@ -8,7 +8,7 @@ export default function Banner() {
       sx={{
         position: "relative",
         width: "100%",
-        height: { xs: 80, sm: 120, md: 160 },
+        height: { xs: 120, sm: 160, md: 200 },
         backgroundImage: "url('/banner.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
