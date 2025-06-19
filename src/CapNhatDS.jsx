@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Card, Stack, FormControl, InputLabel,
   Select, MenuItem, TextField, Button, LinearProgress,
-  RadioGroup, FormControlLabel, Radio, Snackbar, Alert
+  RadioGroup, FormControlLabel, Radio, Snackbar, Alert, Checkbox
 } from "@mui/material";
 import { collection, getDocs, doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
@@ -36,9 +36,9 @@ export default function CapNhatDS({ onBack }) {
       setLoading(true);
       try {
         const snapshot = await getDocs(collection(db, "BANTRU"));
-        const studentsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
+        const studentsData = snapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data(),
         }));
         setAllStudents(studentsData);
         const classes = Array.from(new Set(studentsData.map((s) => s.lop))).sort();
@@ -59,27 +59,33 @@ export default function CapNhatDS({ onBack }) {
       setSelectedStudentId("");
       setSelectedStudentData(null);
       setDangKy("");
+      // ẩn thông báo khi đổi lớp
+      if (snackbar.open) setSnackbar({ ...snackbar, open: false });
       return;
     }
-    //const filtered = allStudents.filter((s) => s.lop === selectedClass);
-    //setFilteredStudents(filtered);
     const filtered = MySort(allStudents.filter((s) => s.lop === selectedClass));
     setFilteredStudents(filtered);
 
     setSelectedStudentId("");
     setSelectedStudentData(null);
     setDangKy("");
-  }, [selectedClass, allStudents]);
+    // ẩn thông báo khi đổi lớp
+    if (snackbar.open) setSnackbar({ ...snackbar, open: false });
+  }, [selectedClass]);
 
   useEffect(() => {
     if (!selectedStudentId || nhapTuDanhSach !== "danhSach") {
       setSelectedStudentData(null);
       setDangKy("");
+      // ẩn thông báo khi đổi chọn học sinh
+      if (snackbar.open) setSnackbar({ ...snackbar, open: false });
       return;
     }
     const student = filteredStudents.find((s) => s.id === selectedStudentId);
     setSelectedStudentData(student || null);
     setDangKy(student?.dangKy || "");
+    // ẩn thông báo khi đổi chọn học sinh
+    if (snackbar.open) setSnackbar({ ...snackbar, open: false });
   }, [selectedStudentId, filteredStudents, nhapTuDanhSach]);
 
   const handleUpdate = async () => {
@@ -166,11 +172,13 @@ export default function CapNhatDS({ onBack }) {
     <Box sx={{ minHeight: "100vh", background: "linear-gradient(to bottom, #e3f2fd, #bbdefb)", pt: 1, px: 1, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
       <Box maxWidth={420} width="100%">
         <Card elevation={10} sx={{ p: 4, borderRadius: 4, backgroundColor: "white" }}>
-          <Typography variant="h5" align="center" fontWeight="bold" color="primary" gutterBottom>
-            CẬP NHẬT DANH SÁCH
-          </Typography>
-
-          <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
+          {/* Tiêu đề và đường gạch xanh với khoảng cách giống các component khác */}
+          <Box sx={{ mb: 5 }}>
+            <Typography variant="h5" align="center" fontWeight="bold" color="primary" gutterBottom>
+              CẬP NHẬT DANH SÁCH
+            </Typography>
+            <Box sx={{ height: "2.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
+          </Box>
 
           {loading ? (
             <Box sx={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", my: 2 }}>
@@ -181,7 +189,7 @@ export default function CapNhatDS({ onBack }) {
             <>
               <FormControl component="fieldset" sx={{ mb: 2 }}>
                 <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
-                  <RadioGroup row value={nhapTuDanhSach} onChange={(e) => setNhapTuDanhSach(e.target.value)}>
+                  <RadioGroup row value={nhapTuDanhSach} onChange={(e) => { setNhapTuDanhSach(e.target.value); if (snackbar.open) setSnackbar({ ...snackbar, open: false }); }}>
                     <FormControlLabel value="danhSach" control={<Radio size="small" />} label="Chọn từ danh sách" />
                     <FormControlLabel value="thuCong" control={<Radio size="small" />} label="Nhập thủ công" />
                   </RadioGroup>
@@ -194,7 +202,7 @@ export default function CapNhatDS({ onBack }) {
                   labelId="label-lop"
                   value={selectedClass}
                   label="Lớp"
-                  onChange={(e) => setSelectedClass(e.target.value)}
+                  onChange={(e) => { setSelectedClass(e.target.value); if (snackbar.open) setSnackbar({ ...snackbar, open: false }); }}
                 >
                   <MenuItem value=""><em>Chọn lớp</em></MenuItem>
                   {classList.map((cls) => (
@@ -203,20 +211,20 @@ export default function CapNhatDS({ onBack }) {
                 </Select>
               </FormControl>
 
-
               {nhapTuDanhSach === "danhSach" ? (
                 <>
                   <FormControl fullWidth size="small" sx={{ mb: 2 }}>
                     <InputLabel>Học sinh</InputLabel>
-                    <Select value={selectedStudentId} label="Học sinh" onChange={(e) => setSelectedStudentId(e.target.value)} disabled={!selectedClass}>
+                    <Select
+                      value={selectedStudentId}
+                      label="Học sinh"
+                      onChange={(e) => { setSelectedStudentId(e.target.value); if (snackbar.open) setSnackbar({ ...snackbar, open: false }); }}
+                      disabled={!selectedClass}
+                    >
                       <MenuItem value=""><em>Chọn học sinh</em></MenuItem>
                       {filteredStudents.map((s) => (
                         <MenuItem key={s.id} value={s.id}>
-                          <Typography
-                            sx={{
-                              color: s.huyDangKy !== 'x' ? '#1976d2' : 'inherit'
-                            }}
-                          >
+                          <Typography sx={{ color: s.huyDangKy !== 'x' ? '#1976d2' : 'inherit' }}>
                             {s.hoVaTen}
                           </Typography>
                         </MenuItem>
@@ -228,14 +236,19 @@ export default function CapNhatDS({ onBack }) {
                 </>
               ) : (
                 <>
-                  <TextField label="Họ và tên" size="small" fullWidth value={customHoTen} onChange={(e) => setCustomHoTen(e.target.value)} sx={{ mb: 2 }} />
-                  <TextField label="Mã định danh" size="small" fullWidth value={customMaDinhDanh} onChange={(e) => setCustomMaDinhDanh(e.target.value)} sx={{ mb: 2 }} />
+                  <TextField label="Họ và tên" size="small" fullWidth value={customHoTen} onChange={(e) => { setCustomHoTen(e.target.value); if (snackbar.open) setSnackbar({ ...snackbar, open: false }); }} sx={{ mb: 2 }} />
+                  <TextField label="Mã định danh" size="small" fullWidth value={customMaDinhDanh} onChange={(e) => { setCustomMaDinhDanh(e.target.value); if (snackbar.open) setSnackbar({ ...snackbar, open: false }); }} sx={{ mb: 2 }} />
                 </>
               )}
 
               <FormControl fullWidth size="small" sx={{ mb: 3 }}>
                 <InputLabel>Trạng thái đăng ký</InputLabel>
-                <Select value={dangKy} label="Trạng thái đăng ký" onChange={(e) => setDangKy(e.target.value)} disabled={nhapTuDanhSach === "danhSach" ? !selectedStudentData : false}>
+                <Select
+                  value={dangKy}
+                  label="Trạng thái đăng ký"
+                  onChange={(e) => { setDangKy(e.target.value); if (snackbar.open) setSnackbar({ ...snackbar, open: false }); }}
+                  disabled={nhapTuDanhSach === "danhSach" ? !selectedStudentData : false}
+                >
                   <MenuItem value=""><em>Chọn trạng thái</em></MenuItem>
                   {dangKyOptions.map((opt) => (
                     <MenuItem key={opt} value={opt}>{opt}</MenuItem>
@@ -268,14 +281,10 @@ export default function CapNhatDS({ onBack }) {
                   ⬅️ Quay lại
                 </Button>
               </Stack>
-
             </>
           )}
         </Card>
       </Box>
-
-      
-
     </Box>
   );
 }

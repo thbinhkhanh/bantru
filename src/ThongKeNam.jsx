@@ -24,6 +24,7 @@ export default function ThongKeNam({ onBack }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  // Lấy danh sách lớp
   useEffect(() => {
     const fetchClassList = async () => {
       try {
@@ -41,6 +42,7 @@ export default function ThongKeNam({ onBack }) {
     fetchClassList();
   }, []);
 
+  // Khi thay đổi lớp hoặc năm, tải dữ liệu
   useEffect(() => {
     if (!selectedClass || !selectedDate) return;
 
@@ -75,8 +77,10 @@ export default function ThongKeNam({ onBack }) {
           };
         });
 
+        // Luôn hiển thị 12 tháng
         const months = Array.from({ length: 12 }, (_, i) => i + 1);
         setMonthSet(months);
+
         const sorted = MySort(students).map((s, idx) => ({ ...s, stt: idx + 1 }));
         setDataList(sorted);
       } catch (err) {
@@ -97,6 +101,11 @@ export default function ThongKeNam({ onBack }) {
     textAlign: "center",
   };
 
+  // Hàm gọi export: lấy năm từ selectedDate
+  const handleExport = () => {
+    exportThongKeNamToExcel(dataList, selectedDate.getFullYear(), selectedClass, monthSet);
+  };
+
   return (
     <Box sx={{ width: "100%", overflowX: "auto", mt: 0, px: 1 }}>
       <Paper elevation={3} sx={{
@@ -114,6 +123,7 @@ export default function ThongKeNam({ onBack }) {
               width: "max-content"
             }),
       }}>
+        {/* Tiêu đề và gạch xanh */}
         <Box sx={{ mb: 5 }}>
           <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mb: 1 }}>
             TỔNG HỢP CẢ NĂM
@@ -121,6 +131,7 @@ export default function ThongKeNam({ onBack }) {
           <Box sx={{ height: "2.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
 
+        {/* Bộ chọn năm, lớp, ẩn/hiện tháng, Xuất Excel luôn hiển thị */}
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 4 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
@@ -158,17 +169,21 @@ export default function ThongKeNam({ onBack }) {
             {showMonths ? "ẨN THÁNG" : "HIỆN THÁNG"}
           </Button>
 
-          {!isMobile && (
-            <Button
-              variant="contained"
-              color="success"
-              onClick={() =>
-                exportThongKeNamToExcel(dataList, selectedDate.getFullYear(), selectedClass, monthSet)
-              }
-            >
-              📅 Xuất Excel
-            </Button>
-          )}
+          {/* Luôn hiển thị Export, desktop và mobile */}
+          <Button
+            variant="contained"
+            color="success"
+            onClick={handleExport}
+            sx={{
+              // Trên mobile có thể chiếm full width hoặc co lại tuỳ ý:
+              ...(isMobile
+                ? { width: '100%', maxWidth: 200 }
+                : {}
+              )
+            }}
+          >
+            📅 Xuất Excel
+          </Button>
         </Stack>
 
         {isLoading && (
@@ -184,21 +199,35 @@ export default function ThongKeNam({ onBack }) {
                 <TableRow>
                   <TableCell align="center" sx={{ ...headCellStyle, width: 48, position: "sticky", left: 0, zIndex: 2 }}>STT</TableCell>
                   <TableCell align="center" sx={{ ...headCellStyle, minWidth: 180, position: "sticky", left: 48, zIndex: 2 }}>HỌ VÀ TÊN</TableCell>
-                  {showMonths && Array.from({ length: 12 }, (_, i) => (
-                    <TableCell key={i + 1} align="center" sx={{ ...headCellStyle, minWidth: 30, px: 0.5 }}>Tháng {i + 1}</TableCell>
+                  {showMonths && monthSet.map((m) => (
+                    <TableCell key={m} align="center" sx={{ ...headCellStyle, minWidth: 30, px: 0.5 }}>
+                      Tháng {m}
+                    </TableCell>
                   ))}
                   <TableCell align="center" sx={{ ...headCellStyle, width: 80 }}>TỔNG CỘNG</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {dataList.map((student) => (
-                  <TableRow key={student.id} sx={{ height: 44, backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit", "& td": { border: "1px solid #ccc", py: 1 } }}>
-                    <TableCell align="center" sx={{ width: 48, px: 1, position: "sticky", left: 0, backgroundColor: "#fff", zIndex: 1 }}>{student.stt}</TableCell>
-                    <TableCell sx={{ minWidth: 180, px: 1, position: "sticky", left: 48, backgroundColor: "#fff", zIndex: 1 }}>{student.hoVaTen}</TableCell>
-                    {showMonths && Array.from({ length: 12 }, (_, i) => (
-                      <TableCell key={i + 1} align="center" sx={{ minWidth: 30, px: 0.5 }}>{student.monthSummary[i + 1] > 0 ? student.monthSummary[i + 1] : ""}</TableCell>
+                  <TableRow key={student.id} sx={{
+                    height: 44,
+                    backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit",
+                    "& td": { border: "1px solid #ccc", py: 1 }
+                  }}>
+                    <TableCell align="center" sx={{ width: 48, px: 1, position: "sticky", left: 0, backgroundColor: "#fff", zIndex: 1 }}>
+                      {student.stt}
+                    </TableCell>
+                    <TableCell sx={{ minWidth: 180, px: 1, position: "sticky", left: 48, backgroundColor: "#fff", zIndex: 1 }}>
+                      {student.hoVaTen}
+                    </TableCell>
+                    {showMonths && monthSet.map((m) => (
+                      <TableCell key={m} align="center" sx={{ minWidth: 30, px: 0.5 }}>
+                        {student.monthSummary[m] > 0 ? student.monthSummary[m] : ""}
+                      </TableCell>
                     ))}
-                    <TableCell align="center" sx={{ width: 80, px: 1 }}>{student.total > 0 ? student.total : ""}</TableCell>
+                    <TableCell align="center" sx={{ width: 80, px: 1 }}>
+                      {student.total > 0 ? student.total : ""}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -206,19 +235,17 @@ export default function ThongKeNam({ onBack }) {
           </TableContainer>
         </Box>
 
+        {/* Trên mobile có thể để xuất Excel ở cuối nữa, nhưng đã hiển thị ở trên */}
+        {/* Nếu muốn thêm ở cuối, có thể bật: */}
+        {/* 
         {isMobile && (
           <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-            <Button
-              variant="contained"
-              color="success"
-              onClick={() =>
-                exportThongKeNamToExcel(dataList, selectedDate.getFullYear(), selectedClass, monthSet)
-              }
-            >
+            <Button variant="contained" color="success" onClick={handleExport} fullWidth>
               📅 Xuất Excel
             </Button>
           </Box>
-        )}
+        )} 
+        */}
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
           <Button onClick={onBack} color="secondary">

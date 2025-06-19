@@ -176,30 +176,39 @@ export default function DieuChinhSuatAn({ onBack }) {
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 0 }}>
       <Card
-        sx={{
-          p: { xs: 2, sm: 3, md: 4 },
-          maxWidth: 450,
-          width: { xs: '98%', sm: '100%' }, // ✅ xs: 98%, sm trở lên: 100%
-          borderRadius: 4,
-          boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
-          backgroundColor: 'white',
-        }}
-
-        elevation={10}
-      >
-
-        <CardContent sx={{ p: 0 }}>
-
-          <Typography
-            variant="h5"
-            align="center"
-            fontWeight="bold"
-            color="primary"
-            gutterBottom
-          >
-            ĐIỀU CHỈNH SUẤT ĂN
-          </Typography>
-          <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
+          sx={{
+            p: { xs: 2, sm: 3, md: 4 },
+            maxWidth: 450,
+            width: { xs: '98%', sm: '100%' },
+            borderRadius: 4,
+            boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+            backgroundColor: 'white',
+          }}
+          elevation={10}
+        >
+          <CardContent sx={{ p: 0 }}>
+            {/* ✅ Bọc tiêu đề và gạch xanh để tạo khoảng cách giống ThongKeThang */}
+            <Box sx={{ mb: 5 }}>
+              <Typography
+                variant="h5"
+                align="center"
+                fontWeight="bold"
+                color="primary"
+                gutterBottom
+              >
+                ĐIỀU CHỈNH SUẤT ĂN
+              </Typography>
+              <Box
+                sx={{
+                  height: "2.5px",
+                  width: "100%",
+                  backgroundColor: "#1976d2",
+                  borderRadius: 1,
+                  mt: 2,
+                  mb: 4,
+                }}
+              />
+            </Box>
 
           <Stack direction="row" spacing={2} justifyContent="center" alignItems="center" sx={{ mb: 3 }}>
             <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>

@@ -27,12 +27,12 @@ export default function LapDanhSach({ onBack }) {
       setIsLoading(true);
       try {
         const snapshot = await getDocs(collection(db, 'BANTRU'));
-        const studentData = snapshot.docs.map(doc => {
-          const data = doc.data();
+        const studentData = snapshot.docs.map(docSnap => {
+          const data = docSnap.data();
           const huyDangKy = data.huyDangKy || '';
           const editable = huyDangKy === 'x'; // Chỉ cho phép chỉnh nếu là "x"
           return {
-            id: doc.id,
+            id: docSnap.id,
             ...data,
             registered: !editable, // true nếu không được chỉnh
             originalRegistered: !editable, // để tránh lưu lại về sau
@@ -136,15 +136,15 @@ export default function LapDanhSach({ onBack }) {
         sx={{
           p: { xs: 2, sm: 3, md: 4 },
           maxWidth: 450,
-          width: { xs: '98%', sm: '100%' }, // ✅ xs: 98%, sm trở lên: 100%
+          width: { xs: '98%', sm: '100%' },
           borderRadius: 4,
           boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
           backgroundColor: 'white',
         }}
-
         elevation={10}
       >
-        <Box sx={{ mt: 0, mb: 3 }}>
+        {/* Tiêu đề với khoảng cách trên và đường gạch xanh như ThongKeThang */}
+        <Box sx={{ mb: 5 }}>
           <Typography
             variant="h5"
             align="center"
@@ -153,9 +153,17 @@ export default function LapDanhSach({ onBack }) {
           >
             LẬP DANH SÁCH BÁN TRÚ
           </Typography>
-          <Box sx={{ height: 2.5, width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 2, mb: 4 }} />
+          <Box
+            sx={{
+              height: 2.5,
+              width: '100%',
+              backgroundColor: '#1976d2',
+              borderRadius: 1,
+              mt: 2,
+              mb: 4
+            }}
+          />
         </Box>
-
 
         <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
           <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -179,18 +187,33 @@ export default function LapDanhSach({ onBack }) {
           </Box>
         ) : (
           <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
-            <Table size="small">
+            <Table size="small" stickyHeader>
               <TableHead>
-                  <TableRow>
-                    <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>STT</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>ĐĂNG KÝ</TableCell>
-                  </TableRow>
-                </TableHead>
+                <TableRow>
+                  <TableCell align="center" sx={{
+                    fontWeight: 'bold',
+                    backgroundColor: '#1976d2',
+                    color: 'white',
+                    px: { xs: 0.5, sm: 1, md: 2 }
+                  }}>STT</TableCell>
+                  <TableCell align="center" sx={{
+                    fontWeight: 'bold',
+                    backgroundColor: '#1976d2',
+                    color: 'white',
+                    px: { xs: 0.5, sm: 1, md: 2 }
+                  }}>HỌ VÀ TÊN</TableCell>
+                  <TableCell align="center" sx={{
+                    fontWeight: 'bold',
+                    backgroundColor: '#1976d2',
+                    color: 'white',
+                    px: { xs: 0.5, sm: 1, md: 2 }
+                  }}>ĐĂNG KÝ</TableCell>
+                </TableRow>
+              </TableHead>
 
               <TableBody>
                 {filteredStudents.map((student, index) => (
-                  <TableRow key={student.id}>
+                  <TableRow key={student.id} hover>
                     <TableCell align="center">{index + 1}</TableCell>
                     <TableCell>{student.hoVaTen}</TableCell>
                     <TableCell align="center">
@@ -217,12 +240,12 @@ export default function LapDanhSach({ onBack }) {
             disabled={isSaving}
             sx={{ width: 160, fontWeight: 600, py: 1 }}
           >
-            Lưu
+            {isSaving ? '🔄 Đang lưu dữ liệu...' : 'Lưu'}
           </Button>
 
-          {(isSaving || alertInfo.open) && (
-            <Alert severity={isSaving ? 'info' : alertInfo.severity} sx={{ width: '100%' }}>
-              {isSaving ? '🔄 Đang lưu dữ liệu...' : alertInfo.message}
+          {alertInfo.open && (
+            <Alert severity={alertInfo.severity} sx={{ width: '100%' }}>
+              {alertInfo.message}
             </Alert>
           )}
 
