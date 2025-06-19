@@ -9,7 +9,7 @@ export default function Banner() {
     width: "100%",
     height: { xs: 140, sm: 160, md: 200 },
     minHeight: 120,
-    backgroundImage: "url('/Banner.png')",
+    backgroundImage: "url('/banner.png')",
     backgroundSize: "contain",
     backgroundRepeat: "no-repeat",
     backgroundPosition: "center",
