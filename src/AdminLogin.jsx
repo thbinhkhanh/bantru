@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from "react";
 import {
   Box, Typography, TextField, Button, Alert, Stack,
-  Switch, FormControlLabel, Card, Divider
+  Switch, FormControlLabel, Card, Divider,
+  Select, MenuItem, FormControl, InputLabel,
+  RadioGroup, Radio
 } from "@mui/material";
 import {
-  LockOutlined as LockIcon,
-  Settings as SettingsIcon,
-  Backup as BackupIcon,
-  Restore as RestoreIcon
-} from "@mui/icons-material";
-
-import { doc, setDoc, getDoc } from "firebase/firestore";
+  doc, setDoc, getDoc
+} from "firebase/firestore";
 import { db } from "./firebase";
 import {
   downloadBackupAsJSON,
-  restoreFromJSONFile
-} from "./utils/backup"; // ⬅️ Cần file utils/backup.js
+  restoreFromJSONFile,
+  downloadBackupAsExcel,
+  restoreFromExcelFile
+} from "./utils/backup"; // Cần bổ sung thêm hàm Excel trong utils/backup.js
 
 export default function AdminLogin({ onCancel }) {
   const [adminPassword, setAdminPassword] = useState("");
@@ -26,8 +25,10 @@ export default function AdminLogin({ onCancel }) {
   const [savedAdminPassword, setSavedAdminPassword] = useState("123");
   const [savedUserPassword, setSavedUserPassword] = useState("@bc");
 
-  const [newAdminPassword, setNewAdminPassword] = useState("");
-  const [newUserPassword, setNewUserPassword] = useState("");
+  const [selectedAccount, setSelectedAccount] = useState("admin");
+  const [newPassword, setNewPassword] = useState("");
+
+  const [backupFormat, setBackupFormat] = useState("json");
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -46,7 +47,7 @@ export default function AdminLogin({ onCancel }) {
     fetchSettings();
   }, []);
 
-  const handleAdminLogin = async () => {
+  const handleAdminLogin = () => {
     if (adminPassword === savedAdminPassword) {
       setAdminLoggedIn(true);
       setAdminError("");
@@ -66,22 +67,15 @@ export default function AdminLogin({ onCancel }) {
   };
 
   const handleChangePassword = async (type) => {
-    const newPass = type === "admin" ? newAdminPassword : newUserPassword;
-    if (!newPass.trim()) return alert("⚠️ Vui lòng nhập mật khẩu mới!");
+    if (!newPassword.trim()) return alert("⚠️ Vui lòng nhập mật khẩu mới!");
 
     try {
-      await setDoc(doc(db, "SETTINGS", type === "admin" ? "ADMIN" : "USER"), {
-        password: newPass,
-      });
-      if (type === "admin") {
-        setSavedAdminPassword(newPass);
-        setNewAdminPassword("");
-        alert("✅ Đã đổi mật khẩu Admin!");
-      } else {
-        setSavedUserPassword(newPass);
-        setNewUserPassword("");
-        alert("✅ Đã đổi mật khẩu User!");
-      }
+      await setDoc(doc(db, "SETTINGS", type.toUpperCase()), { password: newPassword });
+      if (type === "admin") setSavedAdminPassword(newPassword);
+      else setSavedUserPassword(newPassword);
+
+      alert(`✅ Đã đổi mật khẩu ${type === "admin" ? "Admin" : "User"}!`);
+      setNewPassword("");
     } catch (err) {
       alert("❌ Không thể đổi mật khẩu!");
     }
@@ -95,57 +89,43 @@ export default function AdminLogin({ onCancel }) {
             <Box sx={{ fontSize: 48, color: 'primary.main', mb: 1 }}>
               🔐
             </Box>
-            <Typography
-              variant="h5"
-              fontWeight="bold"
-              color="primary"
-              sx={{ mb: 2 }} // 👉 khoảng cách dưới 24px
-            >
+            <Typography variant="h5" fontWeight="bold" color="primary" sx={{ mb: 2 }}>
               QUẢN TRỊ HỆ THỐNG
             </Typography>
           </Box>
 
           {!adminLoggedIn ? (
-          <>
-            <TextField
-              label="👤 Tên đăng nhập"
-              value="Admin"
-              fullWidth
-              disabled
-            />
-            <TextField
-              label="🔒 Mật khẩu"
-              type="password"
-              fullWidth
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-            />
-            {adminError && (
-              <Alert severity="error" variant="filled">
-                {adminError}
-              </Alert>
-            )}
-            <Button
-              variant="contained"
-              fullWidth
-              onClick={handleAdminLogin}
-              sx={{
-                height: 40,            // ✅ chiều cao giống bên QuanLy
-                fontWeight: 'bold',
-                fontSize: '16px',
-              }}
-            >
-              🔓 Đăng nhập
-            </Button>
-          </>
-        ) : (
+            <>
+              <TextField
+                label="👤 Tên đăng nhập"
+                value="Admin"
+                fullWidth
+                disabled
+              />
+              <TextField
+                label="🔒 Mật khẩu"
+                type="password"
+                fullWidth
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+              />
+              {adminError && (
+                <Alert severity="error" variant="filled">{adminError}</Alert>
+              )}
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={handleAdminLogin}
+                sx={{ height: 40, fontWeight: 'bold', fontSize: '16px' }}
+              >
+                🔓 Đăng nhập
+              </Button>
+            </>
+          ) : (
             <>
               <Divider>
-                <Typography fontWeight="bold" display="inline">
-                  ⚙️ Cài đặt hệ thống
-                </Typography>
+                <Typography fontWeight="bold">⚙️ Cài đặt hệ thống</Typography>
               </Divider>
-
 
               <FormControlLabel
                 control={
@@ -157,26 +137,31 @@ export default function AdminLogin({ onCancel }) {
                 label="Bật chế độ dùng Firestore"
               />
 
-              <TextField
-                label="🔐 Mật khẩu mới (Admin)"
-                type="password"
-                fullWidth
-                value={newAdminPassword}
-                onChange={(e) => setNewAdminPassword(e.target.value)}
-              />
-              <Button variant="contained" color="warning" onClick={() => handleChangePassword("admin")}>
-                Đổi mật khẩu Admin
-              </Button>
+              <FormControl fullWidth>
+                <InputLabel id="account-select-label">Loại tài khoản</InputLabel>
+                <Select
+                  labelId="account-select-label"
+                  value={selectedAccount}
+                  onChange={(e) => setSelectedAccount(e.target.value)}
+                >
+                  <MenuItem value="admin">🔐 Admin</MenuItem>
+                  <MenuItem value="user">👤 User</MenuItem>
+                </Select>
+              </FormControl>
 
               <TextField
-                label="👤 Mật khẩu mới (User)"
+                label="🔑 Mật khẩu mới"
                 type="password"
                 fullWidth
-                value={newUserPassword}
-                onChange={(e) => setNewUserPassword(e.target.value)}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
               />
-              <Button variant="contained" color="info" onClick={() => handleChangePassword("user")}>
-                Đổi mật khẩu User
+              <Button
+                variant="contained"
+                color="warning"
+                onClick={() => handleChangePassword(selectedAccount)}
+              >
+                Đổi mật khẩu
               </Button>
 
               <Divider sx={{ my: 2 }}>
@@ -185,9 +170,25 @@ export default function AdminLogin({ onCancel }) {
                 </Typography>
               </Divider>
 
+              <RadioGroup
+                row
+                value={backupFormat}
+                onChange={(e) => setBackupFormat(e.target.value)}
+              >
+                <FormControlLabel value="json" control={<Radio />} label="JSON" />
+                <FormControlLabel value="excel" control={<Radio />} label="Excel" />
+              </RadioGroup>
 
-              <Button variant="contained" color="success" onClick={downloadBackupAsJSON}>
-                📥 Sao lưu dữ liệu JSON
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() =>
+                  backupFormat === "json"
+                    ? downloadBackupAsJSON()
+                    : downloadBackupAsExcel()
+                }
+              >
+                📥 Sao lưu ({backupFormat.toUpperCase()})
               </Button>
 
               <Button
@@ -195,14 +196,17 @@ export default function AdminLogin({ onCancel }) {
                 color="secondary"
                 component="label"
               >
-                🔁 Phục hồi từ file JSON
+                🔁 Phục hồi ({backupFormat.toUpperCase()})
                 <input
                   type="file"
-                  accept=".json"
+                  accept={backupFormat === "json" ? ".json" : ".xlsx"}
                   hidden
                   onChange={(e) => {
-                    if (e.target.files[0]) {
-                      restoreFromJSONFile(e.target.files[0]);
+                    const file = e.target.files[0];
+                    if (file) {
+                      backupFormat === "json"
+                        ? restoreFromJSONFile(file)
+                        : restoreFromExcelFile(file);
                     }
                   }}
                 />
