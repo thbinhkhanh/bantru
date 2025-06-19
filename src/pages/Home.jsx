@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { getDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
+import Banner from "../pages/Banner"; // hoặc "../components/Banner" tùy vị trí file
 
 export default function Home() {
   const navigate = useNavigate();
@@ -31,43 +32,10 @@ export default function Home() {
 
   return (
     <Box sx={{ minHeight: "100vh", background: "linear-gradient(to bottom, #e3f2fd, #bbdefb)", py: 0, px: 2 }}>
-      {/* Banner: giảm chiều cao xuống ví dụ xs:100, sm:150, md:200 */}
-      <Box
-        sx={{
-          position: "relative",
-          width: "100%",
-          height: { xs: 100, sm: 150, md: 200 },  // Điều chỉnh nhỏ hơn
-          backgroundImage: "url('/Banner.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          mb: 3,  // khoảng cách dưới banner
-          "&::before": {
-            content: '""',
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.4)",
-            zIndex: 1,
-          },
-        }}
-      >
-        <Box sx={{ position: "relative", zIndex: 2, textAlign: "center", px: 1 }}>
-          {/* Nếu banner nhỏ, cân nhắc giảm size chữ */}
-          <Typography variant="h5" color="white" fontWeight="bold" sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2.5rem' } }}>
-            ĐIỂM DANH BÁN TRÚ
-          </Typography>
-          <Typography variant="subtitle2" color="white" sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}>
-            {/*Quản lý điểm danh bán trú*/}
-          </Typography>
-        </Box>
-      </Box>
+      
+      {/* 👉 Gọi component banner đã thiết kế riêng */}
+      <Banner />
 
-      {/* Tiêu đề chính nếu vẫn muốn hiển thị */}
       <Typography
         variant="h6"
         align="center"

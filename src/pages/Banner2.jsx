@@ -15,8 +15,8 @@ export default function Banner() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        //mt: '20px',
-        mb: 3,
+        mb: 3, // giữ margin dưới
+        // ❌ bỏ mt: 72px nếu có
         "&::before": {
           content: '""',
           position: "absolute",
@@ -28,6 +28,7 @@ export default function Banner() {
           zIndex: 1,
         },
       }}
+
     >
       <Box sx={{ position: "relative", zIndex: 2, textAlign: "center", px: 1 }}>
         <Typography
@@ -36,7 +37,7 @@ export default function Banner() {
           fontWeight="bold"
           sx={{ fontSize: { xs: "1.2rem", sm: "1.5rem", md: "2.5rem" } }}
         >
-          ĐIỂM DANH BÁN TRÚ
+          HỆ THỐNG QUẢN LÝ BÁN TRÚ
         </Typography>
         <Typography
           variant="subtitle2"

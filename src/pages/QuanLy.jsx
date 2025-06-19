@@ -15,6 +15,7 @@ import CapNhatDS from '../CapNhatDS';
 import LapDanhSach from '../LapDanhSach';
 import TaiDanhSach from '../TaiDanhSach';
 import AdminLogin from "../AdminLogin";
+import Banner from './Banner2'; // ✅ Thêm dòng này
 
 export default function QuanLy() {
   const [loginSuccess, setLoginSuccess] = useState(false);
@@ -97,9 +98,10 @@ export default function QuanLy() {
   ];
 
   return (
-    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)', py: 6, px: 2 }}>
+    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)', pt: 0, pb: 6, px: 2 }}>
+      <Banner /> {/* ✅ Thêm dòng này để hiện banner */}
       {!loginSuccess ? (
-        <Box maxWidth={360} mx="auto">
+        <Box maxWidth={360} mx="auto" mt={8}>
           <Card elevation={8} sx={{ p: 4, borderRadius: 4 }}>
             <Typography variant="h5" color="primary" fontWeight="bold" align="center" gutterBottom>
               ĐĂNG NHẬP QUẢN LÝ
@@ -132,10 +134,10 @@ export default function QuanLy() {
         <AdminLogin onSuccess={() => setAdminVisible(false)} onCancel={() => setAdminVisible(false)} />
       ) : (
         <>
-          <Typography variant="h4" align="center" gutterBottom fontWeight="bold" color="primary"
+          {/*<Typography variant="h4" align="center" gutterBottom fontWeight="bold" color="primary"
             sx={{ textShadow: '2px 2px 5px rgba(0,0,0,0.1)', borderBottom: '3px solid #1976d2', pb: 1, mb: 4 }}>
             HỆ THỐNG QUẢN LÝ BÁN TRÚ
-          </Typography>
+          </Typography>*/}
           <Stack spacing={4} alignItems="center">
             {chucNangNhom.map((nhom, index) => (
               <Card key={index} elevation={6} sx={{ p: 3, borderRadius: 4, width: '100%', maxWidth: { xs: 360, sm: 720, md: 1055 }, mx: 'auto' }}>
