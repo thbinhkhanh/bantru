@@ -249,7 +249,7 @@ export default function ThongKeThang({ onBack }) {
               onClick={handleExport}
               fullWidth
               sx={{
-                maxWidth: { xs: 120, sm: 280 },       // nhỏ hơn trên điện thoại
+                maxWidth: { xs: 150, sm: 280 },       // nhỏ hơn trên điện thoại
                 fontSize: { xs: '13px', sm: '15px' }, // chữ vừa phải
                 height: { xs: 38, sm: 44 },           // tăng chiều cao dễ bấm
                 fontWeight: 'bold',                  // làm đậm
