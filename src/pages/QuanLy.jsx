@@ -15,7 +15,7 @@ import CapNhatDS from '../CapNhatDS';
 import LapDanhSach from '../LapDanhSach';
 import TaiDanhSach from '../TaiDanhSach';
 import AdminLogin from "../AdminLogin";
-import Banner from './Banner2'; // ✅ Thêm dòng này
+
 
 export default function QuanLy() {
   const [loginSuccess, setLoginSuccess] = useState(false);
@@ -99,7 +99,7 @@ export default function QuanLy() {
 
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)', pt: 0, pb: 6, px: 2 }}>
-      <Banner /> {/* ✅ Thêm dòng này để hiện banner */}
+      {/*<Banner /> {/* ✅ Thêm dòng này để hiện banner */}
       {!loginSuccess ? (
         <Box maxWidth={360} mx="auto" mt={8}>
           <Card elevation={8} sx={{ p: 4, borderRadius: 4 }}>
