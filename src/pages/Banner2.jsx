@@ -9,7 +9,7 @@ export default function Banner() {
         position: "relative",
         width: "100%",
         height: { xs: 80, sm: 120, md: 160 },
-        backgroundImage: "url('/Banner.png')",
+        backgroundImage: "url('/banner.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
         display: "flex",
