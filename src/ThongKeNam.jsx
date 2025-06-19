@@ -13,6 +13,8 @@ import { db } from "./firebase";
 import { MySort } from "./utils/MySort";
 import { exportThongKeNamToExcel } from "./utils/exportThongKeNamToExcel";
 
+// phần import giữ nguyên...
+
 export default function ThongKeNam({ onBack }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedClass, setSelectedClass] = useState("");
@@ -24,7 +26,6 @@ export default function ThongKeNam({ onBack }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // Lấy danh sách lớp
   useEffect(() => {
     const fetchClassList = async () => {
       try {
@@ -42,7 +43,6 @@ export default function ThongKeNam({ onBack }) {
     fetchClassList();
   }, []);
 
-  // Khi thay đổi lớp hoặc năm, tải dữ liệu
   useEffect(() => {
     if (!selectedClass || !selectedDate) return;
 
@@ -77,7 +77,6 @@ export default function ThongKeNam({ onBack }) {
           };
         });
 
-        // Luôn hiển thị 12 tháng
         const months = Array.from({ length: 12 }, (_, i) => i + 1);
         setMonthSet(months);
 
@@ -101,7 +100,6 @@ export default function ThongKeNam({ onBack }) {
     textAlign: "center",
   };
 
-  // Hàm gọi export: lấy năm từ selectedDate
   const handleExport = () => {
     exportThongKeNamToExcel(dataList, selectedDate.getFullYear(), selectedClass, monthSet);
   };
@@ -131,7 +129,7 @@ export default function ThongKeNam({ onBack }) {
           <Box sx={{ height: "2.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
 
-        {/* Bộ chọn năm, lớp, ẩn/hiện tháng, Xuất Excel luôn hiển thị */}
+        {/* Bộ chọn năm, lớp, ẩn/hiện tháng */}
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 4 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
@@ -169,21 +167,16 @@ export default function ThongKeNam({ onBack }) {
             {showMonths ? "ẨN THÁNG" : "HIỆN THÁNG"}
           </Button>
 
-          {/* Luôn hiển thị Export, desktop và mobile */}
-          <Button
-            variant="contained"
-            color="success"
-            onClick={handleExport}
-            sx={{
-              // Trên mobile có thể chiếm full width hoặc co lại tuỳ ý:
-              ...(isMobile
-                ? { width: '100%', maxWidth: 200 }
-                : {}
-              )
-            }}
-          >
-            📅 Xuất Excel
-          </Button>
+          {/* Chỉ hiển thị nút Export ở đầu nếu là desktop */}
+          {!isMobile && (
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleExport}
+            >
+              📅 Xuất Excel
+            </Button>
+          )}
         </Stack>
 
         {isLoading && (
@@ -235,17 +228,20 @@ export default function ThongKeNam({ onBack }) {
           </TableContainer>
         </Box>
 
-        {/* Trên mobile có thể để xuất Excel ở cuối nữa, nhưng đã hiển thị ở trên */}
-        {/* Nếu muốn thêm ở cuối, có thể bật: */}
-        {/* 
+        {/* Nút Export ở dưới cho mobile */}
         {isMobile && (
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-            <Button variant="contained" color="success" onClick={handleExport} fullWidth>
+          <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleExport}
+              fullWidth
+              sx={{ maxWidth: 280 }}
+            >
               📅 Xuất Excel
             </Button>
           </Box>
-        )} 
-        */}
+        )}
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
           <Button onClick={onBack} color="secondary">

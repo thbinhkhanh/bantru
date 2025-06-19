@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Stack, MenuItem,
-  Select, FormControl, InputLabel, LinearProgress, Button, useMediaQuery, useTheme
+  Select, FormControl, InputLabel, LinearProgress, Button,
+  useMediaQuery, useTheme
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -27,7 +28,6 @@ export default function ThongKeThang({ onBack }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // Lấy danh sách lớp
   useEffect(() => {
     const fetchClassList = async () => {
       try {
@@ -45,7 +45,6 @@ export default function ThongKeThang({ onBack }) {
     fetchClassList();
   }, []);
 
-  // Khi thay đổi lớp hoặc ngày, tải dữ liệu
   useEffect(() => {
     if (!selectedClass || !selectedDate) return;
 
@@ -82,7 +81,6 @@ export default function ThongKeThang({ onBack }) {
           };
         });
 
-        // Tạo đủ số ngày trong tháng
         const year = selectedDate.getFullYear();
         const month = selectedDate.getMonth();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -111,7 +109,6 @@ export default function ThongKeThang({ onBack }) {
     px: 1,
   };
 
-  // Hàm xuất Excel
   const handleExport = () => {
     exportThongKeThangToExcel(dataList, selectedDate, selectedClass, daySet);
   };
@@ -136,7 +133,6 @@ export default function ThongKeThang({ onBack }) {
               }),
         }}
       >
-        {/* Tiêu đề và gạch xanh */}
         <Box sx={{ mb: 5 }}>
           <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mb: 1 }}>
             SỐ LIỆU THÁNG
@@ -144,7 +140,6 @@ export default function ThongKeThang({ onBack }) {
           <Box sx={{ height: "2.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
 
-        {/* Bộ chọn tháng, lớp, ẩn/hiện ngày, Xuất Excel luôn hiện */}
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 2 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
@@ -179,20 +174,12 @@ export default function ThongKeThang({ onBack }) {
             {showDays ? "ẨN ngày" : "HIỆN ngày"}
           </Button>
 
-          {/* Luôn hiển thị Xuất Excel */}
-          <Button
-            variant="contained"
-            color="success"
-            onClick={handleExport}
-            sx={{
-              ...(isMobile
-                ? { width: '100%', maxWidth: 200 }
-                : {}
-              )
-            }}
-          >
-            📥 Xuất Excel
-          </Button>
+          {/* Chỉ hiện nút Excel ở đầu khi không phải mobile */}
+          {!isMobile && (
+            <Button variant="contained" color="success" onClick={handleExport}>
+              📥 Xuất Excel
+            </Button>
+          )}
         </Stack>
 
         {isLoading && (
@@ -203,8 +190,8 @@ export default function ThongKeThang({ onBack }) {
           <Table size="small" sx={{ borderCollapse: "collapse" }}>
             <TableHead>
               <TableRow sx={{ height: 48 }}>
-                <TableCell align="center" sx={{ ...headCellStyle, position: "sticky", left: 0, zIndex: 2, backgroundColor: "#1976d2" }}>STT</TableCell>
-                <TableCell align="center" sx={{ ...headCellStyle, minWidth: 140, position: "sticky", left: 48, zIndex: 2, backgroundColor: "#1976d2" }}>HỌ VÀ TÊN</TableCell>
+                <TableCell align="center" sx={{ ...headCellStyle, position: "sticky", left: 0, zIndex: 2 }}>STT</TableCell>
+                <TableCell align="center" sx={{ ...headCellStyle, minWidth: 140, position: "sticky", left: 48, zIndex: 2 }}>HỌ VÀ TÊN</TableCell>
                 {showDays && daySet.map((d) => {
                   const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), d);
                   const dayOfWeek = date.getDay();
@@ -228,7 +215,7 @@ export default function ThongKeThang({ onBack }) {
                     </TableCell>
                   );
                 })}
-                <TableCell align="center" sx={{ ...headCellStyle, minWidth: 70, backgroundColor: "#1976d2" }}>TỔNG CỘNG</TableCell>
+                <TableCell align="center" sx={{ ...headCellStyle, minWidth: 70 }}>TỔNG CỘNG</TableCell>
               </TableRow>
             </TableHead>
 
@@ -253,14 +240,20 @@ export default function ThongKeThang({ onBack }) {
           </Table>
         </TableContainer>
 
-        {/* Nếu muốn thêm xuất Excel ở cuối, có thể bật block này: */}
-        {/*
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-          <Button variant="contained" color="success" onClick={handleExport} fullWidth>
-            📥 Xuất Excel
-          </Button>
-        </Box>
-        */}
+        {/* Nút Excel dưới bảng khi ở mobile */}
+        {isMobile && (
+          <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleExport}
+              fullWidth
+              sx={{ maxWidth: 280 }}
+            >
+              📥 Xuất Excel
+            </Button>
+          </Box>
+        )}
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
           <Button onClick={onBack} color="secondary">
