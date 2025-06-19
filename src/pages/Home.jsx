@@ -42,12 +42,12 @@ export default function Home() {
         gutterBottom
         fontWeight="bold"
         color="primary"
-        sx={{ borderBottom: "3px solid #1976d2", pb: 1, mb: 4 }}
+      
       >
         {/*ĐIỂM DANH BÁN TRÚ*/}
       </Typography>
 
-      <Grid container spacing={3} justifyContent="center" sx={{ mb: 4 }}>
+      <Grid container spacing={3} justifyContent="center" sx={{ mt: 2, mb: 4 }}>
         {khốiList.map((label, index) => (
           <Grid item xs={12} sm={6} md={4} key={label}>
             <motion.div

@@ -138,7 +138,7 @@ export default function QuanLy() {
             sx={{ textShadow: '2px 2px 5px rgba(0,0,0,0.1)', borderBottom: '3px solid #1976d2', pb: 1, mb: 4 }}>
             HỆ THỐNG QUẢN LÝ BÁN TRÚ
           </Typography>*/}
-          <Stack spacing={4} alignItems="center">
+          <Stack spacing={3} alignItems="center">
             {chucNangNhom.map((nhom, index) => (
               <Card key={index} elevation={6} sx={{ p: 3, borderRadius: 4, width: '100%', maxWidth: { xs: 360, sm: 720, md: 1055 }, mx: 'auto' }}>
                 <Grid container spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center">
