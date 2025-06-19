@@ -144,16 +144,18 @@ export default function LapDanhSach({ onBack }) {
 
         elevation={10}
       >
-        <Typography
-          variant="h5"
-          align="center"
-          gutterBottom
-          fontWeight="bold"
-          color="primary"
-          sx={{ mb: 4, borderBottom: '3px solid #1976d2', pb: 1 }}
-        >
-          LẬP DANH SÁCH BÁN TRÚ
-        </Typography>
+        <Box sx={{ mt: 0, mb: 3 }}>
+          <Typography
+            variant="h5"
+            align="center"
+            fontWeight="bold"
+            color="primary"
+          >
+            LẬP DANH SÁCH BÁN TRÚ
+          </Typography>
+          <Box sx={{ height: 2.5, width: '100%', backgroundColor: '#1976d2', borderRadius: 1, mt: 2, mb: 4 }} />
+        </Box>
+
 
         <Stack direction="row" justifyContent="center" sx={{ mb: 2 }}>
           <FormControl size="small" sx={{ minWidth: 120 }}>

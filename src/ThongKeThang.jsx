@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Stack, MenuItem,
-  Select, FormControl, InputLabel, LinearProgress, Button
+  Select, FormControl, InputLabel, LinearProgress, Button, useMediaQuery, useTheme
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -11,6 +11,7 @@ import vi from "date-fns/locale/vi";
 import { getDoc, getDocs, doc, collection, query, where } from "firebase/firestore";
 import { db } from "./firebase";
 import { MySort } from './utils/MySort';
+import { exportThongKeThangToExcel } from './utils/exportThongKeThang';
 
 export default function ThongKeThang({ onBack }) {
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -23,6 +24,8 @@ export default function ThongKeThang({ onBack }) {
   const [daySet, setDaySet] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showDays, setShowDays] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     const fetchClassList = async () => {
@@ -75,13 +78,12 @@ export default function ThongKeThang({ onBack }) {
           };
         });
 
-        const allDays = new Set();
-        students.forEach((s) => {
-          Object.keys(s.daySummary).forEach((d) => allDays.add(parseInt(d)));
-        });
-
-        const days = Array.from(allDays).sort((a, b) => a - b);
-        setDaySet(days);
+        // ✅ Tạo đủ số ngày trong tháng
+        const year = selectedDate.getFullYear();
+        const month = selectedDate.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const fullDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+        setDaySet(fullDays);
 
         const sorted = MySort(students).map((s, idx) => ({ ...s, stt: idx + 1 }));
         setDataList(sorted);
@@ -101,13 +103,20 @@ export default function ThongKeThang({ onBack }) {
         elevation={3}
         sx={{
           p: 4,
-          borderRadius: 4,
-          width: showDays ? "auto" : "max-content", // ⚡️ mở rộng chiều ngang khi hiện ngày
-          overflowX: "auto",
+          borderRadius: showDays ? 0 : 4,
           mx: "auto",
+          overflowX: "auto",
+          ...(showDays
+            ? {
+                position: "fixed",
+                top: 0, left: 0, right: 0, bottom: 0,
+                zIndex: 1300, backgroundColor: "white", overflow: "auto",
+              }
+            : {
+                width: "max-content",
+              }),
         }}
       >
-
         <Box sx={{ mb: 5 }}>
           <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mb: 1 }}>
             SỐ LIỆU THÁNG
@@ -130,11 +139,7 @@ export default function ThongKeThang({ onBack }) {
               slotProps={{
                 textField: {
                   size: "small",
-                  sx: {
-                    minWidth: 100,
-                    maxWidth: 160,
-                    "& input": { textAlign: "center" },
-                  },
+                  sx: { minWidth: 100, maxWidth: 160, "& input": { textAlign: "center" } },
                 },
               }}
             />
@@ -142,11 +147,7 @@ export default function ThongKeThang({ onBack }) {
 
           <FormControl size="small" sx={{ minWidth: 100 }}>
             <InputLabel>Lớp</InputLabel>
-            <Select
-              value={selectedClass}
-              label="Lớp"
-              onChange={(e) => setSelectedClass(e.target.value)}
-            >
+            <Select value={selectedClass} label="Lớp" onChange={(e) => setSelectedClass(e.target.value)}>
               {classList.map((cls, idx) => (
                 <MenuItem key={idx} value={cls}>{cls}</MenuItem>
               ))}
@@ -156,6 +157,16 @@ export default function ThongKeThang({ onBack }) {
           <Button variant="outlined" onClick={() => setShowDays(!showDays)}>
             {showDays ? "Ẩn ngày" : "Hiện ngày"}
           </Button>
+
+          {!isMobile && (
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => exportThongKeThangToExcel(dataList, selectedDate, selectedClass, daySet)}
+            >
+              📥 Xuất Excel
+            </Button>
+          )}
         </Stack>
 
         {isLoading && <LinearProgress sx={{ width: "50%", mx: "auto", my: 2 }} />}
@@ -164,76 +175,47 @@ export default function ThongKeThang({ onBack }) {
           <Table size="small" sx={{ borderCollapse: "collapse" }}>
             <TableHead>
               <TableRow sx={{ height: 48 }}>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", px: 1, border: "1px solid #ccc" }}>
-                  STT
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 140, px: 1, border: "1px solid #ccc" }}>
-                  HỌ VÀ TÊN
-                </TableCell>
-                {showDays &&
-                  daySet.map((d) => {
-                    const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), d);
-                    const isWeekend = date.getDay() === 6 || date.getDay() === 0;
-                    return (
-                      <TableCell
-                        key={d}
-                        align="center"
-                        sx={{
-                          fontWeight: "bold",
-                          backgroundColor: isWeekend ? "#d32f2f" : "#1976d2",
-                          color: "white",
-                          minWidth: 20,
-                          px: 1,
-                          border: "1px solid #ccc"
-                        }}
-                      >
-                        {d}
-                      </TableCell>
-                    );
-                  })}
-                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 70, px: 1, border: "1px solid #ccc" }}>
-                  TỔNG CỘNG
-                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", px: 1, border: "1px solid #ccc" }}>STT</TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 140, px: 1, border: "1px solid #ccc" }}>HỌ VÀ TÊN</TableCell>
+                {showDays && daySet.map((d) => {
+                  const date = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), d);
+                  const dayOfWeek = date.getDay();
+                  let bgColor = "#1976d2", textColor = "white";
+                  if (dayOfWeek === 0) { bgColor = "#ffcdd2"; textColor = "#c62828"; }
+                  else if (dayOfWeek === 6) { bgColor = "#bbdefb"; textColor = "#1565c0"; }
+
+                  return (
+                    <TableCell key={d} align="center" sx={{ fontWeight: "bold", backgroundColor: bgColor, color: textColor, minWidth: 20, px: 1, border: "1px solid #ccc" }}>{d}</TableCell>
+                  );
+                })}
+                <TableCell align="center" sx={{ fontWeight: "bold", backgroundColor: "#1976d2", color: "white", minWidth: 70, px: 1, border: "1px solid #ccc" }}>TỔNG CỘNG</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
               {dataList.map((student) => (
-                <TableRow
-                  key={student.id}
-                  sx={{
-                    height: 48,
-                    backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit",
-                  }}
-                >
-                  <TableCell align="center" sx={{ width: 48, px: 1, border: "1px solid #ccc" }}>
-                    {student.stt}
-                  </TableCell>
-                  <TableCell sx={{ px: 1, border: "1px solid #ccc" }}>
-                    {student.hoVaTen}
-                  </TableCell>
-                  {showDays &&
-                    daySet.map((d) => (
-                      <TableCell
-                        key={d}
-                        align="center"
-                        sx={{
-                          color: student.daySummary[d] ? "#1976d2" : "inherit",
-                          px: 1,
-                          border: "1px solid #ccc"
-                        }}
-                      >
-                        {student.daySummary[d] || ""}
-                      </TableCell>
-                    ))}
-                  <TableCell align="center" sx={{ fontWeight: "bold", px: 1, border: "1px solid #ccc" }}>
-                    {student.total > 0 ? student.total : ""}
-                  </TableCell>
+                <TableRow key={student.id} sx={{ height: 48, backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit" }}>
+                  <TableCell align="center" sx={{ width: 48, px: 1, border: "1px solid #ccc" }}>{student.stt}</TableCell>
+                  <TableCell sx={{ px: 1, border: "1px solid #ccc" }}>{student.hoVaTen}</TableCell>
+                  {showDays && daySet.map((d) => (
+                    <TableCell key={d} align="center" sx={{ color: student.daySummary[d] ? "#1976d2" : "inherit", px: 1, border: "1px solid #ccc" }}>
+                      {student.daySummary[d] || ""}
+                    </TableCell>
+                  ))}
+                  <TableCell align="center" sx={{ fontWeight: "bold", px: 1, border: "1px solid #ccc" }}>{student.total > 0 ? student.total : ""}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
+
+        {isMobile && (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+            <Button variant="contained" color="success" onClick={() => exportThongKeThangToExcel(dataList, selectedDate, selectedClass, daySet)}>
+              📥 Xuất Excel
+            </Button>
+          </Box>
+        )}
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
           <Button onClick={onBack} color="secondary">⬅️ Quay lại</Button>

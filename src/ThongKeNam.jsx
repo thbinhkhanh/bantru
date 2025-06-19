@@ -11,7 +11,7 @@ import vi from "date-fns/locale/vi";
 import { getDoc, getDocs, doc, collection, query, where } from "firebase/firestore";
 import { db } from "./firebase";
 import { MySort } from "./utils/MySort";
-import * as XLSX from 'sheetjs-style';
+import { exportThongKeNamToExcel } from "./utils/exportThongKeNamToExcel";
 
 export default function ThongKeNam({ onBack }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -75,12 +75,7 @@ export default function ThongKeNam({ onBack }) {
           };
         });
 
-        const allMonths = new Set();
-        students.forEach((s) => {
-          Object.keys(s.monthSummary).forEach((m) => allMonths.add(parseInt(m)));
-        });
-
-        const months = Array.from(allMonths).sort((a, b) => a - b);
+        const months = Array.from({ length: 12 }, (_, i) => i + 1);
         setMonthSet(months);
         const sorted = MySort(students).map((s, idx) => ({ ...s, stt: idx + 1 }));
         setDataList(sorted);
@@ -94,128 +89,6 @@ export default function ThongKeNam({ onBack }) {
     fetchStudents();
   }, [selectedClass, selectedDate]);
 
-  const exportToExcel = (dataList, selectedYear, selectedClass, monthSet) => {
-    const title1 = 'TRƯỜNG TIỂU HỌC BÌNH KHÁNH';
-    const title2 = `THỐNG KÊ BÁN TRÚ NĂM ${selectedYear}`;
-    const title3 = `LỚP: ${selectedClass}`;
-
-    if (!dataList || dataList.length === 0) return;
-
-    const headerRow = ['STT', 'HỌ VÀ TÊN', ...monthSet.map(m => `Tháng ${m}`), 'TỔNG'];
-
-    const dataRows = dataList.map((item, index) => {
-      const row = [index + 1, item.hoVaTen];
-      let total = 0;
-      monthSet.forEach(month => {
-        const val = item.monthSummary?.[month] || 0;
-        row.push(val);
-        total += val;
-      });
-      row.push(total);
-      return row;
-    });
-
-    const totalRow = ['TỔNG', ''];
-    monthSet.forEach(month => {
-      const sum = dataList.reduce((acc, cur) => acc + (cur.monthSummary?.[month] || 0), 0);
-      totalRow.push(sum);
-    });
-    totalRow.push('');
-
-    const finalData = [
-      [title1],
-      [title2],
-      [title3],
-      [],
-      headerRow,
-      ...dataRows,
-      totalRow
-    ];
-
-    const ws = XLSX.utils.aoa_to_sheet(finalData);
-
-    ws['!cols'] = [
-      { wch: 5 },
-      { wch: 27.5 },
-      ...monthSet.map(() => ({ wch: 7 })),
-      { wch: 8 }
-    ];
-
-    const totalCols = headerRow.length;
-    ws['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: totalCols - 1 } },
-      { s: { r: 1, c: 0 }, e: { r: 1, c: totalCols - 1 } },
-      { s: { r: 2, c: 0 }, e: { r: 2, c: totalCols - 1 } },
-      { s: { r: finalData.length - 1, c: 0 }, e: { r: finalData.length - 1, c: 1 } }
-    ];
-
-    const range = XLSX.utils.decode_range(ws['!ref']);
-    for (let R = 0; R <= range.e.r; ++R) {
-      for (let C = 0; C <= range.e.c; ++C) {
-        const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
-        const cell = ws[cellRef];
-        if (!cell) continue;
-
-        if (R === 0) {
-          cell.s = {
-            font: { italic: true, color: { rgb: '2E74B5' }, sz: 12 },
-            alignment: { horizontal: 'left', vertical: 'center' }
-          };
-        } else if (R === 1) {
-          cell.s = {
-            font: { bold: true, sz: 16, color: { rgb: '2E74B5' } },
-            alignment: { horizontal: 'center', vertical: 'center' }
-          };
-        } else if (R === 2) {
-          cell.s = {
-            font: { bold: true, sz: 14 },
-            alignment: { horizontal: 'center', vertical: 'center' }
-          };
-        } else if (R === 4) {
-          cell.s = {
-            font: { bold: true },
-            fill: { fgColor: { rgb: 'EAF1FB' } },
-            border: {
-              top: { style: 'thin', color: { rgb: '000000' } },
-              bottom: { style: 'thin', color: { rgb: '000000' } },
-              left: { style: 'thin', color: { rgb: '000000' } },
-              right: { style: 'thin', color: { rgb: '000000' } }
-            },
-            alignment: { horizontal: 'center', vertical: 'center' }
-          };
-        } else if (R >= 5 && R < range.e.r) {
-          cell.s = {
-            border: {
-              top: { style: 'thin', color: { rgb: '999999' } },
-              bottom: { style: 'thin', color: { rgb: '999999' } },
-              left: { style: 'thin', color: { rgb: '999999' } },
-              right: { style: 'thin', color: { rgb: '999999' } }
-            },
-            alignment: {
-              horizontal: C === 1 ? 'left' : 'center',
-              vertical: 'center'
-            }
-          };
-        } else if (R === range.e.r) {
-          cell.s = {
-            font: { bold: true },
-            border: {
-              top: { style: 'thin', color: { rgb: '999999' } },
-              bottom: { style: 'thin', color: { rgb: '999999' } },
-              left: { style: 'thin', color: { rgb: '999999' } },
-              right: { style: 'thin', color: { rgb: '999999' } }
-            },
-            alignment: { horizontal: 'center', vertical: 'center' }
-          };
-        }
-      }
-    }
-
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, `Năm ${selectedYear}`);
-    XLSX.writeFile(wb, `ThongKe_Nam${selectedYear}_Lop${selectedClass}.xlsx`);
-  };
-
   const headCellStyle = {
     fontWeight: "bold",
     backgroundColor: "#E3F2FD",
@@ -223,144 +96,136 @@ export default function ThongKeNam({ onBack }) {
     whiteSpace: "nowrap",
     textAlign: "center",
   };
-  
+
   return (
-  <Box sx={{ width: "100%", overflowX: "auto", mt: 0, px: 1 }}>
-    <Paper elevation={3} sx={{ p: 4, borderRadius: 4, width: "max-content", mx: "auto" }}>
-      <Box sx={{ mb: 5 }}>
-        <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mb: 1 }}>
-          TỔNG HỢP CẢ NĂM
-        </Typography>
-        <Box sx={{ height: "2.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
-      </Box>
-
-      {/* Bộ chọn năm, lớp, ẩn/hiện tháng, xuất Excel */}
-      <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 4 }}>
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
-          <DatePicker
-            label="Chọn năm"
-            views={["year"]}
-            openTo="year"
-            value={selectedDate}
-            onChange={(newValue) => {
-              if (newValue instanceof Date && !isNaN(newValue)) {
-                setSelectedDate(newValue);
-              }
-            }}
-            slotProps={{
-              textField: {
-                size: "small",
-                sx: {
-                  minWidth: 100,
-                  maxWidth: 145,
-                  "& input": { textAlign: "center" },
-                },
-              },
-            }}
-          />
-        </LocalizationProvider>
-
-        <FormControl size="small" sx={{ minWidth: 80, maxWidth: 100 }}>
-          <InputLabel>Lớp</InputLabel>
-          <Select
-            value={selectedClass}
-            label="Lớp"
-            onChange={(e) => setSelectedClass(e.target.value)}
-          >
-            {classList.map((cls, idx) => (
-              <MenuItem key={idx} value={cls}>{cls}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <Button variant="outlined" onClick={() => setShowMonths(prev => !prev)}>
-          {showMonths ? "ẨN THÁNG" : "HIỆN THÁNG"}
-        </Button>
-
-        {/* ✅ Nút xuất Excel trên đầu chỉ khi là máy tính */}
-        {!isMobile && (
-          <Button
-            variant="contained"
-            color="success"
-            onClick={() =>
-              exportToExcel(dataList, selectedDate.getFullYear(), selectedClass, monthSet)
+    <Box sx={{ width: "100%", overflowX: "auto", mt: 0, px: 1 }}>
+      <Paper elevation={3} sx={{
+        p: 4,
+        borderRadius: showMonths ? 0 : 4,
+        mx: "auto",
+        overflowX: "auto",
+        ...(showMonths
+          ? {
+              position: "fixed",
+              top: 0, left: 0, right: 0, bottom: 0,
+              zIndex: 1300, backgroundColor: "white", overflow: "auto"
             }
-          >
-            📥 Xuất Excel
-          </Button>
-        )}
-      </Stack>
-
-      {isLoading && (
-        <Box sx={{ width: "50%", mx: "auto", my: 2 }}>
-          <LinearProgress />
+          : {
+              width: "max-content"
+            }),
+      }}>
+        <Box sx={{ mb: 5 }}>
+          <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mb: 1 }}>
+            TỔNG HỢP CẢ NĂM
+          </Typography>
+          <Box sx={{ height: "2.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
-      )}
 
-      <Box sx={{ width: "100%", overflowX: "auto", mt: 2 }}>
-        <TableContainer component={Paper} sx={{ borderRadius: 2, minWidth: "max-content" }}>
-          <Table size="small" sx={{ borderCollapse: "collapse" }}>
-            <TableHead>
-              <TableRow>
-                <TableCell align="center" sx={headCellStyle}>STT</TableCell>
-                <TableCell align="center" sx={headCellStyle}>HỌ VÀ TÊN</TableCell>
-                {showMonths && monthSet.map((m) => (
-                  <TableCell key={m} align="center" sx={headCellStyle}>
-                    Tháng {m}
-                  </TableCell>
-                ))}
-                <TableCell align="center" sx={headCellStyle}>TỔNG CỘNG</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {dataList.map((student) => (
-                <TableRow
-                  key={student.id}
-                  sx={{
-                    height: 44,
-                    backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit",
-                    "& td": { border: "1px solid #ccc", py: 1 },
-                  }}
-                >
-                  <TableCell align="center" sx={{ px: 1 }}>{student.stt}</TableCell>
-                  <TableCell sx={{ width: 200, whiteSpace: "nowrap", px: 1 }}>{student.hoVaTen}</TableCell>
-                  {showMonths && monthSet.map((m) => (
-                    <TableCell key={m} align="center" sx={{ width: 80, px: 1 }}>
-                      {student.monthSummary[m] > 0 ? student.monthSummary[m] : ""}
-                    </TableCell>
-                  ))}
-                  <TableCell align="center" sx={{ width: 100, px: 1 }}>
-                    {student.total > 0 ? student.total : ""}
-                  </TableCell>
-                </TableRow>
+        <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 4 }}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
+            <DatePicker
+              label="Chọn năm"
+              views={["year"]}
+              openTo="year"
+              value={selectedDate}
+              onChange={(newValue) => {
+                if (newValue instanceof Date && !isNaN(newValue)) {
+                  setSelectedDate(newValue);
+                }
+              }}
+              slotProps={{
+                textField: {
+                  size: "small",
+                  sx: {
+                    minWidth: 100, maxWidth: 145,
+                    "& input": { textAlign: "center" }
+                  }
+                }
+              }}
+            />
+          </LocalizationProvider>
+
+          <FormControl size="small" sx={{ minWidth: 80, maxWidth: 100 }}>
+            <InputLabel>Lớp</InputLabel>
+            <Select value={selectedClass} label="Lớp" onChange={(e) => setSelectedClass(e.target.value)}>
+              {classList.map((cls, idx) => (
+                <MenuItem key={idx} value={cls}>{cls}</MenuItem>
               ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
+            </Select>
+          </FormControl>
 
-      {/* ✅ Nút Xuất Excel ở cuối nếu là điện thoại */}
-      {isMobile && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-          <Button
-            variant="contained"
-            color="success"
-            onClick={() =>
-              exportToExcel(dataList, selectedDate.getFullYear(), selectedClass, monthSet)
-            }
-          >
-            📥 Xuất Excel
+          <Button variant="outlined" onClick={() => setShowMonths(prev => !prev)}>
+            {showMonths ? "ẨN THÁNG" : "HIỆN THÁNG"}
           </Button>
-        </Box>
-      )}
 
-      {/* Nút quay lại */}
-      <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
-        <Button onClick={onBack} color="secondary">
-          ⬅️ Quay lại
-        </Button>
-      </Stack>
-    </Paper>
-  </Box>
-);
+          {!isMobile && (
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() =>
+                exportThongKeNamToExcel(dataList, selectedDate.getFullYear(), selectedClass, monthSet)
+              }
+            >
+              📅 Xuất Excel
+            </Button>
+          )}
+        </Stack>
+
+        {isLoading && (
+          <Box sx={{ width: "50%", mx: "auto", my: 2 }}>
+            <LinearProgress />
+          </Box>
+        )}
+
+        <Box sx={{ width: "100%", overflowX: "auto", mt: 2 }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 2, minWidth: "max-content" }}>
+            <Table size="small" sx={{ borderCollapse: "collapse" }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center" sx={{ ...headCellStyle, width: 48, position: "sticky", left: 0, zIndex: 2 }}>STT</TableCell>
+                  <TableCell align="center" sx={{ ...headCellStyle, minWidth: 180, position: "sticky", left: 48, zIndex: 2 }}>HỌ VÀ TÊN</TableCell>
+                  {showMonths && Array.from({ length: 12 }, (_, i) => (
+                    <TableCell key={i + 1} align="center" sx={{ ...headCellStyle, minWidth: 30, px: 0.5 }}>Tháng {i + 1}</TableCell>
+                  ))}
+                  <TableCell align="center" sx={{ ...headCellStyle, width: 80 }}>TỔNG CỘNG</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {dataList.map((student) => (
+                  <TableRow key={student.id} sx={{ height: 44, backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit", "& td": { border: "1px solid #ccc", py: 1 } }}>
+                    <TableCell align="center" sx={{ width: 48, px: 1, position: "sticky", left: 0, backgroundColor: "#fff", zIndex: 1 }}>{student.stt}</TableCell>
+                    <TableCell sx={{ minWidth: 180, px: 1, position: "sticky", left: 48, backgroundColor: "#fff", zIndex: 1 }}>{student.hoVaTen}</TableCell>
+                    {showMonths && Array.from({ length: 12 }, (_, i) => (
+                      <TableCell key={i + 1} align="center" sx={{ minWidth: 30, px: 0.5 }}>{student.monthSummary[i + 1] > 0 ? student.monthSummary[i + 1] : ""}</TableCell>
+                    ))}
+                    <TableCell align="center" sx={{ width: 80, px: 1 }}>{student.total > 0 ? student.total : ""}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+
+        {isMobile && (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() =>
+                exportThongKeNamToExcel(dataList, selectedDate.getFullYear(), selectedClass, monthSet)
+              }
+            >
+              📅 Xuất Excel
+            </Button>
+          </Box>
+        )}
+
+        <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>
+          <Button onClick={onBack} color="secondary">
+            ⬅️ Quay lại
+          </Button>
+        </Stack>
+      </Paper>
+    </Box>
+  );
 }
