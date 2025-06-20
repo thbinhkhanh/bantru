@@ -104,7 +104,18 @@ function SummaryRow({ row, openGroups, setOpenGroups, summaryData }) {
           }
         }}
       >
-        <TableCell sx={{ fontWeight: "bold", textAlign: "left", pl: 2 }}>
+        <TableCell
+          sx={{
+            fontWeight: "bold",
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1, // khoảng cách giữa icon và text
+            whiteSpace: "nowrap" // ngăn không cho xuống dòng
+          }}
+        >
+
           {isGroup && !isTruong && (
             <IconButton
               size="small"
@@ -125,7 +136,7 @@ function SummaryRow({ row, openGroups, setOpenGroups, summaryData }) {
       {isGroup && isOpen &&
         subRows.map((subRow, i) => (
           <TableRow key={i} sx={{ backgroundColor: "#f9fbe7", "&:hover": { backgroundColor: "#f0f4c3" } }}>
-            <TableCell sx={{ pl: 1, textAlign: "center" }}>{subRow.group}</TableCell>
+            <TableCell sx={{ pl: 6, textAlign: "center" }}>{subRow.group}</TableCell>
             <TableCell align="center">{subRow.siSo}</TableCell>
             <TableCell align="center">{subRow.anBanTru}</TableCell>
           </TableRow>
