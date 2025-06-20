@@ -104,18 +104,7 @@ function SummaryRow({ row, openGroups, setOpenGroups, summaryData }) {
           }
         }}
       >
-        <TableCell
-          sx={{
-            fontWeight: "bold",
-            textAlign: "center",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "left",
-            gap: 1, // khoảng cách giữa icon và text
-            whiteSpace: "nowrap" // ngăn không cho xuống dòng
-          }}
-        >
-
+        <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
           {isGroup && !isTruong && (
             <IconButton
               size="small"
@@ -210,7 +199,15 @@ export default function ChotSoLieu({ onBack }) {
   };
 
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", mt: 0, px: 1 }}>
+    <Box
+      sx={{
+        maxWidth: { xs: '100%', sm: 500 },
+        mx: 'auto',
+        px: { xs: 0.5, sm: 2 },
+        mt: 0,
+      }}
+    >
+
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography variant="h5" fontWeight="bold" color="primary" align="center">
           CHỐT SỐ LIỆU

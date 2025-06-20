@@ -112,17 +112,7 @@ function Row({ row, openGroups, setOpenGroups, summaryData }) {
           }
         }}
       >
-        <TableCell
-          sx={{
-            fontWeight: "bold",
-            textAlign: "center",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "left",
-            gap: 1,
-            whiteSpace: "nowrap",
-          }}
-        >
+        <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
           {isGroup && !isTruong && (
             <IconButton
               size="small"
@@ -136,7 +126,6 @@ function Row({ row, openGroups, setOpenGroups, summaryData }) {
           )}
           {row.group}
         </TableCell>
-
         <TableCell align="center" sx={{ fontWeight: "bold" }}>{row.siSo}</TableCell>
         <TableCell align="center" sx={{ fontWeight: "bold" }}>{row.anBanTru}</TableCell>
       </TableRow>
@@ -179,7 +168,14 @@ export default function SoLieuTrongNgay({ onBack }) {
   }, []);
 
   return (
-    <Box sx={{ maxWidth: 500, marginLeft: "auto", marginRight: "auto", paddingLeft: 0.5, paddingRight: 0.5, mt: 0, px:1 }}>
+    <Box
+      sx={{
+        maxWidth: { xs: '100%', sm: 500 },
+        mx: 'auto',
+        px: { xs: 0.5, sm: 2 },
+        mt: 0,
+      }}
+    >
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography variant="h5" fontWeight="bold" color="primary" align="center">
           SỐ LIỆU TRONG NGÀY
