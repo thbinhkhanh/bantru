@@ -15,7 +15,7 @@ export default function Footer() {
       }}
     >
       <Typography variant="body2" color="text.secondary">
-        © 2025 thbinhkhanh@gmail.com. Thiết kế và phát triển bởi Thái Phạm.
+        © 2025 thbinhkhanh@gmail.com. 
       </Typography>
     </Box>
   );

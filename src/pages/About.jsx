@@ -94,7 +94,7 @@ export default function About() {
               Phiên bản 1.0.0 — Cập nhật: 21/06/2025
             </Typography>
             <Typography variant="body2" align="center" color="text.secondary" sx={{ mt: 3 }}>
-              © 2025 thbinhkhanh@gmail.com. Thiết kế và phát triển bởi Thái Phạm.
+              © 2025 thbinhkhanh@gmail.com. 
             </Typography>
           </CardContent>
         </Card>
