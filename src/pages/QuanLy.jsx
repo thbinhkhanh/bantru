@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  Box, Typography, Grid, Card, TextField, Button, Alert, Stack
+  Box, Typography, Grid, Card, Button, Stack
 } from '@mui/material';
-import { motion } from 'framer-motion';
 
 import ChotSoLieu from '../ChotSoLieu';
 import SoLieuNgay from '../SoLieuNgay';
@@ -14,51 +13,13 @@ import ThongkeNam from '../ThongKeNam';
 import CapNhatDS from '../CapNhatDS';
 import LapDanhSach from '../LapDanhSach';
 import TaiDanhSach from '../TaiDanhSach';
-import AdminLogin from "../AdminLogin";
 import Banner from './Banner';
 
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase';
-
 export default function QuanLy() {
-  const [loginSuccess, setLoginSuccess] = useState(false);
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
   const [selectedFunction, setSelectedFunction] = useState('');
-  const [adminVisible, setAdminVisible] = useState(false);
-  const [savedUserPassword, setSavedUserPassword] = useState('@bc');
-
-  useEffect(() => {
-    const fetchUserPassword = async () => {
-      try {
-        const userSnap = await getDoc(doc(db, 'SETTINGS', 'USER'));
-        if (userSnap.exists()) {
-          setSavedUserPassword(userSnap.data().password || '@bc');
-        }
-      } catch (err) {
-        console.error('❌ Lỗi khi lấy mật khẩu USER:', err);
-      }
-    };
-    fetchUserPassword();
-  }, []);
-
-  const handleLogin = () => {
-    if (password === savedUserPassword) {
-      setLoginSuccess(true);
-      setMessage('');
-    } else {
-      setMessage('Mật khẩu không chính xác!');
-    }
-  };
 
   const handleFunctionSelect = (code) => {
-    if (code === 'ADMINLOGIN') {
-      setAdminVisible(true);
-      setSelectedFunction('');
-    } else {
-      setSelectedFunction(code);
-      setAdminVisible(false);
-    }
+    setSelectedFunction(code);
   };
 
   const renderSelectedFunction = () => {
@@ -106,13 +67,6 @@ export default function QuanLy() {
         { label: 'TẢI DANH SÁCH LÊN', code: 'TAIDS', color: '#789262' },
       ],
     },
-    {
-      icon: <img src="/Set.jpg" alt="Admin" width={36} height={36} />,
-      title: 'QUẢN TRỊ HỆ THỐNG',
-      items: [
-        { label: 'ĐĂNG NHẬP HỆ THỐNG', code: 'ADMINLOGIN', color: '#42a5f5' },
-      ],
-    },
   ];
 
   return (
@@ -120,49 +74,17 @@ export default function QuanLy() {
       sx={{
         minHeight: '100vh',
         background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)',
+        px: 0,
         py: 0,
-        px: 0,  // Để banner giãn full chiều ngang
       }}
     >
       <Banner title="HỆ THỐNG QUẢN LÝ BÁN TRÚ" />
 
-      {/* Nội dung chính đặt trong Box có padding */}
-      <Box sx={{ px: 2, pt: 0, pb: 6 }}>
-        {!loginSuccess ? (
-          <Box maxWidth={400} mx="auto" mt={2}>
-            <Card
-              elevation={10}
-              sx={{
-                p: 4,
-                borderRadius: 3,
-                backgroundColor: '#ffffff',
-                boxShadow: 3,
-              }}
-            >
-              <Stack spacing={3}>
-                <Box textAlign="center" sx={{ mb: 2 }}>
-                  <Box sx={{ fontSize: 48, color: 'primary.main', mb: 1 }}>
-                    🔐
-                  </Box>
-                  <Typography variant="h5" fontWeight="bold" color="primary" sx={{ mb: 2 }}>
-                    ĐĂNG NHẬP QUẢN LÝ
-                  </Typography>
-                </Box>
-                <TextField label="👤 Tên đăng nhập" value="TH Bình Khánh" fullWidth disabled />
-                <TextField label="🔒 Mật khẩu" type="password" value={password} onChange={(e) => setPassword(e.target.value)} fullWidth />
-                {message && <Alert severity="error" variant="filled">{message}</Alert>}
-                <Button variant="contained" fullWidth color="primary" onClick={handleLogin} sx={{ height: 40, fontWeight: 'bold', fontSize: '16px' }}>
-                  🔓 Đăng nhập
-                </Button>
-              </Stack>
-            </Card>
-          </Box>
-        ) : selectedFunction ? (
+      <Box sx={{ px: 2, pt: 3, pb: 6 }}>
+        {selectedFunction ? (
           <Box maxWidth={selectedFunction === 'CAPNHAT' ? 1000 : 700} mx="auto">
             {renderSelectedFunction()}
           </Box>
-        ) : adminVisible ? (
-          <AdminLogin onSuccess={() => setAdminVisible(false)} onCancel={() => setAdminVisible(false)} />
         ) : (
           <Stack spacing={3} alignItems="center">
             {chucNangNhom.map((nhom, index) => (
@@ -175,10 +97,9 @@ export default function QuanLy() {
                   width: '100%',
                   maxWidth: { xs: 360, sm: 720, md: 1055 },
                   mx: 'auto',
-                  mt: index === 0 ? 4 : 0, // 👈 chỉ thêm margin-top cho nhóm đầu tiên
+                  mt: index === 0 ? 6 : 0, // khoảng cách từ banner tới nhóm đầu
                 }}
               >
-
                 <Grid container spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center">
                   <Grid item xs={12} sm={2} md={1} textAlign="center">
                     <Box
@@ -225,5 +146,3 @@ export default function QuanLy() {
     </Box>
   );
 }
-
-

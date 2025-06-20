@@ -26,6 +26,7 @@ export default function Banner({ title, subtitle }) {
   return (
     <Box
       sx={{
+        mt: '64px',
         position: "relative",
         width: "100%",
         height: { xs: 120, sm: 160, md: 200 },
@@ -35,7 +36,7 @@ export default function Banner({ title, subtitle }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        mb: 3,
+        mb: 0,
         "&::before": {
           content: '""',
           position: "absolute",
@@ -53,7 +54,7 @@ export default function Banner({ title, subtitle }) {
           variant="h5"
           color="white"
           fontWeight="bold"
-          sx={{ fontSize: { xs: "1.2rem", sm: "1.5rem", md: "2.5rem" } }}
+          sx={{ fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" } }}
         >
           {computedTitle}
         </Typography>

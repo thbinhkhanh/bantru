@@ -45,7 +45,7 @@ export default function Home() {
       />
 
       <Box sx={{ px: 2 }}>
-        <Grid container spacing={3} justifyContent="center" sx={{ mt: 2, mb: 4 }}>
+        <Grid container spacing={3} justifyContent="center" sx={{ mt: 3, mb: 4 }}>
           {khốiList.map((label, index) => (
             <Grid item xs={12} sm={6} md={4} key={label}>
               <motion.div

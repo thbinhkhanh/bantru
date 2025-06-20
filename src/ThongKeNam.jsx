@@ -93,12 +93,14 @@ export default function ThongKeNam({ onBack }) {
   }, [selectedClass, selectedDate]);
 
   const headCellStyle = {
-    fontWeight: "bold",
-    backgroundColor: "#E3F2FD",
-    border: "1px solid #ccc",
-    whiteSpace: "nowrap",
-    textAlign: "center",
-  };
+  fontWeight: "bold",
+  backgroundColor: "#1976d2", // màu xanh dương đậm
+  color: "white",             // chữ trắng
+  border: "1px solid #ccc",
+  whiteSpace: "nowrap",
+  textAlign: "center",
+  px: 1,
+};
 
   const handleExport = () => {
     exportThongKeNamToExcel(dataList, selectedDate.getFullYear(), selectedClass, monthSet);
@@ -189,9 +191,14 @@ export default function ThongKeNam({ onBack }) {
           <TableContainer component={Paper} sx={{ borderRadius: 2, minWidth: "max-content" }}>
             <Table size="small" sx={{ borderCollapse: "collapse" }}>
               <TableHead>
-                <TableRow>
-                  <TableCell align="center" sx={{ ...headCellStyle, width: 48, position: "sticky", left: 0, zIndex: 2 }}>STT</TableCell>
-                  <TableCell align="center" sx={{ ...headCellStyle, minWidth: 180, position: "sticky", left: 48, zIndex: 2 }}>HỌ VÀ TÊN</TableCell>
+                <TableRow sx={{ height: 48 }}>
+                  <TableCell align="center" sx={{ ...headCellStyle, position: "sticky", left: 0, zIndex: 2 }}>
+                    STT
+                  </TableCell>
+                  <TableCell align="center" sx={{ ...headCellStyle, minWidth: 140, position: "sticky", left: 48, zIndex: 2 }}>
+                    HỌ VÀ TÊN
+                  </TableCell>
+
                   {showMonths && monthSet.map((m) => (
                     <TableCell key={m} align="center" sx={{ ...headCellStyle, minWidth: 30, px: 0.5 }}>
                       Tháng {m}
@@ -200,6 +207,7 @@ export default function ThongKeNam({ onBack }) {
                   <TableCell align="center" sx={{ ...headCellStyle, width: 80 }}>TỔNG CỘNG</TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
                 {dataList.map((student) => (
                   <TableRow key={student.id} sx={{
@@ -207,12 +215,32 @@ export default function ThongKeNam({ onBack }) {
                     backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit",
                     "& td": { border: "1px solid #ccc", py: 1 }
                   }}>
-                    <TableCell align="center" sx={{ width: 48, px: 1, position: "sticky", left: 0, backgroundColor: "#fff", zIndex: 1 }}>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        width: 48,
+                        px: 1,
+                        position: "sticky",
+                        left: 0,
+                        backgroundColor: "#fff",
+                        zIndex: 1,
+                      }}
+                    >
                       {student.stt}
                     </TableCell>
-                    <TableCell sx={{ minWidth: 180, px: 1, position: "sticky", left: 48, backgroundColor: "#fff", zIndex: 1 }}>
+                    <TableCell
+                      sx={{
+                        minWidth: 180,
+                        px: 1,
+                        position: "sticky",
+                        left: 48,
+                        backgroundColor: "#fff",
+                        zIndex: 1,
+                      }}
+                    >
                       {student.hoVaTen}
                     </TableCell>
+
                     {showMonths && monthSet.map((m) => (
                       <TableCell key={m} align="center" sx={{ minWidth: 30, px: 0.5 }}>
                         {student.monthSummary[m] > 0 ? student.monthSummary[m] : ""}

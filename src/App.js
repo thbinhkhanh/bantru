@@ -15,13 +15,16 @@ import Lop4 from './pages/Lop4';
 import Lop5 from './pages/Lop5';
 import QuanLy from './pages/QuanLy';
 import About from './pages/About';
+import Admin from './Admin';
+import DangNhap from './DangNhap';
 import Footer from './pages/Footer';
 
 export default function App() {
   return (
     <Router>
       <Navigation />
-      <div style={{ paddingTop: '72px' }}>
+      {/* 👉 KHÔNG dùng paddingTop toàn cục nếu muốn Banner sát trên */}
+      <div>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/lop1" element={<Lop1 />} />
@@ -29,10 +32,12 @@ export default function App() {
           <Route path="/lop3" element={<Lop3 />} />
           <Route path="/lop4" element={<Lop4 />} />
           <Route path="/lop5" element={<Lop5 />} />
+          <Route path="/dangnhap" element={<DangNhap />} />
           <Route path="/quanly" element={<QuanLy />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/gioithieu" element={<About />} />
         </Routes>
-        <Footer /> {/* ✅ Footer sẽ luôn hiển thị ở cuối mọi trang */}
+        <Footer />
       </div>
     </Router>
   );
@@ -48,7 +53,7 @@ function Navigation() {
     { path: '/lop3', name: 'Lớp 3' },
     { path: '/lop4', name: 'Lớp 4' },
     { path: '/lop5', name: 'Lớp 5' },
-    { path: '/quanly', name: 'Quản lý' },
+    { path: '/dangnhap', name: 'Quản lý' },
     { path: '/gioithieu', name: 'Giới thiệu' },
   ];
 
@@ -75,7 +80,6 @@ function Navigation() {
         alt="Logo"
         style={{ height: '40px', marginRight: '16px' }}
       />
-
       {navItems.map((item, index) => (
         <Link
           key={index}
