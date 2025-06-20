@@ -94,7 +94,7 @@ export default function QuanLy() {
                 sx={{
                   p: 3,
                   borderRadius: 4,
-                  width: { xs: '90%', sm: '90%', md: '85%' }, // 👈 chỉnh chiều rộng linh hoạt
+                  width: { xs: '85%', sm: '90%', md: '85%' }, // 👈 chỉnh chiều rộng linh hoạt
                   maxWidth: 1055,                             // 👈 giữ giới hạn tối đa trên desktop
                   mx: 'auto',
                   mt: index === 0 ? 6 : 0,
