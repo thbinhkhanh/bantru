@@ -1,8 +1,28 @@
 // src/pages/Banner.jsx
 import React from "react";
 import { Box, Typography } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
-export default function Banner() {
+export default function Banner({ title, subtitle }) {
+  const location = useLocation();
+  const path = location.pathname;
+
+  // 👇 Gán tiêu đề tự động theo đường dẫn
+  const pageTitles = {
+    "/": "TRANG CHỦ",
+    "/quanly": "QUẢN LÝ BÁN TRÚ",
+    "/gioithieu": "GIỚI THIỆU HỆ THỐNG",
+    "/lop1": "KHỐI 1 - DANH SÁCH LỚP",
+    "/lop2": "KHỐI 2 - DANH SÁCH LỚP",
+    "/lop3": "KHỐI 3 - DANH SÁCH LỚP",
+    "/lop4": "KHỐI 4 - DANH SÁCH LỚP",
+    "/lop5": "KHỐI 5 - DANH SÁCH LỚP",
+    // 👆 Thêm các đường dẫn khác nếu có
+  };
+
+  const computedTitle = title || pageTitles[path] || "HỆ THỐNG QUẢN LÝ BÁN TRÚ";
+  const computedSubtitle = subtitle || "";
+
   return (
     <Box
       sx={{
@@ -15,7 +35,6 @@ export default function Banner() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        //mt: '20px',
         mb: 3,
         "&::before": {
           content: '""',
@@ -36,15 +55,17 @@ export default function Banner() {
           fontWeight="bold"
           sx={{ fontSize: { xs: "1.2rem", sm: "1.5rem", md: "2.5rem" } }}
         >
-          ĐIỂM DANH BÁN TRÚ
+          {computedTitle}
         </Typography>
-        <Typography
-          variant="subtitle2"
-          color="white"
-          sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
-        >
-          {/* Quản lý điểm danh bán trú */}
-        </Typography>
+        {computedSubtitle && (
+          <Typography
+            variant="subtitle2"
+            color="white"
+            sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
+          >
+            {computedSubtitle}
+          </Typography>
+        )}
       </Box>
     </Box>
   );

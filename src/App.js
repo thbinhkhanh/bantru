@@ -14,12 +14,13 @@ import Lop3 from './pages/Lop3';
 import Lop4 from './pages/Lop4';
 import Lop5 from './pages/Lop5';
 import QuanLy from './pages/QuanLy';
+import About from './pages/About';
+import Footer from './pages/Footer';
 
 export default function App() {
   return (
     <Router>
       <Navigation />
-      {/* Thêm phần đệm top để không bị che */}
       <div style={{ paddingTop: '72px' }}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -29,7 +30,9 @@ export default function App() {
           <Route path="/lop4" element={<Lop4 />} />
           <Route path="/lop5" element={<Lop5 />} />
           <Route path="/quanly" element={<QuanLy />} />
+          <Route path="/gioithieu" element={<About />} />
         </Routes>
+        <Footer /> {/* ✅ Footer sẽ luôn hiển thị ở cuối mọi trang */}
       </div>
     </Router>
   );
@@ -46,6 +49,7 @@ function Navigation() {
     { path: '/lop4', name: 'Lớp 4' },
     { path: '/lop5', name: 'Lớp 5' },
     { path: '/quanly', name: 'Quản lý' },
+    { path: '/gioithieu', name: 'Giới thiệu' },
   ];
 
   return (
@@ -66,14 +70,12 @@ function Navigation() {
         gap: '10px',
       }}
     >
-      {/* Logo */}
       <img
         src="/Logo.png"
         alt="Logo"
         style={{ height: '40px', marginRight: '16px' }}
       />
 
-      {/* Navigation Links */}
       {navItems.map((item, index) => (
         <Link
           key={index}
@@ -96,4 +98,3 @@ function Navigation() {
     </nav>
   );
 }
-

@@ -15,9 +15,8 @@ import CapNhatDS from '../CapNhatDS';
 import LapDanhSach from '../LapDanhSach';
 import TaiDanhSach from '../TaiDanhSach';
 import AdminLogin from "../AdminLogin";
-import Banner from './Banner2';
+import Banner from './Banner';
 
-// 🔽 Firebase import
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -27,10 +26,8 @@ export default function QuanLy() {
   const [message, setMessage] = useState('');
   const [selectedFunction, setSelectedFunction] = useState('');
   const [adminVisible, setAdminVisible] = useState(false);
+  const [savedUserPassword, setSavedUserPassword] = useState('@bc');
 
-  const [savedUserPassword, setSavedUserPassword] = useState('@bc'); // mặc định
-
-  // 🔽 Lấy mật khẩu từ Firestore
   useEffect(() => {
     const fetchUserPassword = async () => {
       try {
@@ -87,7 +84,7 @@ export default function QuanLy() {
       items: [
         { label: 'CHỐT SỐ LIỆU', code: 'CHOT', color: '#42a5f5' },
         { label: 'SỐ LIỆU TRONG NGÀY', code: 'SONGAY', color: '#66bb6a' },
-        { label: 'ĐIỀU CHỈNH SUẤT Ăn', code: 'SUATAN', color: '#ffb300' },
+        { label: 'ĐIỀU CHỈNH SUẤT ĂN', code: 'SUATAN', color: '#ffb300' },
         { label: 'XÓA DỮ LIỆU THEO NGÀY', code: 'XOANGAY', color: '#ef5350' },
       ],
     },
@@ -111,7 +108,7 @@ export default function QuanLy() {
     },
     {
       icon: <img src="/Set.jpg" alt="Admin" width={36} height={36} />,
-      title: 'QUẢN LÝ HỆ THỐNG',
+      title: 'QUẢN TRỊ HỆ THỐNG',
       items: [
         { label: 'ĐĂNG NHẬP HỆ THỐNG', code: 'ADMINLOGIN', color: '#42a5f5' },
       ],
@@ -119,91 +116,114 @@ export default function QuanLy() {
   ];
 
   return (
-    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)', pt: 0, pb: 6, px: 2 }}>
-      <Banner />
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)',
+        py: 0,
+        px: 0,  // Để banner giãn full chiều ngang
+      }}
+    >
+      <Banner title="HỆ THỐNG QUẢN LÝ BÁN TRÚ" />
 
-      {!loginSuccess ? (
-        <Box maxWidth={400} mx="auto" mt={8}>
-          <Card elevation={10} sx={{
-            p: 4,
-            borderRadius: 3,
-            backgroundColor: '#ffffff',
-            boxShadow: 3,
-          }}>
-            <Stack spacing={3}>
-              <Box textAlign="center" sx={{ mb: 2 }}>
-                <Box sx={{ fontSize: 48, color: 'primary.main', mb: 1 }}>
-                  🔐
-                </Box>
-                <Typography
-                  variant="h5"
-                  fontWeight="bold"
-                  color="primary"
-                  sx={{ mb: 2 }} // 👉 khoảng cách dưới 24px
-                >
-                  ĐĂNG NHẬP QUẢN LÝ
-                </Typography>
-              </Box>
-
-
-              <TextField label="👤 Tên đăng nhập" value="TH Bình Khánh" fullWidth disabled />
-              <TextField label="🔒 Mật khẩu" type="password" value={password} onChange={(e) => setPassword(e.target.value)} fullWidth />
-
-              {message && <Alert severity="error" variant="filled">{message}</Alert>}
-
-              <Button variant="contained" fullWidth color="primary" onClick={handleLogin} sx={{ height: 40, fontWeight: 'bold', fontSize: '16px' }}>
-                🔓 Đăng nhập
-              </Button>
-            </Stack>
-          </Card>
-        </Box>
-      ) : selectedFunction ? (
-        <Box maxWidth={selectedFunction === 'CAPNHAT' ? 1000 : 700} mx="auto">
-          {renderSelectedFunction()}
-        </Box>
-      ) : adminVisible ? (
-        <AdminLogin onSuccess={() => setAdminVisible(false)} onCancel={() => setAdminVisible(false)} />
-      ) : (
-        <Stack spacing={1.4} alignItems="center">
-          {chucNangNhom.map((nhom, index) => (
-            <Card key={index} elevation={6} sx={{ p: 3, borderRadius: 4, width: '100%', maxWidth: { xs: 360, sm: 720, md: 1055 }, mx: 'auto' }}>
-              <Grid container spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center">
-                <Grid item xs={12} sm={2} md={1} textAlign="center">
-                  <Box component="img" src={nhom.icon.props.src} alt={nhom.icon.props.alt} sx={{ width: { xs: 90, sm: 100, md: 95 }, height: 90, objectFit: 'contain', mx: 'auto' }} />
-                </Grid>
-                <Grid item xs={12} sm={10} md={11}>
-                  <Typography variant="h6" fontWeight="bold" mb={2} sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-                    {nhom.title}
+      {/* Nội dung chính đặt trong Box có padding */}
+      <Box sx={{ px: 2, pt: 0, pb: 6 }}>
+        {!loginSuccess ? (
+          <Box maxWidth={400} mx="auto" mt={2}>
+            <Card
+              elevation={10}
+              sx={{
+                p: 4,
+                borderRadius: 3,
+                backgroundColor: '#ffffff',
+                boxShadow: 3,
+              }}
+            >
+              <Stack spacing={3}>
+                <Box textAlign="center" sx={{ mb: 2 }}>
+                  <Box sx={{ fontSize: 48, color: 'primary.main', mb: 1 }}>
+                    🔐
+                  </Box>
+                  <Typography variant="h5" fontWeight="bold" color="primary" sx={{ mb: 2 }}>
+                    ĐĂNG NHẬP QUẢN LÝ
                   </Typography>
-                  <Grid container spacing={2} direction={{ xs: 'column', sm: 'row' }}>
-                    {nhom.items.map(item => (
-                      <Grid item xs={12} sm={6} md={4} key={item.code}>
-                        <Button
-                          variant="contained"
-                          fullWidth
-                          sx={{
-                            minWidth: 220,
-                            backgroundColor: item.color,
-                            fontWeight: 600,
-                            height: 48,
-                            '&:hover': {
+                </Box>
+                <TextField label="👤 Tên đăng nhập" value="TH Bình Khánh" fullWidth disabled />
+                <TextField label="🔒 Mật khẩu" type="password" value={password} onChange={(e) => setPassword(e.target.value)} fullWidth />
+                {message && <Alert severity="error" variant="filled">{message}</Alert>}
+                <Button variant="contained" fullWidth color="primary" onClick={handleLogin} sx={{ height: 40, fontWeight: 'bold', fontSize: '16px' }}>
+                  🔓 Đăng nhập
+                </Button>
+              </Stack>
+            </Card>
+          </Box>
+        ) : selectedFunction ? (
+          <Box maxWidth={selectedFunction === 'CAPNHAT' ? 1000 : 700} mx="auto">
+            {renderSelectedFunction()}
+          </Box>
+        ) : adminVisible ? (
+          <AdminLogin onSuccess={() => setAdminVisible(false)} onCancel={() => setAdminVisible(false)} />
+        ) : (
+          <Stack spacing={3} alignItems="center">
+            {chucNangNhom.map((nhom, index) => (
+              <Card
+                key={index}
+                elevation={6}
+                sx={{
+                  p: 3,
+                  borderRadius: 4,
+                  width: '100%',
+                  maxWidth: { xs: 360, sm: 720, md: 1055 },
+                  mx: 'auto',
+                  mt: index === 0 ? 4 : 0, // 👈 chỉ thêm margin-top cho nhóm đầu tiên
+                }}
+              >
+
+                <Grid container spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center">
+                  <Grid item xs={12} sm={2} md={1} textAlign="center">
+                    <Box
+                      component="img"
+                      src={nhom.icon.props.src}
+                      alt={nhom.icon.props.alt}
+                      sx={{ width: { xs: 90, sm: 100, md: 95 }, height: 90, objectFit: 'contain', mx: 'auto' }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={10} md={11}>
+                    <Typography variant="h6" fontWeight="bold" mb={2} sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
+                      {nhom.title}
+                    </Typography>
+                    <Grid container spacing={2} direction={{ xs: 'column', sm: 'row' }}>
+                      {nhom.items.map(item => (
+                        <Grid item xs={12} sm={6} md={4} key={item.code}>
+                          <Button
+                            variant="contained"
+                            fullWidth
+                            sx={{
+                              minWidth: 220,
                               backgroundColor: item.color,
-                              filter: 'brightness(0.9)',
-                            },
-                          }}
-                          onClick={() => handleFunctionSelect(item.code)}
-                        >
-                          {item.label}
-                        </Button>
-                      </Grid>
-                    ))}
+                              fontWeight: 600,
+                              height: 48,
+                              '&:hover': {
+                                backgroundColor: item.color,
+                                filter: 'brightness(0.9)',
+                              },
+                            }}
+                            onClick={() => handleFunctionSelect(item.code)}
+                          >
+                            {item.label}
+                          </Button>
+                        </Grid>
+                      ))}
+                    </Grid>
                   </Grid>
                 </Grid>
-              </Grid>
-            </Card>
-          ))}
-        </Stack>
-      )}
+              </Card>
+            ))}
+          </Stack>
+        )}
+      </Box>
     </Box>
   );
 }
+
+

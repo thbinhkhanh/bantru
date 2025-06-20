@@ -52,7 +52,7 @@ export default function AdminLogin({ onCancel }) {
       setAdminLoggedIn(true);
       setAdminError("");
     } else {
-      setAdminError("❌ Sai mật khẩu!");
+      setAdminError("❌ Mật khẩu không chính xác!");
     }
   };
 
@@ -82,7 +82,7 @@ export default function AdminLogin({ onCancel }) {
   };
 
   return (
-    <Box maxWidth={450} mx="auto" mt={4}>
+    <Box maxWidth={450} mx="auto" mt={-2}>
       <Card elevation={10} sx={{ p: 4, borderRadius: 4 }}>
         <Stack spacing={3}>
           <Box textAlign="center" sx={{ mb: 2 }}>
