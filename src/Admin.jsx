@@ -70,7 +70,7 @@ export default function Admin({ onCancel }) {
       <Banner title="QUẢN TRỊ HỆ THỐNG" /> {/* ✅ Thêm banner */}
       <Box
         sx={{
-          width: { xs: '58%', sm: 500 },
+          width: { xs: '95%', sm: 500 },
           mx: 'auto',
           mt: 3,
         }}
