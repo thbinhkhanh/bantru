@@ -112,7 +112,17 @@ function Row({ row, openGroups, setOpenGroups, summaryData }) {
           }
         }}
       >
-        <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>
+        <TableCell
+          sx={{
+            fontWeight: "bold",
+            textAlign: "center",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "left",
+            gap: 1,
+            whiteSpace: "nowrap",
+          }}
+        >
           {isGroup && !isTruong && (
             <IconButton
               size="small"
@@ -126,6 +136,7 @@ function Row({ row, openGroups, setOpenGroups, summaryData }) {
           )}
           {row.group}
         </TableCell>
+
         <TableCell align="center" sx={{ fontWeight: "bold" }}>{row.siSo}</TableCell>
         <TableCell align="center" sx={{ fontWeight: "bold" }}>{row.anBanTru}</TableCell>
       </TableRow>

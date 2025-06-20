@@ -110,7 +110,7 @@ function SummaryRow({ row, openGroups, setOpenGroups, summaryData }) {
             textAlign: "center",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "left",
             gap: 1, // khoảng cách giữa icon và text
             whiteSpace: "nowrap" // ngăn không cho xuống dòng
           }}
