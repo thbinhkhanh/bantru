@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Typography,
-  Container,
   Divider,
   Card,
   CardContent,
@@ -22,7 +21,14 @@ export default function About() {
     >
       <Banner title="GIỚI THIỆU" />
 
-      <Container maxWidth="md" sx={{ mt: 3, mb: 4 }}>
+      <Box
+        sx={{
+          width: { xs: "95%", sm: "70%", md: "50%" },
+          mx: "auto",
+          mt: 3,
+          mb: 4,
+        }}
+      >
         <Card elevation={3} sx={{ borderRadius: 3, p: 2 }}>
           <CardContent>
             <Typography
@@ -30,7 +36,7 @@ export default function About() {
               color="primary"
               fontWeight="bold"
               align="center"
-              sx={{ mb: 1, fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.8rem' } }}
+              sx={{ mb: 1, fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.8rem" } }}
             >
               HỆ THỐNG ĐIỂM DANH BÁN TRÚ
             </Typography>
@@ -72,8 +78,6 @@ export default function About() {
             <Typography variant="body1" paragraph>📋 <strong>Lập danh sách bán trú</strong>: Chọn học sinh đăng ký bán trú theo lớp.</Typography>
             <Typography variant="body1" paragraph>📤 <strong>Tải danh sách lên</strong>: Tải danh sách học sinh lên hệ thống từ file Excel.</Typography>
 
-            {/* Có thể bỏ nhóm quản trị nếu đã bị loại khỏi giao diện chính */}
-
             <Divider sx={{ my: 4 }} />
 
             {/* Footer */}
@@ -91,7 +95,7 @@ export default function About() {
             </Typography>
           </CardContent>
         </Card>
-      </Container>
+      </Box>
     </Box>
   );
 }
