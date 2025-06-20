@@ -94,12 +94,13 @@ export default function QuanLy() {
                 sx={{
                   p: 3,
                   borderRadius: 4,
-                  width: '100%',
-                  maxWidth: { xs: 360, sm: 720, md: 1055 },
+                  width: { xs: '90%', sm: '90%', md: '85%' }, // 👈 chỉnh chiều rộng linh hoạt
+                  maxWidth: 1055,                             // 👈 giữ giới hạn tối đa trên desktop
                   mx: 'auto',
-                  mt: index === 0 ? 6 : 0, // khoảng cách từ banner tới nhóm đầu
+                  mt: index === 0 ? 6 : 0,
                 }}
               >
+
                 <Grid container spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center">
                   <Grid item xs={12} sm={2} md={1} textAlign="center">
                     <Box
