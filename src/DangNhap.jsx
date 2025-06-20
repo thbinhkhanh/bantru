@@ -52,8 +52,14 @@ export default function DangNhap() {
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)' }}>
       <Banner title="ĐĂNG NHẬP QUẢN LÝ" />
+      <Box
+        sx={{
+          width: { xs: '98%', sm: 400 },
+          mx: 'auto',
+          mt: 3,
+        }}
+      >
 
-      <Box maxWidth={400} mx="auto" mt={3}>
         <Card elevation={10} sx={{ p: 4, borderRadius: 3, backgroundColor: '#ffffff' }}>
           <Stack spacing={3}>
             <Box textAlign="center">

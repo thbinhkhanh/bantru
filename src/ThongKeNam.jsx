@@ -13,8 +13,6 @@ import { db } from "./firebase";
 import { MySort } from "./utils/MySort";
 import { exportThongKeNamToExcel } from "./utils/exportThongKeNamToExcel";
 
-// phần import giữ nguyên...
-
 export default function ThongKeNam({ onBack }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedClass, setSelectedClass] = useState("");
@@ -93,14 +91,14 @@ export default function ThongKeNam({ onBack }) {
   }, [selectedClass, selectedDate]);
 
   const headCellStyle = {
-  fontWeight: "bold",
-  backgroundColor: "#1976d2", // màu xanh dương đậm
-  color: "white",             // chữ trắng
-  border: "1px solid #ccc",
-  whiteSpace: "nowrap",
-  textAlign: "center",
-  px: 1,
-};
+    fontWeight: "bold",
+    backgroundColor: "#1976d2",
+    color: "white",
+    border: "1px solid #ccc",
+    whiteSpace: "nowrap",
+    textAlign: "center",
+    px: 1,
+  };
 
   const handleExport = () => {
     exportThongKeNamToExcel(dataList, selectedDate.getFullYear(), selectedClass, monthSet);
@@ -123,7 +121,6 @@ export default function ThongKeNam({ onBack }) {
               width: "max-content"
             }),
       }}>
-        {/* Tiêu đề và gạch xanh */}
         <Box sx={{ mb: 5 }}>
           <Typography variant="h5" fontWeight="bold" color="primary" align="center" sx={{ mb: 1 }}>
             TỔNG HỢP CẢ NĂM
@@ -131,7 +128,6 @@ export default function ThongKeNam({ onBack }) {
           <Box sx={{ height: "2.5px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
 
-        {/* Bộ chọn năm, lớp, ẩn/hiện tháng */}
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 4 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
@@ -169,13 +165,8 @@ export default function ThongKeNam({ onBack }) {
             {showMonths ? "ẨN THÁNG" : "HIỆN THÁNG"}
           </Button>
 
-          {/* Chỉ hiển thị nút Export ở đầu nếu là desktop */}
           {!isMobile && (
-            <Button
-              variant="contained"
-              color="success"
-              onClick={handleExport}
-            >
+            <Button variant="contained" color="success" onClick={handleExport}>
               📅 Xuất Excel
             </Button>
           )}
@@ -192,10 +183,17 @@ export default function ThongKeNam({ onBack }) {
             <Table size="small" sx={{ borderCollapse: "collapse" }}>
               <TableHead>
                 <TableRow sx={{ height: 48 }}>
-                  <TableCell align="center" sx={{ ...headCellStyle, position: "sticky", left: 0, zIndex: 2 }}>
+                  <TableCell align="center" sx={{
+                    ...headCellStyle,
+                    ...(isMobile && { position: "sticky", left: 0, zIndex: 3, backgroundColor: "#1976d2" })
+                  }}>
                     STT
                   </TableCell>
-                  <TableCell align="center" sx={{ ...headCellStyle, minWidth: 140, position: "sticky", left: 48, zIndex: 2 }}>
+                  <TableCell align="center" sx={{
+                    ...headCellStyle,
+                    minWidth: 140,
+                    ...(isMobile && { position: "sticky", left: 60, zIndex: 3, backgroundColor: "#1976d2" })
+                  }}>
                     HỌ VÀ TÊN
                   </TableCell>
 
@@ -215,29 +213,22 @@ export default function ThongKeNam({ onBack }) {
                     backgroundColor: student.huyDangKy?.toLowerCase() === "x" ? "#f0f0f0" : "inherit",
                     "& td": { border: "1px solid #ccc", py: 1 }
                   }}>
-                    <TableCell
-                      align="center"
-                      sx={{
-                        width: 48,
-                        px: 1,
-                        position: "sticky",
-                        left: 0,
-                        backgroundColor: "#fff",
-                        zIndex: 1,
-                      }}
-                    >
+                    <TableCell align="center" sx={{
+                      width: 48,
+                      px: 1,
+                      ...(isMobile && {
+                        position: "sticky", left: 0, backgroundColor: "#fff", zIndex: 2
+                      })
+                    }}>
                       {student.stt}
                     </TableCell>
-                    <TableCell
-                      sx={{
-                        minWidth: 180,
-                        px: 1,
-                        position: "sticky",
-                        left: 48,
-                        backgroundColor: "#fff",
-                        zIndex: 1,
-                      }}
-                    >
+                    <TableCell sx={{
+                      minWidth: 180,
+                      px: 1,
+                      ...(isMobile && {
+                        position: "sticky", left: 60, backgroundColor: "#fff", zIndex: 2
+                      })
+                    }}>
                       {student.hoVaTen}
                     </TableCell>
 
@@ -256,7 +247,6 @@ export default function ThongKeNam({ onBack }) {
           </TableContainer>
         </Box>
 
-        {/* Nút Export ở dưới cho mobile */}
         {isMobile && (
           <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
             <Button
@@ -265,17 +255,16 @@ export default function ThongKeNam({ onBack }) {
               onClick={handleExport}
               fullWidth
               sx={{
-                maxWidth: { xs: 150, sm: 280 },       // nhỏ hơn trên điện thoại
-                fontSize: { xs: '13px', sm: '15px' }, // chữ vừa phải
-                height: { xs: 38, sm: 44 },           // tăng chiều cao dễ bấm
-                fontWeight: 'bold',                  // làm đậm
-                px: { xs: 1, sm: 2 },                // padding ngang
+                maxWidth: { xs: 150, sm: 280 },
+                fontSize: { xs: '13px', sm: '15px' },
+                height: { xs: 38, sm: 44 },
+                fontWeight: 'bold',
+                px: { xs: 1, sm: 2 },
               }}
             >
               📥 Xuất Excel
             </Button>
           </Box>
-
         )}
 
         <Stack spacing={2} sx={{ mt: 4, alignItems: "center" }}>

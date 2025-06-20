@@ -68,8 +68,14 @@ export default function Admin({ onCancel }) {
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#e3f2fd' }}> {/* ✅ Nền xanh nhạt */}
       <Banner title="QUẢN TRỊ HỆ THỐNG" /> {/* ✅ Thêm banner */}
+      <Box
+        sx={{
+          width: { xs: '98%', sm: 500 },
+          mx: 'auto',
+          mt: 3,
+        }}
+      >
 
-      <Box maxWidth={500} mx="auto" mt={3}>
         <Card elevation={10} sx={{ p: 4, borderRadius: 4 }}>
           <Stack spacing={3}>
             <Divider>
