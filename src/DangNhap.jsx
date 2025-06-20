@@ -35,7 +35,12 @@ export default function DangNhap() {
 
   const handleLogin = () => {
     const expectedPassword = selectedAccount === 'user' ? savedUserPassword : savedAdminPassword;
+
     if (password === expectedPassword) {
+      // ✅ Lưu loại tài khoản vào localStorage để sử dụng ở các nơi khác
+      localStorage.setItem('loginRole', selectedAccount);
+
+      // ✅ Điều hướng đến trang tương ứng
       if (selectedAccount === 'user') {
         navigate('/quanly');
       } else {
@@ -46,7 +51,7 @@ export default function DangNhap() {
     }
   };
 
-  // Tiêu đề tùy theo lựa chọn tài khoản
+  // ✅ Tiêu đề tùy theo loại tài khoản
   const bannerTitle = selectedAccount === 'user' ? 'QUẢN LÝ BÁN TRÚ' : 'QUẢN TRỊ HỆ THỐNG';
 
   return (
@@ -59,7 +64,6 @@ export default function DangNhap() {
           mt: 3,
         }}
       >
-
         <Card elevation={10} sx={{ p: 4, borderRadius: 3, backgroundColor: '#ffffff' }}>
           <Stack spacing={3}>
             <Box textAlign="center">
@@ -70,7 +74,7 @@ export default function DangNhap() {
                 variant="h5"
                 fontWeight="bold"
                 color="primary"
-                sx={{ mb: 2 }} // 👉 thêm khoảng cách bên dưới tiêu đề
+                sx={{ mb: 2 }}
               >
                 {bannerTitle}
               </Typography>
@@ -80,7 +84,7 @@ export default function DangNhap() {
               <InputLabel id="account-label">Loại tài khoản</InputLabel>
               <Select
                 labelId="account-label"
-                label="Loại tài khoản" // 👈 rất quan trọng để "chừa chỗ" cho nhãn
+                label="Loại tài khoản"
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
               >

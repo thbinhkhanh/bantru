@@ -25,9 +25,7 @@ export default function DieuChinhSuatAn({ onBack }) {
 
   useEffect(() => {
     if (saveSuccess !== null) {
-      const timer = setTimeout(() => {
-        setSaveSuccess(null);
-      }, 5000);
+      const timer = setTimeout(() => setSaveSuccess(null), 5000);
       return () => clearTimeout(timer);
     }
   }, [saveSuccess]);
@@ -69,23 +67,20 @@ export default function DieuChinhSuatAn({ onBack }) {
       snapshot.docs.forEach((docSnap, index) => {
         const d = docSnap.data();
         const registeredData = d.data?.[selectedDateStr];
-        const maDinhDanh = d.maDinhDanh;
-
+        const ma = d.maDinhDanh;
         const student = {
           id: docSnap.id,
-          maDinhDanh,
+          maDinhDanh: ma,
           hoVaTen: d.hoVaTen,
           registered: registeredData === "T",
-          disabled: registeredData === undefined || registeredData === null,
+          disabled: registeredData == null,
           stt: index + 1,
         };
-
         students.push(student);
-        checkedMap[maDinhDanh] = student.registered;
+        checkedMap[ma] = student.registered;
       });
 
-      const sorted = MySort(students).map((s, idx) => ({ ...s, stt: idx + 1 }));
-      setDataList(sorted);
+      setDataList(MySort(students).map((s, i) => ({ ...s, stt: i + 1 })));
       setOriginalChecked(checkedMap);
     } catch (err) {
       console.error("❌ Lỗi khi tải học sinh:", err);
@@ -95,26 +90,26 @@ export default function DieuChinhSuatAn({ onBack }) {
   };
 
   useEffect(() => {
-    if (selectedClass) {
-      fetchStudents(selectedClass);
-    }
+    if (selectedClass) fetchStudents(selectedClass);
   }, [selectedDate]);
 
   const saveData = async () => {
     if (isSaving) return;
 
+    const loginRole = localStorage.getItem("loginRole");
     const now = new Date();
-    const selectedMonth = selectedDate.getMonth();
-    const currentMonth = now.getMonth();
-    const selectedYear = selectedDate.getFullYear();
-    const currentYear = now.getFullYear();
+    const sm = selectedDate.getMonth(), sy = selectedDate.getFullYear();
+    const cm = now.getMonth(), cy = now.getFullYear();
 
-    if (selectedYear < currentYear || (selectedYear === currentYear && selectedMonth < currentMonth)) {
+    if (
+      loginRole !== "admin" &&
+      (sy < cy || (sy === cy && sm < cm))
+    ) {
       setSaveSuccess("tooEarly");
       return;
     }
 
-    const changed = dataList.filter((s) => s.registered !== originalChecked[s.maDinhDanh]);
+    const changed = dataList.filter(s => s.registered !== originalChecked[s.maDinhDanh]);
     if (changed.length === 0) {
       setSaveSuccess(null);
       return;
@@ -122,23 +117,19 @@ export default function DieuChinhSuatAn({ onBack }) {
 
     setIsSaving(true);
     setSaveSuccess(null);
-
     try {
       const selectedDateStr = new Date(selectedDate.getTime() + 7 * 60 * 60 * 1000)
         .toISOString()
         .split("T")[0];
 
-      await Promise.all(
-        changed.map(async (s) => {
-          const docRef = doc(db, "BANTRU", s.id);
-          await updateDoc(docRef, {
-            [`data.${selectedDateStr}`]: s.registered ? "T" : "",
-          });
+      await Promise.all(changed.map(s =>
+        updateDoc(doc(db, "BANTRU", s.id), {
+          [`data.${selectedDateStr}`]: s.registered ? "T" : ""
         })
-      );
+      ));
 
       const updated = { ...originalChecked };
-      changed.forEach((s) => (updated[s.maDinhDanh] = s.registered));
+      changed.forEach(s => updated[s.maDinhDanh] = s.registered);
       setOriginalChecked(updated);
       setSaveSuccess(true);
     } catch (err) {
@@ -149,128 +140,73 @@ export default function DieuChinhSuatAn({ onBack }) {
     }
   };
 
-  const handleClassChange = async (event) => {
-    await saveData();
-    const selected = event.target.value;
-    setSelectedClass(selected);
-    await fetchStudents(selected);
-  };
-
-  const handleDateChange = (newValue) => {
-    if (newValue instanceof Date && !isNaN(newValue)) {
-      setSelectedDate(newValue);
-    }
-  };
-
-  const toggleRegister = (index) => {
-    setDataList((prev) => {
-      const updated = [...prev];
-      updated[index] = {
-        ...updated[index],
-        registered: !updated[index].registered,
-      };
-      return updated;
-    });
-  };
+  const handleClassChange = async e => { await saveData(); setSelectedClass(e.target.value); await fetchStudents(e.target.value); };
+  const handleDateChange = nv => { if (nv instanceof Date && !isNaN(nv)) setSelectedDate(nv); };
+  const toggleRegister = idx => setDataList(prev => prev.map((s, i) => i === idx ? { ...s, registered: !s.registered } : s));
 
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 0 }}>
-      <Card
-          sx={{
-            p: { xs: 2, sm: 3, md: 4 },
-            maxWidth: 450,
-            width: { xs: '98%', sm: '100%' },
-            borderRadius: 4,
-            boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
-            backgroundColor: 'white',
-          }}
-          elevation={10}
-        >
-          <CardContent sx={{ p: 0 }}>
-            {/* ✅ Bọc tiêu đề và gạch xanh để tạo khoảng cách giống ThongKeThang */}
-            <Box sx={{ mb: 5 }}>
-              <Typography
-                variant="h5"
-                align="center"
-                fontWeight="bold"
-                color="primary"
-                gutterBottom
-              >
-                ĐIỀU CHỈNH SUẤT ĂN
-              </Typography>
-              <Box
-                sx={{
-                  height: "2.5px",
-                  width: "100%",
-                  backgroundColor: "#1976d2",
-                  borderRadius: 1,
-                  mt: 2,
-                  mb: 4,
-                }}
-              />
-            </Box>
+      <Card sx={{
+        p: { xs: 2, sm: 3, md: 4 },
+        maxWidth: 450,
+        width: { xs: '98%', sm: '100%' },
+        borderRadius: 4,
+        boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+        backgroundColor: 'white',
+      }} elevation={10}>
+        <CardContent sx={{ p: 0 }}>
+          <Box sx={{ mb: 5 }}>
+            <Typography variant="h5" align="center" fontWeight="bold" color="primary" gutterBottom>
+              ĐIỀU CHỈNH SUẤT ĂN
+            </Typography>
+            <Box sx={{
+              height: "2.5px",
+              width: "100%",
+              backgroundColor: "#1976d2",
+              borderRadius: 1,
+              mt: 2, mb: 4,
+            }} />
+          </Box>
 
-          <Stack direction="row" spacing={2} justifyContent="center" alignItems="center" sx={{ mb: 3 }}>
+          <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }}>
             <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
-              <DatePicker
-                label="Chọn ngày"
-                value={selectedDate}
-                onChange={handleDateChange}
-                slotProps={{
-                  textField: {
-                    size: "small",
-                    sx: {
-                      minWidth: 150,
-                      maxWidth: 180,
-                      "& input": { textAlign: "center" },
-                    },
-                  },
-                }}
-              />
+              <DatePicker label="Chọn ngày" value={selectedDate} onChange={handleDateChange} slotProps={{
+                textField: { size: "small", sx: { minWidth: 150, maxWidth: 180, "& input": { textAlign: "center" } } }
+              }} />
             </LocalizationProvider>
 
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>Lớp</InputLabel>
               <Select value={selectedClass || ""} label="Lớp" onChange={handleClassChange}>
-                {classList.map((cls, idx) => (
-                  <MenuItem key={idx} value={cls}>
-                    {cls}
-                  </MenuItem>
+                {classList.map((cls, i) => (
+                  <MenuItem key={i} value={cls}>{cls}</MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Stack>
 
           {isLoading && <LinearProgress />}
-
-          <TableContainer
-            component={Paper}
-            elevation={2}
-            sx={{
-              borderRadius: 2,
-              border: "1px solid #e0e0e0",
-              mt: 2
-            }}
-          >
-
+          <TableContainer component={Paper} elevation={2} sx={{ borderRadius: 2, border: "1px solid #e0e0e0", mt: 2 }}>
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>STT</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>ĐĂNG KÝ</TableCell>
+                  {["STT", "HỌ VÀ TÊN", "ĐĂNG KÝ"].map((h, i) => (
+                    <TableCell key={i} align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>
+                      {h}
+                    </TableCell>
+                  ))}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {dataList.map((student, index) => (
-                  <TableRow key={student.maDinhDanh} hover>
-                    <TableCell align="center">{student.stt}</TableCell>
-                    <TableCell>{student.hoVaTen}</TableCell>
+                {dataList.map((s, i) => (
+                  <TableRow key={s.maDinhDanh} hover>
+                    <TableCell align="center">{s.stt}</TableCell>
+                    <TableCell>{s.hoVaTen}</TableCell>
                     <TableCell align="center">
                       <Checkbox
-                        checked={student.registered}
-                        onChange={() => toggleRegister(index)}
-                        disabled={student.disabled}
+                        checked={s.registered}
+                        onChange={() => toggleRegister(i)}
+                        disabled={s.disabled}
                         size="small"
                         color="primary"
                       />
@@ -282,40 +218,16 @@ export default function DieuChinhSuatAn({ onBack }) {
           </TableContainer>
 
           <Stack spacing={2} sx={{ mt: 3, alignItems: "center" }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={saveData}
-              disabled={isSaving}
-              sx={{ width: 160, fontWeight: 600 }}
-            >
+            <Button variant="contained" color="primary" onClick={saveData} disabled={isSaving} sx={{ width: 160, fontWeight: 600 }}>
               {isSaving ? "🔄 Cập nhật..." : "Cập nhật"}
             </Button>
 
-            {saveSuccess === "tooEarly" && (
-              <Alert severity="warning" sx={{ textAlign: 'left' }}>
-                ⚠️ Không thể điều chỉnh suất ăn tháng trước.
-              </Alert>
-            )}
-            {saveSuccess === true && (
-              <Alert severity="success" sx={{ textAlign: 'left' }}>
-                ✅ Cập nhật thành công!
-              </Alert>
-            )}
-            {saveSuccess === false && (
-              <Alert severity="error" sx={{ textAlign: 'left' }}>
-                ❌ Lỗi khi lưu dữ liệu!
-              </Alert>
-            )}
-            {isSaving && (
-              <Alert severity="info" sx={{ textAlign: 'left' }}>
-                🔄 Đang lưu dữ liệu...
-              </Alert>
-            )}
+            {saveSuccess === "tooEarly" && <Alert severity="warning" sx={{ textAlign: 'left' }}>⚠️ Không thể điều chỉnh suất ăn tháng trước.</Alert>}
+            {saveSuccess === true && <Alert severity="success" sx={{ textAlign: 'left' }}>✅ Cập nhật thành công!</Alert>}
+            {saveSuccess === false && <Alert severity="error" sx={{ textAlign: 'left' }}>❌ Lỗi khi lưu dữ liệu!</Alert>}
+            {isSaving && <Alert severity="info" sx={{ textAlign: 'left' }}>🔄 Đang lưu dữ liệu...</Alert>}
 
-            <Button onClick={onBack} color="secondary">
-              ⬅️ Quay lại
-            </Button>
+            <Button onClick={onBack} color="secondary">⬅️ Quay lại</Button>
           </Stack>
         </CardContent>
       </Card>

@@ -66,8 +66,8 @@ export default function About() {
               📈 Thống kê
             </Typography>
             <Typography variant="body1" paragraph>🗓️ <strong>Thống kê theo ngày</strong>: Tổng hợp theo từng lớp một ngày bất kỳ.</Typography>
-            <Typography variant="body1" paragraph>📅 <strong>Chi tiết từng tháng</strong>: Thống kê từng ngày trong tháng.</Typography>
-            <Typography variant="body1" paragraph>📚 <strong>Tổng hợp cả năm</strong>: Thống kê toàn bộ số lần ăn trong năm học.</Typography>
+            <Typography variant="body1" paragraph>📅 <strong>Chi tiết từng tháng</strong>: Thống kê số ngày trong tháng.</Typography>
+            <Typography variant="body1" paragraph>📚 <strong>Tổng hợp cả năm</strong>: Thống kê toàn bộ số ngày ăn trong năm học.</Typography>
 
             <Divider sx={{ my: 3 }} />
 

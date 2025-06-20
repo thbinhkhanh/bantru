@@ -81,10 +81,13 @@ export default function XoaDLNgay({ onBack }) {
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
-    // Kiểm tra nếu chọn tháng/năm quá khứ thì không cho xóa
+    const loginRole = localStorage.getItem("loginRole"); // ✅ lấy role
+
+    // Nếu không phải admin thì chặn xóa dữ liệu quá khứ
     if (
-      selectedYear < currentYear ||
-      (selectedYear === currentYear && selectedMonth < currentMonth)
+      loginRole !== "admin" &&
+      (selectedYear < currentYear ||
+        (selectedYear === currentYear && selectedMonth < currentMonth))
     ) {
       setResultMessage("⚠️ Không thể xóa dữ liệu của tháng trước.");
       setShowSuccess(true);
@@ -100,6 +103,7 @@ export default function XoaDLNgay({ onBack }) {
     setConfirmMessage(message);
     setOpenConfirm(true);
   };
+
 
 
   const handleConfirm = async () => {

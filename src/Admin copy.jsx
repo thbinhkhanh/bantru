@@ -16,18 +16,16 @@ import {
   restoreFromExcelFile
 } from "./utils/backup";
 
-import Banner from "./pages/Banner";
-import { useNavigate } from "react-router-dom"; // ✅ Thêm useNavigate
+import Banner from "./pages/Banner"; // ✅ Thêm banner
 
 export default function Admin({ onCancel }) {
   const [firestoreEnabled, setFirestoreEnabled] = useState(false);
   const [savedAdminPassword, setSavedAdminPassword] = useState("123");
   const [savedUserPassword, setSavedUserPassword] = useState("@bc");
+
   const [selectedAccount, setSelectedAccount] = useState("admin");
   const [newPassword, setNewPassword] = useState("");
   const [backupFormat, setBackupFormat] = useState("json");
-
-  const navigate = useNavigate(); // ✅ Hook điều hướng
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -68,9 +66,16 @@ export default function Admin({ onCancel }) {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#e3f2fd' }}>
-      <Banner title="QUẢN TRỊ HỆ THỐNG" />
-      <Box sx={{ width: { xs: '90%', sm: 400 }, mx: 'auto', mt: 3 }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#e3f2fd' }}> {/* ✅ Nền xanh nhạt */}
+      <Banner title="QUẢN TRỊ HỆ THỐNG" /> {/* ✅ Thêm banner */}
+      <Box
+        sx={{
+          width: { xs: '90%', sm: 400 },
+          mx: 'auto',
+          mt: 3,
+        }}
+      >
+
         <Card elevation={10} sx={{ p: 4, borderRadius: 4 }}>
           <Stack spacing={3}>
             <Divider>
@@ -86,15 +91,6 @@ export default function Admin({ onCancel }) {
               }
               label="Bật chế độ dùng Firestore"
             />
-
-            {/* ✅ Nút điều hướng đến QuanLy.jsx */}
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => navigate("/quanly")}
-            >
-              🏫 HỆ THỐNG QUẢN LÝ BÁN TRÚ
-            </Button>
 
             <FormControl fullWidth>
               <InputLabel id="account-select-label">Loại tài khoản</InputLabel>
