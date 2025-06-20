@@ -54,7 +54,7 @@ export default function DangNhap() {
       <Banner title="ĐĂNG NHẬP QUẢN LÝ" />
       <Box
         sx={{
-          width: { xs: '95%', sm: 400 },
+          width: { xs: '90%', sm: 400 },
           mx: 'auto',
           mt: 3,
         }}

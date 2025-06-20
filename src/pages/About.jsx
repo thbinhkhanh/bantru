@@ -26,7 +26,7 @@ export default function About() {
         sx={{
           mt: 3,
           mb: 4,
-          width: { xs: '95%', sm: '90%', md: '850px' },
+          width: { xs: '98%', sm: '90%', md: '850px' },
           mx: 'auto' // căn giữa
         }}
       >
