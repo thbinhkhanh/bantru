@@ -122,6 +122,14 @@ export default function Lop3() {
   };
 
   const toggleRegister = (index) => {
+    const now = new Date();
+    const hour = now.getHours();
+
+    if (hour < 5 || hour >= 15) {
+      alert("⚠️ Thời gian điểm danh từ 07:00 đến trước 15:00 mỗi ngày.");
+      return;
+    }
+
     const updated = [...filteredStudents];
     updated[index].registered = !updated[index].registered;
     setFilteredStudents(updated);

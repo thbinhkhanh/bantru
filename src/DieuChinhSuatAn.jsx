@@ -294,7 +294,7 @@ export default function DieuChinhSuatAn({ onBack }) {
 
             {saveSuccess === "tooEarly" && (
               <Alert severity="warning" sx={{ textAlign: 'left' }}>
-                ⚠️ Không thể điều chỉnh suất ăn trước tháng hiện tại.
+                ⚠️ Không thể điều chỉnh suất ăn tháng trước.
               </Alert>
             )}
             {saveSuccess === true && (

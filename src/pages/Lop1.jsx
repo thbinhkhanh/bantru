@@ -122,6 +122,14 @@ export default function Lop1() {
   };
 
   const toggleRegister = (index) => {
+    const now = new Date();
+    const hour = now.getHours();
+
+    if (hour < 5 || hour >= 15) {
+      alert("⚠️ Thời gian điểm danh từ 07:00 đến trước 15:00 mỗi ngày.");
+      return;
+    }
+
     const updated = [...filteredStudents];
     updated[index].registered = !updated[index].registered;
     setFilteredStudents(updated);
@@ -129,6 +137,7 @@ export default function Lop1() {
     clearTimeout(saveTimeout.current);
     saveTimeout.current = setTimeout(saveData, 5000);
   };
+
 
   useEffect(() => {
     intervalRef.current = setInterval(saveData, 120000);

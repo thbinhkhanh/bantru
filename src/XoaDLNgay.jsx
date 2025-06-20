@@ -75,6 +75,22 @@ export default function XoaDLNgay({ onBack }) {
     });
 
   const handleSubmit = () => {
+    const now = new Date();
+    const selectedMonth = selectedDate.getMonth();
+    const selectedYear = selectedDate.getFullYear();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    // Kiểm tra nếu chọn tháng/năm quá khứ thì không cho xóa
+    if (
+      selectedYear < currentYear ||
+      (selectedYear === currentYear && selectedMonth < currentMonth)
+    ) {
+      setResultMessage("⚠️ Không thể xóa dữ liệu của tháng trước.");
+      setShowSuccess(true);
+      return;
+    }
+
     const dateStr = formatDate(selectedDate);
     const message =
       option === "toantruong"
@@ -84,6 +100,7 @@ export default function XoaDLNgay({ onBack }) {
     setConfirmMessage(message);
     setOpenConfirm(true);
   };
+
 
   const handleConfirm = async () => {
     setOpenConfirm(false);
