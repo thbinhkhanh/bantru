@@ -1,23 +1,19 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box, Typography, TextField, Button, Alert, Stack,
-  Switch, FormControlLabel, Card, Divider,
-  Select, MenuItem, FormControl, InputLabel,
-  RadioGroup, Radio
+  Box, Typography, TextField, Button, Stack,
+  Card, Divider, Select, MenuItem, FormControl, InputLabel,
+  RadioGroup, Radio, FormControlLabel, LinearProgress, Alert
 } from "@mui/material";
-import {
-  doc, setDoc, getDoc
-} from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import {
   downloadBackupAsJSON,
-  restoreFromJSONFile,
   downloadBackupAsExcel,
+  restoreFromJSONFile,
   restoreFromExcelFile
 } from "./utils/backup";
-
 import Banner from "./pages/Banner";
-import { useNavigate } from "react-router-dom"; // ✅ Thêm useNavigate
+import { useNavigate } from "react-router-dom";
 
 export default function Admin({ onCancel }) {
   const [firestoreEnabled, setFirestoreEnabled] = useState(false);
@@ -26,8 +22,11 @@ export default function Admin({ onCancel }) {
   const [selectedAccount, setSelectedAccount] = useState("admin");
   const [newPassword, setNewPassword] = useState("");
   const [backupFormat, setBackupFormat] = useState("json");
+  const [restoreProgress, setRestoreProgress] = useState(0);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState("success");
 
-  const navigate = useNavigate(); // ✅ Hook điều hướng
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -36,9 +35,16 @@ export default function Admin({ onCancel }) {
         const userSnap = await getDoc(doc(db, "SETTINGS", "USER"));
         const toggleSnap = await getDoc(doc(db, "SETTINGS", "TOGGLE"));
 
-        if (adminSnap.exists()) setSavedAdminPassword(adminSnap.data().password || "123");
-        if (userSnap.exists()) setSavedUserPassword(userSnap.data().password || "@bc");
-        if (toggleSnap.exists()) setFirestoreEnabled(toggleSnap.data().useNewVersion);
+        if (adminSnap.exists()) {
+          setSavedAdminPassword(adminSnap.data().password || "123");
+        }
+        if (userSnap.exists()) {
+          setSavedUserPassword(userSnap.data().password || "@bc");
+        }
+        if (toggleSnap.exists()) {
+          const isUseNew = toggleSnap.data().useNewVersion;
+          setFirestoreEnabled(isUseNew);
+        }
       } catch (error) {
         console.error("❌ Lỗi khi tải cấu hình:", error);
       }
@@ -46,8 +52,17 @@ export default function Admin({ onCancel }) {
     fetchSettings();
   }, []);
 
+  useEffect(() => {
+    if (restoreProgress === 100) {
+      const timer = setTimeout(() => {
+        setRestoreProgress(0);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [restoreProgress]);
+
   const handleToggleChange = async (e) => {
-    const newValue = e.target.checked;
+    const newValue = e.target.value === "khoi";
     setFirestoreEnabled(newValue);
     try {
       await setDoc(doc(db, "SETTINGS", "TOGGLE"), { useNewVersion: newValue });
@@ -77,17 +92,20 @@ export default function Admin({ onCancel }) {
               <Typography fontWeight="bold">⚙️ Cài đặt hệ thống</Typography>
             </Divider>
 
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={firestoreEnabled}
-                  onChange={handleToggleChange}
-                />
-              }
-              label="Bật chế độ dùng Firestore"
-            />
+            <FormControl component="fieldset">
+              <Typography variant="subtitle1" fontWeight="bold">
+                📊 Tải dữ liệu từ Firestore
+              </Typography>
+              <RadioGroup
+                row
+                value={firestoreEnabled ? "khoi" : "lop"}
+                onChange={handleToggleChange}
+              >
+                <FormControlLabel value="lop" control={<Radio />} label="Tải theo lớp" />
+                <FormControlLabel value="khoi" control={<Radio />} label="Tải theo khối" />
+              </RadioGroup>
+            </FormControl>
 
-            {/* ✅ Nút điều hướng đến QuanLy.jsx */}
             <Button
               variant="contained"
               color="primary"
@@ -163,14 +181,43 @@ export default function Admin({ onCancel }) {
                 hidden
                 onChange={(e) => {
                   const file = e.target.files[0];
-                  if (file) {
-                    backupFormat === "json"
-                      ? restoreFromJSONFile(file)
-                      : restoreFromExcelFile(file);
+                  if (!file) return;
+
+                  const confirmed = window.confirm("⚠️ Bạn có chắc chắn muốn phục hồi dữ liệu? Hành động này sẽ ghi đè dữ liệu hiện tại.");
+                  if (!confirmed) return;
+
+                  if (backupFormat === "json") {
+                    restoreFromJSONFile(file, setRestoreProgress, setAlertMessage, setAlertSeverity);
+                  } else {
+                    restoreFromExcelFile(file, setRestoreProgress, setAlertMessage, setAlertSeverity);
                   }
                 }}
               />
             </Button>
+
+            {restoreProgress > 0 && restoreProgress < 100 && (
+              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 2 }}>
+                <Box sx={{ width: "100%" }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={restoreProgress}
+                    sx={{ height: 10, borderRadius: 5 }}
+                  />
+                  <Typography variant="caption" align="center" display="block" mt={0.5}>
+                    Đang phục hồi dữ liệu Firestore...{restoreProgress}% 
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+
+            {alertMessage && (
+              <Box sx={{ width: "100%", mt: 2 }}>
+                <Alert severity={alertSeverity} onClose={() => setAlertMessage("")}>
+                  {alertMessage}
+                </Alert>
+              </Box>
+            )}
+
           </Stack>
         </Card>
       </Box>

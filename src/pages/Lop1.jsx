@@ -7,7 +7,7 @@ import {
 import { getDocs, getDoc, collection, doc, updateDoc, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useLocation } from 'react-router-dom';
-import { MySort } from '../utils/MySort'; // 🆕 Thêm dòng này ở đầu file Lop1.
+import { MySort } from '../utils/MySort';
 
 export default function Lop1() {
   const location = useLocation();
@@ -20,12 +20,15 @@ export default function Lop1() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
+  const [loadTime, setLoadTime] = useState(null); // 🆕 Thời gian tải
 
   const saveTimeout = useRef(null);
   const intervalRef = useRef(null);
 
   const fetchStudents = async (className) => {
     setIsLoading(true);
+    const start = performance.now(); // 🕒 Bắt đầu đo thời gian
+
     try {
       let snapshot;
 
@@ -49,11 +52,10 @@ export default function Lop1() {
         })
         .filter(student =>
           (useNewVersion || student.lop === className) &&
-          student.huyDangKy !== 'x' // ✅ Lọc theo yêu cầu
+          student.huyDangKy !== 'x'
         );
 
-      //setFilteredStudents(data);
-      setFilteredStudents(MySort(data)); // 🆕 Sắp xếp danh sách theo Tên → Đệm →
+      setFilteredStudents(MySort(data)); // 🆕 Sort theo tên
 
       const checkedMap = {};
       data.forEach(s => (checkedMap[s.id] = s.registered));
@@ -61,6 +63,9 @@ export default function Lop1() {
     } catch (err) {
       console.error('❌ Lỗi khi tải học sinh:', err);
     } finally {
+      const end = performance.now();
+      const duration = (end - start).toFixed(0);
+      setLoadTime(duration);
       setIsLoading(false);
     }
   };
@@ -138,7 +143,6 @@ export default function Lop1() {
     saveTimeout.current = setTimeout(saveData, 5000);
   };
 
-
   useEffect(() => {
     intervalRef.current = setInterval(saveData, 120000);
     return () => clearInterval(intervalRef.current);
@@ -188,10 +192,9 @@ export default function Lop1() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>STT</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>ĐĂNG KÝ</TableCell>
-
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>STT</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>HỌ VÀ TÊN</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>ĐĂNG KÝ</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -222,6 +225,11 @@ export default function Lop1() {
         {lastSaved && !isSaving && (
           <Alert severity="success" sx={{ mt: 3 }}>
             Đã lưu lúc {lastSaved.toLocaleTimeString('vi-VN')}
+          </Alert>
+        )}
+        {loadTime && (
+          <Alert severity="info" sx={{ mt: 2 }}>
+            ⏱ Tải dữ liệu hoàn tất sau {loadTime} ms ({(loadTime / 1000).toFixed(2)} giây)
           </Alert>
         )}
       </Card>

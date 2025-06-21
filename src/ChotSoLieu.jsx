@@ -148,8 +148,21 @@ export default function ChotSoLieu({ onBack }) {
     setErrorMessage("");
     setSummaryData([]);
 
+    const loginRole = localStorage.getItem("loginRole"); // ✅ dùng localStorage
+
     const selected = new Date(selectedDate);
     selected.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // ✅ Chặn người không phải admin cập nhật ngày quá khứ
+    if (loginRole !== "admin" && selected < today) {
+      setIsLoading(false);
+      setErrorMessage("⚠️ Bạn chỉ có thể cập nhật cho ngày hôm nay hoặc trong tương lai!");
+      return;
+    }
+
     const adjustedDate = new Date(selected.getTime() + 7 * 60 * 60 * 1000);
     const formattedDate = adjustedDate.toISOString().split("T")[0];
 
@@ -207,7 +220,6 @@ export default function ChotSoLieu({ onBack }) {
         mt: 0,
       }}
     >
-
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
         <Typography variant="h5" fontWeight="bold" color="primary" align="center">
           CHỐT SỐ LIỆU
@@ -259,7 +271,6 @@ export default function ChotSoLieu({ onBack }) {
           </Button>
         </Stack>
 
-
         {isLoading && (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 4 }}>
             <LinearProgress sx={{ width: '50%', mb: 2 }} />
@@ -295,7 +306,9 @@ export default function ChotSoLieu({ onBack }) {
             </Table>
           </TableContainer>
         )}
+
         {showSuccess && <Alert severity="success" sx={{ mt: 3 }}>✅ Dữ liệu đã được cập nhật!</Alert>}
+        {errorMessage && <Alert severity="error" sx={{ mt: 3 }}>{errorMessage}</Alert>}
 
         <Stack sx={{ mt: 3 }}>
           <Button onClick={onBack} color="secondary" fullWidth>
@@ -306,3 +319,4 @@ export default function ChotSoLieu({ onBack }) {
     </Box>
   );
 }
+

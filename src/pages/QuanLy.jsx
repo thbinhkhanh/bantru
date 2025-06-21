@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Grid, Card, Button, Stack
 } from '@mui/material';
@@ -17,9 +18,15 @@ import Banner from './Banner';
 
 export default function QuanLy() {
   const [selectedFunction, setSelectedFunction] = useState('');
+  const loginRole = localStorage.getItem("loginRole");
+  const navigate = useNavigate();
 
   const handleFunctionSelect = (code) => {
-    setSelectedFunction(code);
+    if (code === 'ADMIN') {
+      navigate('/admin'); // ✅ chuyển hướng khi bấm "QUẢN TRỊ HỆ THỐNG"
+    } else {
+      setSelectedFunction(code);
+    }
   };
 
   const renderSelectedFunction = () => {
@@ -65,6 +72,9 @@ export default function QuanLy() {
         { label: 'CẬP NHẬT DANH SÁCH', code: 'CAPNHAT', color: '#5c6bc0' },
         { label: 'LẬP DANH SÁCH BÁN TRÚ', code: 'LAPDS', color: '#ec407a' },
         { label: 'TẢI DANH SÁCH LÊN', code: 'TAIDS', color: '#789262' },
+        ...(loginRole === 'admin' ? [
+          { label: 'QUẢN TRỊ HỆ THỐNG', code: 'ADMIN', color: '#42a5f5' }
+        ] : [])
       ],
     },
   ];
@@ -94,13 +104,12 @@ export default function QuanLy() {
                 sx={{
                   p: 3,
                   borderRadius: 4,
-                  width: { xs: '85%', sm: '90%', md: '85%' }, // 👈 chỉnh chiều rộng linh hoạt
-                  maxWidth: 1055,                             // 👈 giữ giới hạn tối đa trên desktop
+                  width: { xs: '85%', sm: '90%', md: '85%' },
+                  maxWidth: 1055,
                   mx: 'auto',
                   mt: index === 0 ? 6 : 0,
                 }}
               >
-
                 <Grid container spacing={3} direction={{ xs: 'column', sm: 'row' }} alignItems="center">
                   <Grid item xs={12} sm={2} md={1} textAlign="center">
                     <Box
