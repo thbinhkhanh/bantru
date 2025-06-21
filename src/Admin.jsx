@@ -167,21 +167,9 @@ export default function Admin({ onCancel }) {
               <Typography fontWeight="bold">⚙️ Cài đặt hệ thống</Typography>
             </Divider>
 
-            <FormControl component="fieldset">
-              <Typography variant="subtitle1" fontWeight="bold">
-                📊 Tải dữ liệu từ Firestore
-              </Typography>
-              <RadioGroup
-                row
-                value={firestoreEnabled ? "khoi" : "lop"}
-                onChange={handleToggleChange}
-              >
-                <FormControlLabel value="lop" control={<Radio />} label="Tải theo lớp" />
-                <FormControlLabel value="khoi" control={<Radio />} label="Tải theo khối" />
-              </RadioGroup>
-            </FormControl>
-
-            <Button variant="contained" color="primary" onClick={() => navigate("/quanly")}>🏫 HỆ THỐNG QUẢN LÝ BÁN TRÚ</Button>
+            <Button variant="contained" color="primary" onClick={() => navigate("/quanly")}>
+              🏫 HỆ THỐNG QUẢN LÝ BÁN TRÚ
+            </Button>
 
             <FormControl fullWidth>
               <InputLabel id="account-select-label">Loại tài khoản</InputLabel>
@@ -203,7 +191,24 @@ export default function Admin({ onCancel }) {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
-            <Button variant="contained" color="warning" onClick={() => handleChangePassword(selectedAccount)}>Đổi mật khẩu</Button>
+            <Button variant="contained" color="warning" onClick={() => handleChangePassword(selectedAccount)}>
+              Đổi mật khẩu
+            </Button>
+
+            <FormControl component="fieldset">
+              <Typography variant="subtitle1" fontWeight="bold">
+                📊 Tải dữ liệu từ Firestore
+              </Typography>
+              <RadioGroup
+                row
+                value={firestoreEnabled ? "khoi" : "lop"}
+                onChange={handleToggleChange}
+              >
+                <FormControlLabel value="lop" control={<Radio />} label="Tải theo lớp" />
+                <FormControlLabel value="khoi" control={<Radio />} label="Tải theo khối" />
+              </RadioGroup>
+            </FormControl>
+
 
             <Divider sx={{ my: 2 }}>
               <Typography fontWeight="bold" color="text.secondary">💾 Sao lưu & Phục hồi</Typography>
