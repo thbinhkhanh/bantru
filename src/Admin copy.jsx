@@ -4,19 +4,14 @@ import {
   Card, Divider, Select, MenuItem, FormControl, InputLabel,
   RadioGroup, Radio, FormControlLabel, LinearProgress, Alert
 } from "@mui/material";
-import { doc, setDoc, getDoc, getDocs, collection, updateDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "./firebase";
-
 import {
   downloadBackupAsJSON,
-  downloadBackupAsExcel
-} from "./utils/backupUtils";
-
-import {
+  downloadBackupAsExcel,
   restoreFromJSONFile,
   restoreFromExcelFile
-} from "./utils/restoreUtils";
-
+} from "./utils/backup";
 import { deleteAllDateFields } from "./utils/deleteUtils";
 import Banner from "./pages/Banner";
 import { useNavigate } from "react-router-dom";
@@ -32,14 +27,12 @@ export default function Admin({ onCancel }) {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState("success");
 
+  // 📌 Các useState cho xóa dữ liệu
   const [deleteInProgress, setDeleteInProgress] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState("");
   const [deleteSeverity, setDeleteSeverity] = useState("info");
   const [deleteProgress, setDeleteProgress] = useState(0);
 
-  const [setDefaultProgress, setSetDefaultProgress] = useState(0);
-  const [setDefaultMessage, setSetDefaultMessage] = useState("");
-  const [setDefaultSeverity, setSetDefaultSeverity] = useState("success");
 
   const navigate = useNavigate();
 
@@ -114,45 +107,6 @@ export default function Admin({ onCancel }) {
       setDeleteSeverity("error");
     } finally {
       setDeleteInProgress(false);
-    }
-  };
-
-  const handleSetDefault = async () => {
-    const confirmed = window.confirm("⚠️ Bạn có chắc muốn reset điểm danh'?");
-    if (!confirmed) return;
-
-    try {
-      setSetDefaultProgress(0);
-      setSetDefaultMessage("");
-      setSetDefaultSeverity("info");
-
-      const snapshot = await getDocs(collection(db, "BANTRU"));
-      const docs = snapshot.docs;
-      const total = docs.length;
-
-      let completed = 0;
-
-      for (const docSnap of docs) {
-        const data = docSnap.data();
-        if (data.huyDangKy !== "x") {
-          await setDoc(doc(db, "BANTRU", docSnap.id), {
-            ...data,
-            huyDangKy: "T",
-          });
-        }
-
-        completed++;
-        setSetDefaultProgress(Math.round((completed / total) * 100));
-      }
-
-      setSetDefaultMessage("✅ Đã reset điểm danh!");
-      setSetDefaultSeverity("success");
-    } catch (error) {
-      console.error(error);
-      setSetDefaultMessage("❌ Lỗi khi cập nhật huyDangKy.");
-      setSetDefaultSeverity("error");
-    } finally {
-      setTimeout(() => setSetDefaultProgress(0), 3000);
     }
   };
 
@@ -269,36 +223,23 @@ export default function Admin({ onCancel }) {
               🗑️ Xóa Database Firestore
             </Button>
 
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSetDefault}
-            >
-              ♻️ Reset điểm danh
-            </Button>
-
-            {(restoreProgress > 0 && restoreProgress < 100) ||
-              (deleteProgress > 0 && deleteProgress < 100) ||
-              (setDefaultProgress > 0 && setDefaultProgress < 100) ? (
-              <Box sx={{ mt: 2 }}>
-                <LinearProgress
-                  variant="determinate"
-                  value={
-                    restoreProgress > 0 ? restoreProgress
-                      : deleteProgress > 0 ? deleteProgress
-                        : setDefaultProgress
-                  }
-                  sx={{ height: 10, borderRadius: 5 }}
-                />
-                <Typography variant="caption" align="center" display="block" mt={0.5}>
-                  {restoreProgress > 0
-                    ? `Đang phục hồi dữ liệu Firestore... ${restoreProgress}%`
-                    : deleteProgress > 0
-                      ? `Đang xóa dữ liệu Firestore... ${deleteProgress}%`
-                      : `Đang reset điểm danh... ${setDefaultProgress}%`}
-                </Typography>
+            {(restoreProgress > 0 && restoreProgress < 100) || (deleteProgress > 0 && deleteProgress < 100) ? (
+              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 2 }}>
+                <Box sx={{ width: "100%" }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={restoreProgress > 0 ? restoreProgress : deleteProgress}
+                    sx={{ height: 10, borderRadius: 5 }}
+                  />
+                  <Typography variant="caption" align="center" display="block" mt={0.5}>
+                    {restoreProgress > 0
+                      ? `Đang phục hồi dữ liệu Firestore... ${restoreProgress}%`
+                      : `Đang xóa dữ liệu Firestore... ${deleteProgress}%`}
+                  </Typography>
+                </Box>
               </Box>
             ) : null}
+
 
             {alertMessage && (
               <Box sx={{ width: "100%", mt: 2 }}>
@@ -309,14 +250,6 @@ export default function Admin({ onCancel }) {
             {deleteMessage && (
               <Box sx={{ width: "100%", mt: 2 }}>
                 <Alert severity={deleteSeverity} onClose={() => setDeleteMessage("")}>{deleteMessage}</Alert>
-              </Box>
-            )}
-
-            {setDefaultMessage && (
-              <Box sx={{ width: "100%", mt: 2 }}>
-                <Alert severity={setDefaultSeverity} onClose={() => setSetDefaultMessage("")}>
-                  {setDefaultMessage}
-                </Alert>
               </Box>
             )}
 
