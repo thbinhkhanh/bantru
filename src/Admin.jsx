@@ -12,6 +12,7 @@ import {
   restoreFromJSONFile,
   restoreFromExcelFile
 } from "./utils/backup";
+import { deleteAllDateFields } from "./utils/deleteUtils";
 import Banner from "./pages/Banner";
 import { useNavigate } from "react-router-dom";
 
@@ -25,6 +26,13 @@ export default function Admin({ onCancel }) {
   const [restoreProgress, setRestoreProgress] = useState(0);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState("success");
+
+  // 📌 Các useState cho xóa dữ liệu
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState("");
+  const [deleteSeverity, setDeleteSeverity] = useState("info");
+  const [deleteProgress, setDeleteProgress] = useState(0);
+
 
   const navigate = useNavigate();
 
@@ -54,9 +62,7 @@ export default function Admin({ onCancel }) {
 
   useEffect(() => {
     if (restoreProgress === 100) {
-      const timer = setTimeout(() => {
-        setRestoreProgress(0);
-      }, 3000);
+      const timer = setTimeout(() => setRestoreProgress(0), 3000);
       return () => clearTimeout(timer);
     }
   }, [restoreProgress]);
@@ -82,6 +88,29 @@ export default function Admin({ onCancel }) {
     }
   };
 
+  const handleDeleteAll = async () => {
+    const confirmed = window.confirm("⚠️ Bạn có chắc chắn muốn xóa tất cả dữ liệu? Hành động này không thể hoàn tác.");
+    if (!confirmed) return;
+
+    setDeleteInProgress(true);
+    setDeleteMessage("");
+    setDeleteProgress(0);
+
+    try {
+      await deleteAllDateFields({
+        setDeleteProgress,
+        setDeleteMessage,
+        setDeleteSeverity,
+      });
+    } catch (error) {
+      setDeleteMessage("❌ Lỗi khi xóa dữ liệu.");
+      setDeleteSeverity("error");
+    } finally {
+      setDeleteInProgress(false);
+    }
+  };
+
+
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#e3f2fd' }}>
       <Banner title="QUẢN TRỊ HỆ THỐNG" />
@@ -106,13 +135,7 @@ export default function Admin({ onCancel }) {
               </RadioGroup>
             </FormControl>
 
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => navigate("/quanly")}
-            >
-              🏫 HỆ THỐNG QUẢN LÝ BÁN TRÚ
-            </Button>
+            <Button variant="contained" color="primary" onClick={() => navigate("/quanly")}>🏫 HỆ THỐNG QUẢN LÝ BÁN TRÚ</Button>
 
             <FormControl fullWidth>
               <InputLabel id="account-select-label">Loại tài khoản</InputLabel>
@@ -134,18 +157,10 @@ export default function Admin({ onCancel }) {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
-            <Button
-              variant="contained"
-              color="warning"
-              onClick={() => handleChangePassword(selectedAccount)}
-            >
-              Đổi mật khẩu
-            </Button>
+            <Button variant="contained" color="warning" onClick={() => handleChangePassword(selectedAccount)}>Đổi mật khẩu</Button>
 
             <Divider sx={{ my: 2 }}>
-              <Typography fontWeight="bold" color="text.secondary">
-                💾 Sao lưu & Phục hồi
-              </Typography>
+              <Typography fontWeight="bold" color="text.secondary">💾 Sao lưu & Phục hồi</Typography>
             </Divider>
 
             <RadioGroup
@@ -157,23 +172,15 @@ export default function Admin({ onCancel }) {
               <FormControlLabel value="excel" control={<Radio />} label="Excel" />
             </RadioGroup>
 
-            <Button
-              variant="contained"
-              color="success"
-              onClick={() =>
-                backupFormat === "json"
-                  ? downloadBackupAsJSON()
-                  : downloadBackupAsExcel()
-              }
-            >
+            <Button variant="contained" color="success" onClick={() =>
+              backupFormat === "json"
+                ? downloadBackupAsJSON()
+                : downloadBackupAsExcel()
+            }>
               📥 Sao lưu ({backupFormat.toUpperCase()})
             </Button>
 
-            <Button
-              variant="contained"
-              color="secondary"
-              component="label"
-            >
+            <Button variant="contained" color="secondary" component="label">
               🔁 Phục hồi ({backupFormat.toUpperCase()})
               <input
                 type="file"
@@ -185,7 +192,7 @@ export default function Admin({ onCancel }) {
 
                   const confirmed = window.confirm("⚠️ Bạn có chắc chắn muốn phục hồi dữ liệu? Hành động này sẽ ghi đè dữ liệu hiện tại.");
                   if (!confirmed) {
-                    e.target.value = ""; // reset input nếu huỷ
+                    e.target.value = "";
                     return;
                   }
 
@@ -195,35 +202,54 @@ export default function Admin({ onCancel }) {
                     } else {
                       await restoreFromExcelFile(file, setRestoreProgress, setAlertMessage, setAlertSeverity);
                     }
-                    e.target.value = ""; // reset sau khi xong
+                    e.target.value = "";
                   };
 
                   restore();
                 }}
               />
-
             </Button>
 
-            {restoreProgress > 0 && restoreProgress < 100 && (
+            <Divider sx={{ my: 2 }}>
+              <Typography fontWeight="bold" color="error">🗑️ Xóa dữ liệu</Typography>
+            </Divider>
+
+            <Button
+              variant="contained"
+              color="error"
+              sx={{ backgroundColor: "#d32f2f", color: "#fff", "&:hover": { backgroundColor: "#9a0007" } }}
+              onClick={handleDeleteAll}
+            >
+              🗑️ Xóa Database Firestore
+            </Button>
+
+            {(restoreProgress > 0 && restoreProgress < 100) || (deleteProgress > 0 && deleteProgress < 100) ? (
               <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 2 }}>
                 <Box sx={{ width: "100%" }}>
                   <LinearProgress
                     variant="determinate"
-                    value={restoreProgress}
+                    value={restoreProgress > 0 ? restoreProgress : deleteProgress}
                     sx={{ height: 10, borderRadius: 5 }}
                   />
                   <Typography variant="caption" align="center" display="block" mt={0.5}>
-                    Đang phục hồi dữ liệu Firestore...{restoreProgress}% 
+                    {restoreProgress > 0
+                      ? `Đang phục hồi dữ liệu Firestore... ${restoreProgress}%`
+                      : `Đang xóa dữ liệu Firestore... ${deleteProgress}%`}
                   </Typography>
                 </Box>
               </Box>
-            )}
+            ) : null}
+
 
             {alertMessage && (
               <Box sx={{ width: "100%", mt: 2 }}>
-                <Alert severity={alertSeverity} onClose={() => setAlertMessage("")}>
-                  {alertMessage}
-                </Alert>
+                <Alert severity={alertSeverity} onClose={() => setAlertMessage("")}>{alertMessage}</Alert>
+              </Box>
+            )}
+
+            {deleteMessage && (
+              <Box sx={{ width: "100%", mt: 2 }}>
+                <Alert severity={deleteSeverity} onClose={() => setDeleteMessage("")}>{deleteMessage}</Alert>
               </Box>
             )}
 
