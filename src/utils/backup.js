@@ -1,6 +1,15 @@
-import { collection, doc, getDocs, setDoc, Timestamp, writeBatch } from "firebase/firestore";
+// backupHelpers.js
+
+import {
+  collection,
+  doc,
+  getDocs,
+  setDoc,
+  Timestamp
+} from "firebase/firestore";
 import { db } from "../firebase";
 import * as XLSX from "xlsx";
+import { backupToExcel } from "./backupToExcel.js";
 
 /**
  * 🎯 Sao lưu toàn bộ Firestore sang JSON
@@ -19,14 +28,17 @@ export const downloadBackupAsJSON = async () => {
         const converted = {};
 
         for (const [key, value] of Object.entries(rawData)) {
-          converted[key] = value instanceof Timestamp ? value.toDate().toISOString() : value;
+          converted[key] =
+            value instanceof Timestamp ? value.toDate().toISOString() : value;
         }
 
         backupContent[colName][docSnap.id] = converted;
       }
     }
 
-    const blob = new Blob([JSON.stringify(backupContent, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(backupContent, null, 2)], {
+      type: "application/json"
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -57,8 +69,11 @@ export const restoreFromJSONFile = async (
     const text = await file.text();
     const jsonData = JSON.parse(text);
     const collections = Object.entries(jsonData);
+
     let totalDocs = 0;
-    collections.forEach(([_, docs]) => totalDocs += Object.keys(docs).length);
+    collections.forEach(([_, docs]) => {
+      totalDocs += Object.keys(docs).length;
+    });
 
     let processed = 0;
 
@@ -69,18 +84,24 @@ export const restoreFromJSONFile = async (
         for (const [key, value] of Object.entries(docData)) {
           if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
             const date = new Date(value);
-            restoredData[key] = isNaN(date.getTime()) ? value : Timestamp.fromDate(date);
+            restoredData[key] = isNaN(date.getTime())
+              ? value
+              : Timestamp.fromDate(date);
           } else {
             restoredData[key] = value;
           }
         }
 
-        await setDoc(doc(db, collectionName, docId), restoredData, { merge: true });
+        await setDoc(doc(db, collectionName, docId), restoredData, {
+          merge: true
+        });
+
         processed++;
         setRestoreProgress(Math.round((processed / totalDocs) * 100));
       }
     }
 
+    setRestoreProgress(100);
     setAlertMessage("✅ Đã phục hồi dữ liệu thành công!");
     setAlertSeverity("success");
   } catch (error) {
@@ -95,31 +116,50 @@ export const restoreFromJSONFile = async (
  */
 export const downloadBackupAsExcel = async () => {
   try {
-    const collectionsToBackup = ["BANTRU", "DANHSACH", "SETTINGS"];
-    const workbook = XLSX.utils.book_new();
+    const colSnap = await getDocs(collection(db, "BANTRU"));
+    const rawDocs = [];
 
-    for (const colName of collectionsToBackup) {
-      const colSnap = await getDocs(collection(db, colName));
-      const rawDocs = [];
+    for (const docSnap of colSnap.docs) {
+      const rawData = docSnap.data();
+      const converted = {
+        id: docSnap.id,
+        hoVaTen: rawData.hoVaTen || "",
+        lop: rawData.lop || "",
+        huyDangKy: rawData.huyDangKy || "", // 👉 Giữ nguyên dạng "x", "T", ""
+        banTruNgay: {}
+      };
 
-      for (const docSnap of colSnap.docs) {
-        const rawData = docSnap.data();
-        const converted = { id: docSnap.id };
-
-        for (const [key, value] of Object.entries(rawData)) {
-          converted[key] = value instanceof Timestamp ? value.toDate().toISOString() : value;
+      for (const [key, value] of Object.entries(rawData)) {
+        if (value instanceof Timestamp) {
+          converted[key] = value.toDate().toISOString();
+        } else if (key === "data" && typeof value === "object") {
+          for (const [dateStr, status] of Object.entries(value)) {
+            converted.banTruNgay[dateStr] = status;
+          }
         }
-
-        rawDocs.push(converted);
       }
 
-      const worksheet = XLSX.utils.json_to_sheet(rawDocs);
-      XLSX.utils.book_append_sheet(workbook, worksheet, colName);
+      rawDocs.push(converted);
     }
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    XLSX.writeFile(workbook, `backup-${timestamp}.xlsx`);
-    console.log("✅ Đã tạo file Excel sao lưu!");
+    if (rawDocs.length === 0) {
+      alert("Không có dữ liệu để sao lưu.");
+      return;
+    }
+
+    const dateSet = new Set();
+    rawDocs.forEach(item => {
+      Object.keys(item.banTruNgay || {}).forEach(d => dateSet.add(d));
+    });
+    const columnDates = Array.from(dateSet).sort(
+      (a, b) => new Date(a) - new Date(b)
+    );
+
+    const year = new Date().getFullYear();
+    const selectedClass = "Tất cả";
+
+    // 🎯 Gọi hàm xử lý Excel đẹp
+    backupToExcel(rawDocs, columnDates, year, selectedClass);
   } catch (error) {
     console.error("❌ Lỗi khi tạo file Excel:", error);
     alert("❌ Không thể sao lưu dữ liệu Excel.");
@@ -138,60 +178,68 @@ export const restoreFromExcelFile = async (
   try {
     if (!file) return alert("⚠️ Chưa chọn file để phục hồi!");
 
+    setRestoreProgress(0); // Bắt đầu từ 0%
+
     const data = await file.arrayBuffer();
     const workbook = XLSX.read(data, { type: "array" });
 
-    const requiredFields = ["stt", "maDinhDanh", "hoVaTen", "lop", "huyDangKy"];
-    let totalRows = 0;
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet);
 
-    workbook.SheetNames.forEach(sheetName => {
-      const sheet = workbook.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json(sheet);
-      totalRows += rows.length;
-    });
-
-    let processed = 0;
-
-    for (const sheetName of workbook.SheetNames) {
-      const sheet = workbook.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json(sheet);
-
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const { id, ...rawDoc } = row;
-
-        for (const field of requiredFields) {
-          if (!(field in rawDoc)) {
-            setAlertMessage(`❌ Dòng ${i + 2} trong sheet "${sheetName}" thiếu cột '${field}'!`);
-            setAlertSeverity("error");
-            return;
-          }
-        }
-
-        const docData = {};
-        for (const [key, value] of Object.entries(rawDoc)) {
-          if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
-            const date = new Date(value);
-            docData[key] = isNaN(date.getTime()) ? value : Timestamp.fromDate(date);
-          } else {
-            docData[key] = value;
-          }
-        }
-
-        if (id) {
-          await setDoc(doc(db, sheetName, id.toString()), docData, { merge: true });
-        }
-
-        processed++;
-        setRestoreProgress(Math.round((processed / totalRows) * 100));
-      }
+    if (!rows || rows.length === 0) {
+      setAlertMessage("⚠️ File Excel không chứa dữ liệu.");
+      setAlertSeverity("warning");
+      return;
     }
 
-    setAlertMessage("✅ Đã phục hồi dữ liệu thành công!");
-    setAlertSeverity("success");
+    const totalRows = rows.length;
+    let processed = 0;
+
+    for (const row of rows) {
+      const { id, ...rawDoc } = row;
+      if (!id) continue;
+
+      const docData = {};
+      const dataField = {};
+
+      for (const [key, value] of Object.entries(rawDoc)) {
+        if (/^\d{4}[/-]\d{2}[/-]\d{2}/.test(key)) {
+          const normalizedDate = key.replace(/\//g, "-");
+          dataField[normalizedDate] = value;
+        } else if (
+          typeof value === "string" &&
+          /^\d{4}-\d{2}-\d{2}T/.test(value)
+        ) {
+          const date = new Date(value);
+          docData[key] = isNaN(date.getTime())
+            ? value
+            : Timestamp.fromDate(date);
+        } else {
+          docData[key] = value;
+        }
+      }
+
+      if (Object.keys(dataField).length > 0) {
+        docData.data = dataField;
+      }
+
+      await setDoc(doc(db, "BANTRU", id.toString()), docData, { merge: true });
+
+      processed++;
+      setRestoreProgress(Math.round((processed / totalRows) * 100));
+    }
+
+    setRestoreProgress(100);
+    setTimeout(() => {
+      setAlertMessage("✅ Đã phục hồi dữ liệu thành công!");
+      setAlertSeverity("success");
+    }, 500);
   } catch (error) {
     console.error("❌ Lỗi khi phục hồi Excel:", error);
     setAlertMessage(`❌ Lỗi khi phục hồi: ${error.message}`);
     setAlertSeverity("error");
   }
 };
+
+
+

@@ -20,7 +20,7 @@ export default function Banner({ title, subtitle }) {
     // 👆 Thêm các đường dẫn khác nếu có
   };
 
-  const computedTitle = title || pageTitles[path] || "HỆ THỐNG QUẢN LÝ BÁN TRÚ";
+  const computedTitle = title || pageTitles[path] || "HỆ THỐNG QUẢN LÝ";
   const computedSubtitle = subtitle || "";
 
   return (

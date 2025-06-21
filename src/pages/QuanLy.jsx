@@ -88,7 +88,7 @@ export default function QuanLy() {
         py: 0,
       }}
     >
-      <Banner title="HỆ THỐNG QUẢN LÝ BÁN TRÚ" />
+      <Banner title="HỆ THỐNG QUẢN LÝ" />
 
       <Box sx={{ px: 2, pt: 3, pb: 6 }}>
         {selectedFunction ? (

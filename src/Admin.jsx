@@ -184,15 +184,24 @@ export default function Admin({ onCancel }) {
                   if (!file) return;
 
                   const confirmed = window.confirm("⚠️ Bạn có chắc chắn muốn phục hồi dữ liệu? Hành động này sẽ ghi đè dữ liệu hiện tại.");
-                  if (!confirmed) return;
-
-                  if (backupFormat === "json") {
-                    restoreFromJSONFile(file, setRestoreProgress, setAlertMessage, setAlertSeverity);
-                  } else {
-                    restoreFromExcelFile(file, setRestoreProgress, setAlertMessage, setAlertSeverity);
+                  if (!confirmed) {
+                    e.target.value = ""; // reset input nếu huỷ
+                    return;
                   }
+
+                  const restore = async () => {
+                    if (backupFormat === "json") {
+                      await restoreFromJSONFile(file, setRestoreProgress, setAlertMessage, setAlertSeverity);
+                    } else {
+                      await restoreFromExcelFile(file, setRestoreProgress, setAlertMessage, setAlertSeverity);
+                    }
+                    e.target.value = ""; // reset sau khi xong
+                  };
+
+                  restore();
                 }}
               />
+
             </Button>
 
             {restoreProgress > 0 && restoreProgress < 100 && (

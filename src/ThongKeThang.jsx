@@ -143,23 +143,35 @@ export default function ThongKeThang({ onBack }) {
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" flexWrap="wrap" sx={{ mb: 2 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
-              label="Chọn tháng"
-              views={["month"]}
-              openTo="month"
-              value={selectedDate}
-              onChange={(newValue) => {
-                if (newValue instanceof Date && !isNaN(newValue)) {
-                  setSelectedDate(new Date(newValue.getFullYear(), newValue.getMonth(), 1));
-                }
-              }}
-              slotProps={{
-                textField: {
-                  size: "small",
-                  sx: { minWidth: 100, maxWidth: 160, "& input": { textAlign: "center" } },
-                },
-              }}
-            />
+  label="Chọn tháng"
+  views={["year", "month"]}
+  openTo="month"
+  value={selectedDate}
+  onChange={(newValue) => {
+    if (newValue instanceof Date && !isNaN(newValue)) {
+      setSelectedDate(new Date(newValue.getFullYear(), newValue.getMonth(), 1));
+    }
+  }}
+  format="MM/yyyy" // <-- định dạng gốc là số
+  slotProps={{
+    textField: {
+      size: "small",
+      sx: { minWidth: 100, maxWidth: 160, "& input": { textAlign: "center" } },
+      InputProps: {
+        inputComponent: (props) => {
+          const month = selectedDate.getMonth() + 1;
+          const year = selectedDate.getFullYear();
+          return <input {...props} value={`Tháng ${month}`} readOnly />;
+        },
+      },
+    },
+  }}
+/>
+
+
           </LocalizationProvider>
+
+
 
           <FormControl size="small" sx={{ minWidth: 100 }}>
             <InputLabel>Lớp</InputLabel>

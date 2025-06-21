@@ -264,7 +264,7 @@ export default function CapNhatDS({ onBack }) {
                   disabled={saving}
                   sx={{ width: 160, fontWeight: 600, py: 1 }}
                 >
-                  {saving ? "🔄 Đang cập nhật..." : "Cập nhật"}
+                  {saving ? "🔄 Cập nhật" : "Cập nhật"}
                 </Button>
 
                 {snackbar.open && (
