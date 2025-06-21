@@ -79,6 +79,17 @@ export default function About() {
             <Typography variant="body1" paragraph>📋 <strong>Lập danh sách bán trú</strong>: Chọn học sinh đăng ký bán trú theo lớp.</Typography>
             <Typography variant="body1" paragraph>📤 <strong>Tải danh sách lên</strong>: Tải danh sách học sinh lên hệ thống từ file Excel.</Typography>
 
+            <Divider sx={{ my: 3 }} />
+
+            {/* 🗄️ CƠ SỞ DỮ LIỆU */}
+            <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mt: 4, mb: 1.5 }}>
+              🗄️ Cơ sở dữ liệu
+            </Typography>
+            <Typography variant="body1" paragraph>📥 <strong>Sao lưu dữ liệu</strong>: Tải toàn bộ dữ liệu hệ thống về máy dưới định dạng <em>JSON</em> hoặc <em>Excel</em>.</Typography>
+            <Typography variant="body1" paragraph>🔁 <strong>Phục hồi dữ liệu</strong>: Khôi phục dữ liệu từ tệp sao lưu đã lưu trước đó.</Typography>
+            <Typography variant="body1" paragraph>🗑️ <strong>Xóa toàn bộ dữ liệu</strong>: Xóa toàn bộ dữ liệu điểm danh trên hệ thống. </Typography>
+
+            
             {/* Có thể bỏ nhóm quản trị nếu đã bị loại khỏi giao diện chính */}
 
             <Divider sx={{ my: 4 }} />
