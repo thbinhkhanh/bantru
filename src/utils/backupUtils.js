@@ -13,7 +13,7 @@ import * as XLSX from "xlsx";
 /** 🎯 Sao lưu toàn bộ Firestore sang JSON */
 export const downloadBackupAsJSON = async () => {
   try {
-    const collectionsToBackup = ["BANTRU", "DANHSACH", "SETTINGS"];
+    const collectionsToBackup = ["BANTRU", "DANHSACH"];
     const backupContent = {};
 
     for (const colName of collectionsToBackup) {

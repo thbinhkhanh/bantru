@@ -18,13 +18,17 @@ export const restoreFromJSONFile = async (
     const collections = Object.entries(jsonData);
 
     let totalDocs = 0;
-    collections.forEach(([_, docs]) => {
-      totalDocs += Object.keys(docs).length;
+    collections.forEach(([name, docs]) => {
+      if (name !== "SETTINGS") {
+        totalDocs += Object.keys(docs).length;
+      }
     });
 
     let processed = 0;
 
     for (const [collectionName, documents] of collections) {
+      if (collectionName === "SETTINGS") continue; // 🚫 Bỏ qua SETTINGS
+
       for (const [docId, docData] of Object.entries(documents)) {
         const restoredData = {};
 
@@ -40,7 +44,7 @@ export const restoreFromJSONFile = async (
         // ✅ Kiểm tra maDinhDanh trước khi ghi
         if (typeof restoredData.maDinhDanh === "undefined") {
           console.warn(`❗ Thiếu maDinhDanh tại docId: ${docId}, collection: ${collectionName}`);
-          continue; // Bỏ qua để tránh lỗi
+          continue;
         }
 
         await setDoc(doc(db, collectionName, docId), restoredData, { merge: true });
@@ -58,7 +62,6 @@ export const restoreFromJSONFile = async (
     setAlertSeverity("error");
   }
 };
-
 
 /** 🔁 Phục hồi dữ liệu từ Excel (.xlsx) */
 export const restoreFromExcelFile = async (
