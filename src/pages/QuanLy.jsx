@@ -238,7 +238,7 @@ export default function QuanLy() {
                           fontWeight={600}
                           gutterBottom
                           noWrap
-                          sx={{ color: '#1976d2', mt: 1 }} // ✅ thêm margin-top
+                          sx={{ color: '#000000', mt: 1 }} // ✅ thêm margin-top
                         >
                           {item.label}
                         </Typography>
