@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
-  Box, Typography, Grid, Card, CardContent, Button, Tabs, Tab
+  Box,
+  Tabs,
+  Tab,
+  Typography,
+  Grid,
+  Button,
+  Card,
+  CardContent,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
+// Components chức năng
 import ChotSoLieu from '../ChotSoLieu';
 import SoLieuNgay from '../SoLieuNgay';
 import DieuChinhSuatAn from '../DieuChinhSuatAn';
@@ -17,11 +25,11 @@ import LapDanhSach from '../LapDanhSach';
 import TaiDanhSach from '../TaiDanhSach';
 import Banner from './Banner';
 
-// MUI Icons
+// Icons
 import LockIcon from '@mui/icons-material/Lock';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import LunchDiningIcon from '@mui/icons-material/LunchDining'; // ✅ NEW ICON
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
+import DeleteIcon from '@mui/icons-material/Delete';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import TimelineIcon from '@mui/icons-material/Timeline';
@@ -29,16 +37,18 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import StorageIcon from '@mui/icons-material/Storage';
-import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 
 export default function QuanLy() {
-  const [selectedFunction, setSelectedFunction] = useState('');
   const [tabIndex, setTabIndex] = useState(0);
-  const loginRole = localStorage.getItem("loginRole");
+  const [selectedFunction, setSelectedFunction] = useState('');
   const navigate = useNavigate();
+  const loginRole = localStorage.getItem('loginRole');
 
-  const handleFunctionSelect = (code) => {
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabIndex(newValue);
+  };
+
+  const handleFunctionSelect = (code: string) => {
     if (code === 'ADMIN') {
       navigate('/admin');
     } else {
@@ -62,224 +72,157 @@ export default function QuanLy() {
     }
   };
 
-  const quanTriHeThong = loginRole === 'admin'
-    ? [{
-        label: 'QUẢN TRỊ HỆ THỐNG',
-        code: 'ADMIN',
-        color: '#42a5f5',
-        icon: <AdminPanelSettingsIcon sx={{ fontSize: 50, color: '#42a5f5' }} />
-      }]
-    : [];
-
-  const chucNangNhom = [
+  const tabs = [
     {
-      title: 'QUẢN LÝ DỮ LIỆU',
-      icon: <StorageIcon />,
-      items: [
-        {
-          label: 'CHỐT SỐ LIỆU',
-          code: 'CHOT',
-          color: '#42a5f5',
-          icon: <LockIcon sx={{ fontSize: 50, color: '#42a5f5' }} />
-        },
-        {
-          label: 'SỐ LIỆU TRONG NGÀY',
-          code: 'SONGAY',
-          color: '#66bb6a',
-          icon: <CalendarTodayIcon sx={{ fontSize: 50, color: '#66bb6a' }} />
-        },
-        {
-          label: 'ĐIỀU CHỈNH SUẤT ĂN',
-          code: 'SUATAN',
-          color: '#ffb300',
-          icon: <PlaylistAddCheckIcon sx={{ fontSize: 50, color: '#ffb300' }} /> // ✅ Đã thay đổi icon
-        },
-        {
-          label: 'XÓA DỮ LIỆU',
-          code: 'XOANGAY',
-          color: '#ef5350',
-          icon: <DeleteOutlineIcon sx={{ fontSize: 50, color: '#ef5350' }} />
-        },
-        ...quanTriHeThong,
+      label: 'DỮ LIỆU',
+      functions: [
+        { code: 'CHOT', label: 'CHỐT SỐ LIỆU', icon: <LockIcon fontSize="large" />, color: '#1976d2' },
+        { code: 'SONGAY', label: 'SỐ LIỆU TRONG NGÀY', icon: <CalendarTodayIcon fontSize="large" />, color: '#388e3c' },
+        { code: 'SUATAN', label: 'ĐIỀU CHỈNH SUẤT ĂN', icon: <PlaylistAddCheckIcon fontSize="large" />, color: '#f57c00' },
+        { code: 'XOANGAY', label: 'XOÁ DỮ LIỆU NGÀY', icon: <DeleteIcon fontSize="large" />, color: '#d32f2f' },
       ],
     },
     {
-      title: 'THỐNG KÊ DỮ LIỆU',
-      icon: <BarChartIcon />,
-      items: [
-        {
-          label: 'THỐNG KÊ NGÀY',
-          code: 'TKNGAY',
-          color: '#ab47bc',
-          icon: <BarChartIcon sx={{ fontSize: 50, color: '#ab47bc' }} />
-        },
-        {
-          label: 'CHI TIẾT THÁNG',
-          code: 'TKTHANG',
-          color: '#26c6da',
-          icon: <QueryStatsIcon sx={{ fontSize: 50, color: '#26c6da' }} />
-        },
-        {
-          label: 'TỔNG HỢP NĂM',
-          code: 'TKNAM',
-          color: '#8d6e63',
-          icon: <TimelineIcon sx={{ fontSize: 50, color: '#8d6e63' }} />
-        },
-        ...quanTriHeThong,
+      label: 'THỐNG KÊ',
+      functions: [
+        { code: 'TKNGAY', label: 'THỐNG KÊ NGÀY', icon: <BarChartIcon fontSize="large" />, color: '#7b1fa2' },
+        { code: 'TKTHANG', label: 'CHI TIẾT THÁNG', icon: <QueryStatsIcon fontSize="large" />, color: '#0097a7' },
+        { code: 'TKNAM', label: 'TỔNG HỢP NĂM', icon: <TimelineIcon fontSize="large" />, color: '#5d4037' },
       ],
     },
     {
-      title: 'DANH SÁCH HỌC SINH',
-      icon: <ManageAccountsIcon />,
-      items: [
-        {
-          label: 'CẬP NHẬT DANH SÁCH',
-          code: 'CAPNHAT',
-          color: '#5c6bc0',
-          icon: <ManageAccountsIcon sx={{ fontSize: 50, color: '#5c6bc0' }} />
-        },
-        {
-          label: 'LẬP DANH SÁCH LỚP',
-          code: 'LAPDS',
-          color: '#ec407a',
-          icon: <FormatListBulletedIcon sx={{ fontSize: 50, color: '#ec407a' }} />
-        },
-        {
-          label: 'TẢI DANH SÁCH LÊN',
-          code: 'TAIDS',
-          color: '#789262',
-          icon: <FileUploadIcon sx={{ fontSize: 50, color: '#789262' }} />
-        },
-        ...quanTriHeThong,
+      label: 'DANH SÁCH',
+      functions: [
+        { code: 'CAPNHAT', label: 'CẬP NHẬT DANH SÁCH', icon: <ManageAccountsIcon fontSize="large" />, color: '#303f9f' },
+        { code: 'LAPDS', label: 'LẬP DANH SÁCH LỚP', icon: <FormatListBulletedIcon fontSize="large" />, color: '#c2185b' },
+        { code: 'TAIDS', label: 'TẢI DANH SÁCH LÊN', icon: <FileUploadIcon fontSize="large" />, color: '#00796b' },
       ],
     },
   ];
 
+  if (loginRole === 'admin') {
+    tabs.push({
+      label: 'QUẢN TRỊ',
+      functions: [
+        { code: 'ADMIN', label: 'TRANG QUẢN TRỊ', icon: <AdminPanelSettingsIcon fontSize="large" />, color: '#512da8' },
+      ],
+    });
+  }
+
   return (
-    <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)' }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#e3f2fd' }}>
+
       <Banner title="HỆ THỐNG QUẢN LÝ" />
-      <Box sx={{ px: 2, pt: 3, pb: 6 }}>
+      <Box sx={{ px: 2, pt: 2 }}>
         {selectedFunction ? (
           <Box maxWidth={700} mx="auto">{renderSelectedFunction()}</Box>
         ) : (
-          <Box maxWidth="lg" mx="auto">
-            <Tabs
-              value={tabIndex}
-              onChange={(e, newIndex) => setTabIndex(newIndex)}
-              variant="fullWidth"
-              textColor="primary"
-              indicatorColor="primary"
-              sx={{
-                mb: 3,
-                '& .MuiTab-root': {
-                  fontWeight: 600,
-                  fontSize: 15,
-                  minHeight: 42,
-                },
-              }}
-            >
-              {chucNangNhom.map((nhom, index) => (
-                <Tab
-                  key={index}
-                  label={nhom.title}
-                  icon={nhom.icon}
-                  iconPosition="start"
-                />
-              ))}
-            </Tabs>
+          <>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+              <Tabs
+                value={tabIndex}
+                onChange={handleChange}
+                variant="scrollable"
+                scrollButtons="auto"
+                allowScrollButtonsMobile
+                sx={{
+                  '.MuiTab-root': {
+                    minWidth: 120,
+                  },
+                }}
+              >
+                {tabs.map((tab, index) => (
+                  <Tab
+                    key={index}
+                    icon={tabs[index].functions[0].icon}
+                    iconPosition="top"
+                    label={
+                      <Typography fontWeight={600} sx={{ fontSize: '14px' }}>
+                        {tab.label}
+                      </Typography>
+                    }
+                  />
+                ))}
+              </Tabs>
+            </Box>
 
             <Grid container spacing={3} justifyContent="center">
-              {chucNangNhom[tabIndex].items.map((item) => (
-                <Grid item key={item.code}>
-                  <motion.div
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Card
-                      elevation={4}
-                      sx={{
-                        borderRadius: 2,
-                        height: 280,
-                        width: 210,
-                        textAlign: 'center',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        px: 0,
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          pt: 2,
-                        }}
-                        onClick={() => handleFunctionSelect(item.code)}
-                      >
-                        <Box
-                          sx={{
-                            width: 80,
-                            height: 80,
-                            borderRadius: '50%',
-                            backgroundColor: `${item.color}22`,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            mt: 2, 
-                          }}
-                        >
-                          {item.icon}
-                        </Box>
-                      </Box>
-                      <CardContent sx={{ py: 1.5, flexGrow: 1 }}>
-                        <Typography
-                          variant="subtitle1"
-                          fontWeight={600}
-                          gutterBottom
-                          noWrap
-                          sx={{ color: '#000000', mt: 1 }} // ✅ thêm margin-top
-                        >
-                          {item.label}
-                        </Typography>
-
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ mb: 1 }}
-                          noWrap
-                        >
-                          Nhấn để truy cập
-                        </Typography>
-                      </CardContent>
-                      <Box sx={{ px: 2, pb: 2, MB: 2 }}>
-                        <Button
-                          variant="contained"
-                          fullWidth
-                          sx={{
-                            backgroundColor: item.color,
-                            fontWeight: 600,
-                            py: 1,
-                            fontSize: '0.85rem',
-                            mt: 0, // ✅ thêm margin-top
-                            mb: 2, // ✅ thêm margin-bottom
-                            '&:hover': {
-                              backgroundColor: item.color,
-                              filter: 'brightness(0.9)',
-                            },
-                          }}
-                          onClick={() => handleFunctionSelect(item.code)}
-                        >
-                          Vào
-                        </Button>
-                      </Box>
-                    </Card>
-                  </motion.div>
-                </Grid>
-              ))}
-            </Grid>
+  {tabs[tabIndex].functions.map((func) => (
+    <Grid item key={func.code}>
+      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        <Card
+          sx={{
+            width: 180,
+            height: 270,
+            borderRadius: 2,
+            backgroundColor: '#fff',
+            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            textAlign: 'center',
+            p: 2,
+          }}
+        >
+          <Box
+            sx={{
+              mt: 2,
+              width: 100,
+              height: 100,
+              borderRadius: '50%',
+              backgroundColor: `${func.color}22`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer', // Đổi chuột thành bàn tay
+              transition: 'transform 0.2s ease-in-out',
+              '&:hover': {
+                transform: 'scale(1.05)',
+              },
+            }}
+            onClick={() => handleFunctionSelect(func.code)}
+          >
+            <Box sx={{ color: func.color, fontSize: 50 }}>{func.icon}</Box>
           </Box>
+
+          <Box>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mt: 2, mb: 1 }}>
+              {func.label.toUpperCase()}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Nhấn để truy cập
+            </Typography>
+          </Box>
+
+          <Button
+            variant="contained"
+            onClick={() => handleFunctionSelect(func.code)}
+            sx={{
+              mt: 2,
+              width: '100%',
+              fontWeight: 700,
+              borderRadius: 1,
+              textTransform: 'uppercase',
+              backgroundColor: func.color,
+              mt: 2, // tương đương 16px
+              mb: 2, // tương đương 8px
+              '&:hover': {
+                backgroundColor: func.color,
+                filter: 'brightness(0.9)',
+              },
+              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            Vào
+          </Button>
+        </Card>
+      </motion.div>
+    </Grid>
+  ))}
+</Grid>
+
+          </>
         )}
       </Box>
     </Box>
