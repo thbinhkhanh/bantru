@@ -147,6 +147,7 @@ export default function DieuChinhSuatAn({ onBack }) {
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 0 }}>
       <Card sx={{
+        mt:2,
         p: { xs: 2, sm: 3, md: 4 },
         maxWidth: 450,
         width: { xs: '98%', sm: '100%' },

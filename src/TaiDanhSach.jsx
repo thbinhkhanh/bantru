@@ -149,13 +149,13 @@ export default function TaiDanhSach({ onBack }) {
     <Box
       sx={{
         minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)',
+        background: 'transparent',
         pt: 0,
         px: 1,
       }}
     >
       <Box maxWidth={420} mx="auto">
-        <Card elevation={8} sx={{ p: 4, borderRadius: 4 }}>
+        <Card elevation={8} sx={{ p: 4, borderRadius: 4, mt: 2 }}>
           <Typography
             variant="h5"
             color="primary"

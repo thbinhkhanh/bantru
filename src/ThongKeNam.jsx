@@ -105,7 +105,7 @@ export default function ThongKeNam({ onBack }) {
   };
 
   return (
-    <Box sx={{ width: "100%", overflowX: "auto", mt: 0, px: 1 }}>
+    <Box sx={{ width: "100%", overflowX: "auto", mt: 2, px: 1 }}>
       <Paper elevation={3} sx={{
         p: 4,
         borderRadius: showMonths ? 0 : 4,

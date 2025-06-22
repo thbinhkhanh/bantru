@@ -169,9 +169,20 @@ export default function CapNhatDS({ onBack }) {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", background: "linear-gradient(to bottom, #e3f2fd, #bbdefb)", pt: 1, px: 1, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        backgroundColor: "transparent", // 👈 Màu nền trong suốt
+        pt: 1,
+        px: 1,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+      }}
+    >
+
       <Box maxWidth={420} width="100%">
-        <Card elevation={10} sx={{ p: 4, borderRadius: 4, backgroundColor: "white" }}>
+        <Card elevation={10} sx={{ p: 4, mt: 1, borderRadius: 4, backgroundColor: "white" }}>
           {/* Tiêu đề và đường gạch xanh với khoảng cách giống các component khác */}
           <Box sx={{ mb: 5 }}>
             <Typography variant="h5" align="center" fontWeight="bold" color="primary" gutterBottom>

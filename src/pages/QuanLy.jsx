@@ -37,6 +37,7 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import StorageIcon from '@mui/icons-material/Storage'; // ✅ icon mới
 
 export default function QuanLy() {
   const [tabIndex, setTabIndex] = useState(0);
@@ -110,8 +111,7 @@ export default function QuanLy() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#e3f2fd' }}>
-
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#d0e4f7' /* đậm hơn */ }}>
       <Banner title="HỆ THỐNG QUẢN LÝ" />
       <Box sx={{ px: 2, pt: 2 }}>
         {selectedFunction ? (
@@ -134,7 +134,7 @@ export default function QuanLy() {
                 {tabs.map((tab, index) => (
                   <Tab
                     key={index}
-                    icon={tabs[index].functions[0].icon}
+                    icon={index === 0 ? <StorageIcon fontSize="large" /> : tabs[index].functions[0].icon}
                     iconPosition="top"
                     label={
                       <Typography fontWeight={600} sx={{ fontSize: '14px' }}>
@@ -147,81 +147,79 @@ export default function QuanLy() {
             </Box>
 
             <Grid container spacing={3} justifyContent="center">
-  {tabs[tabIndex].functions.map((func) => (
-    <Grid item key={func.code}>
-      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-        <Card
-          sx={{
-            width: 180,
-            height: 270,
-            borderRadius: 2,
-            backgroundColor: '#fff',
-            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            textAlign: 'center',
-            p: 2,
-          }}
-        >
-          <Box
-            sx={{
-              mt: 2,
-              width: 100,
-              height: 100,
-              borderRadius: '50%',
-              backgroundColor: `${func.color}22`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer', // Đổi chuột thành bàn tay
-              transition: 'transform 0.2s ease-in-out',
-              '&:hover': {
-                transform: 'scale(1.05)',
-              },
-            }}
-            onClick={() => handleFunctionSelect(func.code)}
-          >
-            <Box sx={{ color: func.color, fontSize: 50 }}>{func.icon}</Box>
-          </Box>
+              {tabs[tabIndex].functions.map((func) => (
+                <Grid item key={func.code}>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Card
+                      sx={{
+                        width: 180,
+                        height: 270,
+                        borderRadius: 2,
+                        backgroundColor: '#fff',
+                        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        textAlign: 'center',
+                        p: 2,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          mt: 2,
+                          width: 100,
+                          height: 100,
+                          borderRadius: '50%',
+                          backgroundColor: `${func.color}22`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          transition: 'transform 0.2s ease-in-out',
+                          '&:hover': {
+                            transform: 'scale(1.05)',
+                          },
+                        }}
+                        onClick={() => handleFunctionSelect(func.code)}
+                      >
+                        <Box sx={{ color: func.color, fontSize: 50 }}>{func.icon}</Box>
+                      </Box>
 
-          <Box>
-            <Typography variant="subtitle1" fontWeight={700} sx={{ mt: 2, mb: 1 }}>
-              {func.label.toUpperCase()}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Nhấn để truy cập
-            </Typography>
-          </Box>
+                      <Box>
+                        <Typography variant="subtitle1" fontWeight={700} sx={{ mt: 2, mb: 1 }}>
+                          {func.label.toUpperCase()}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Nhấn để truy cập
+                        </Typography>
+                      </Box>
 
-          <Button
-            variant="contained"
-            onClick={() => handleFunctionSelect(func.code)}
-            sx={{
-              mt: 2,
-              width: '100%',
-              fontWeight: 700,
-              borderRadius: 1,
-              textTransform: 'uppercase',
-              backgroundColor: func.color,
-              mt: 2, // tương đương 16px
-              mb: 2, // tương đương 8px
-              '&:hover': {
-                backgroundColor: func.color,
-                filter: 'brightness(0.9)',
-              },
-              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            Vào
-          </Button>
-        </Card>
-      </motion.div>
-    </Grid>
-  ))}
-</Grid>
-
+                      <Button
+                        variant="contained"
+                        onClick={() => handleFunctionSelect(func.code)}
+                        sx={{
+                          mt: 2,
+                          width: '100%',
+                          fontWeight: 700,
+                          borderRadius: 1,
+                          textTransform: 'uppercase',
+                          backgroundColor: func.color,
+                          mb: 2,
+                          '&:hover': {
+                            backgroundColor: func.color,
+                            filter: 'brightness(0.9)',
+                          },
+                          boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+                        }}
+                      >
+                        Vào
+                      </Button>
+                    </Card>
+                  </motion.div>
+                </Grid>
+              ))}
+            </Grid>
           </>
         )}
       </Box>

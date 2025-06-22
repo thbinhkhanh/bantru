@@ -131,7 +131,7 @@ export default function LapDanhSach({ onBack }) {
   };
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", mt: 0 }}>
+    <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
       <Card
         sx={{
           p: { xs: 2, sm: 3, md: 4 },

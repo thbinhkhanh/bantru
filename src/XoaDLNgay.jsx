@@ -165,7 +165,7 @@ export default function XoaDLNgay({ onBack }) {
   };
 
   return (
-    <Box sx={{ maxWidth: 400, mx: "auto", mt: 0, px: 1 }}>
+    <Box sx={{ maxWidth: 400, mx: "auto", mt: 2, px: 1 }}>
       <Paper elevation={3} sx={{ p: 3, borderRadius: 4 }}>
         <Typography variant="h5" align="center" gutterBottom fontWeight="bold" color="primary">
           XÓA DỮ LIỆU

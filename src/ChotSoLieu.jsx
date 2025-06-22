@@ -220,7 +220,7 @@ export default function ChotSoLieu({ onBack }) {
         mt: 0,
       }}
     >
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 4 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 4, mt: 2 }}>
         <Typography variant="h5" fontWeight="bold" color="primary" align="center">
           CHỐT SỐ LIỆU
         </Typography>
