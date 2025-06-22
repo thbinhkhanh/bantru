@@ -37,6 +37,12 @@ export const restoreFromJSONFile = async (
           }
         }
 
+        // ✅ Kiểm tra maDinhDanh trước khi ghi
+        if (typeof restoredData.maDinhDanh === "undefined") {
+          console.warn(`❗ Thiếu maDinhDanh tại docId: ${docId}, collection: ${collectionName}`);
+          continue; // Bỏ qua để tránh lỗi
+        }
+
         await setDoc(doc(db, collectionName, docId), restoredData, { merge: true });
         processed++;
         setRestoreProgress(Math.round((processed / totalDocs) * 100));
@@ -52,6 +58,7 @@ export const restoreFromJSONFile = async (
     setAlertSeverity("error");
   }
 };
+
 
 /** 🔁 Phục hồi dữ liệu từ Excel (.xlsx) */
 export const restoreFromExcelFile = async (
@@ -79,10 +86,13 @@ export const restoreFromExcelFile = async (
     let processed = 0;
 
     for (const row of rows) {
-      const { id, ...rawDoc } = row;
-      if (!id) continue;
+      const { id, maDinhDanh, ...rawDoc } = row;
+      if (!id || typeof maDinhDanh === "undefined") {
+        console.warn("❗ Bỏ qua dòng thiếu ID hoặc maDinhDanh:", row);
+        continue;
+      }
 
-      const docData = {};
+      const docData = { maDinhDanh }; // ⚠️ Đảm bảo maDinhDanh luôn có
       const dataField = {};
 
       for (const [key, value] of Object.entries(rawDoc)) {

@@ -1,22 +1,20 @@
+// Bắt đầu từ đây
 import React, { useState, useEffect } from "react";
 import {
   Box, Typography, TextField, Button, Stack,
   Card, Divider, Select, MenuItem, FormControl, InputLabel,
   RadioGroup, Radio, FormControlLabel, LinearProgress, Alert, Tabs, Tab
 } from "@mui/material";
-import { doc, setDoc, getDoc, getDocs, collection, updateDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, getDocs, collection } from "firebase/firestore";
 import { db } from "./firebase";
-
 import {
   downloadBackupAsJSON,
   downloadBackupAsExcel
 } from "./utils/backupUtils";
-
 import {
   restoreFromJSONFile,
   restoreFromExcelFile
 } from "./utils/restoreUtils";
-
 import { deleteAllDateFields } from "./utils/deleteUtils";
 import Banner from "./pages/Banner";
 import { useNavigate } from "react-router-dom";
@@ -31,18 +29,14 @@ export default function Admin({ onCancel }) {
   const [restoreProgress, setRestoreProgress] = useState(0);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState("success");
-
   const [deleteInProgress, setDeleteInProgress] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState("");
   const [deleteSeverity, setDeleteSeverity] = useState("info");
   const [deleteProgress, setDeleteProgress] = useState(0);
-
   const [setDefaultProgress, setSetDefaultProgress] = useState(0);
   const [setDefaultMessage, setSetDefaultMessage] = useState("");
   const [setDefaultSeverity, setSetDefaultSeverity] = useState("success");
-
   const [tabIndex, setTabIndex] = useState(0);
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,17 +45,9 @@ export default function Admin({ onCancel }) {
         const adminSnap = await getDoc(doc(db, "SETTINGS", "ADMIN"));
         const userSnap = await getDoc(doc(db, "SETTINGS", "USER"));
         const toggleSnap = await getDoc(doc(db, "SETTINGS", "TOGGLE"));
-
-        if (adminSnap.exists()) {
-          setSavedAdminPassword(adminSnap.data().password || "123");
-        }
-        if (userSnap.exists()) {
-          setSavedUserPassword(userSnap.data().password || "@bc");
-        }
-        if (toggleSnap.exists()) {
-          const isUseNew = toggleSnap.data().useNewVersion;
-          setFirestoreEnabled(isUseNew);
-        }
+        if (adminSnap.exists()) setSavedAdminPassword(adminSnap.data().password || "123");
+        if (userSnap.exists()) setSavedUserPassword(userSnap.data().password || "@bc");
+        if (toggleSnap.exists()) setFirestoreEnabled(toggleSnap.data().useNewVersion);
       } catch (error) {
         console.error("❌ Lỗi khi tải cấu hình:", error);
       }
@@ -98,13 +84,12 @@ export default function Admin({ onCancel }) {
   };
 
   const handleDeleteAll = async () => {
-    const confirmed = window.confirm("⚠️ Bạn có chắc chắn muốn xóa tất cả dữ liệu? Hành động này không thể hoàn tác.");
+    const confirmed = window.confirm("⚠️ Bạn có chắc chắn muốn xóa tất cả dữ liệu?");
     if (!confirmed) return;
 
     setDeleteInProgress(true);
     setDeleteMessage("");
     setDeleteProgress(0);
-
     try {
       await deleteAllDateFields({
         setDeleteProgress,
@@ -120,20 +105,17 @@ export default function Admin({ onCancel }) {
   };
 
   const handleSetDefault = async () => {
-    const confirmed = window.confirm("⚠️ Bạn có chắc muốn reset điểm danh'?");
+    const confirmed = window.confirm("⚠️ Bạn có chắc muốn reset điểm danh?");
     if (!confirmed) return;
 
     try {
       setSetDefaultProgress(0);
       setSetDefaultMessage("");
       setSetDefaultSeverity("info");
-
       const snapshot = await getDocs(collection(db, "BANTRU"));
       const docs = snapshot.docs;
       const total = docs.length;
-
       let completed = 0;
-
       for (const docSnap of docs) {
         const data = docSnap.data();
         if (data.huyDangKy !== "x") {
@@ -142,15 +124,12 @@ export default function Admin({ onCancel }) {
             huyDangKy: "T",
           });
         }
-
         completed++;
         setSetDefaultProgress(Math.round((completed / total) * 100));
       }
-
       setSetDefaultMessage("✅ Đã reset điểm danh!");
       setSetDefaultSeverity("success");
     } catch (error) {
-      console.error(error);
       setSetDefaultMessage("❌ Lỗi khi cập nhật huyDangKy.");
       setSetDefaultSeverity("error");
     } finally {
@@ -158,32 +137,28 @@ export default function Admin({ onCancel }) {
     }
   };
 
-
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#e3f2fd' }}>
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#e3f2fd" }}>
       <Banner title="QUẢN TRỊ HỆ THỐNG" />
-
-      <Box sx={{ width: { xs: '95%', sm: 450 }, mx: 'auto', mt: 3 }}>
+      <Box sx={{ width: { xs: "95%", sm: 450 }, mx: "auto", mt: 3 }}>
         <Card elevation={10} sx={{ p: 3, borderRadius: 4 }}>
           <Tabs
             value={tabIndex}
             onChange={(e, newValue) => setTabIndex(newValue)}
             variant="scrollable"
             scrollButtons="auto"
-            allowScrollButtonsMobile
           >
             <Tab label="⚙️ System" />
             <Tab label="🗄️ Database" />
           </Tabs>
 
-          {/* Tab 1: Cài đặt hệ thống */}
           {tabIndex === 0 && (
-            <Stack spacing={3} mt={3}>
-              <Button variant="contained" color="primary" onClick={() => navigate("/quanly")}>
+            <Stack spacing={3} mt={3} sx={{ maxWidth: 300, mx: "auto", width: "100%" }}>
+              <Button variant="contained" onClick={() => navigate("/quanly")} sx={{ maxWidth: 300, width: "100%" }}>
                 🏫 HỆ THỐNG QUẢN LÝ BÁN TRÚ
               </Button>
 
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ maxWidth: 300 }}>
                 <InputLabel id="account-select-label">Loại tài khoản</InputLabel>
                 <Select
                   labelId="account-select-label"
@@ -199,20 +174,17 @@ export default function Admin({ onCancel }) {
               <TextField
                 label="🔑 Mật khẩu mới"
                 type="password"
-                fullWidth
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+                fullWidth
+                sx={{ maxWidth: 300 }}
               />
-              <Button
-                variant="contained"
-                color="warning"
-                onClick={() => handleChangePassword(selectedAccount)}
-              >
+              <Button variant="contained" color="warning" onClick={() => handleChangePassword(selectedAccount)} sx={{ maxWidth: 300, width: "100%" }}>
                 Đổi mật khẩu
               </Button>
 
-              <FormControl component="fieldset">
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ mt: 2, mb: 1 }}>
+              <FormControl>
+                <Typography variant="subtitle1" fontWeight="bold">
                   📊 Tải dữ liệu từ Firestore
                 </Typography>
                 <RadioGroup
@@ -222,16 +194,13 @@ export default function Admin({ onCancel }) {
                 >
                   <FormControlLabel value="khoi" control={<Radio />} label="Tải theo khối" />
                   <FormControlLabel value="lop" control={<Radio />} label="Tải theo lớp" />
-                  
                 </RadioGroup>
               </FormControl>
-
             </Stack>
           )}
 
-          {/* Tab 2: Cơ sở dữ liệu */}
           {tabIndex === 1 && (
-            <Stack spacing={3} mt={3}>
+            <Stack spacing={3} mt={3} sx={{ maxWidth: 300, mx: "auto", width: "100%" }}>
               <Divider>
                 <Typography fontWeight="bold">💾 Sao lưu & Phục hồi</Typography>
               </Divider>
@@ -245,15 +214,21 @@ export default function Admin({ onCancel }) {
                 <FormControlLabel value="excel" control={<Radio />} label="Excel" />
               </RadioGroup>
 
-              <Button variant="contained" color="success" onClick={() =>
-                backupFormat === "json"
-                  ? downloadBackupAsJSON()
-                  : downloadBackupAsExcel()
-              }>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => backupFormat === "json" ? downloadBackupAsJSON() : downloadBackupAsExcel()}
+                sx={{ maxWidth: 300, width: "100%" }}
+              >
                 📥 Sao lưu ({backupFormat.toUpperCase()})
               </Button>
 
-              <Button variant="contained" color="secondary" component="label">
+              <Button
+                variant="contained"
+                color="secondary"
+                component="label"
+                sx={{ maxWidth: 300, width: "100%" }}
+              >
                 🔁 Phục hồi ({backupFormat.toUpperCase()})
                 <input
                   type="file"
@@ -262,13 +237,10 @@ export default function Admin({ onCancel }) {
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (!file) return;
-
-                    const confirmed = window.confirm("⚠️ Bạn có chắc chắn muốn phục hồi dữ liệu? Hành động này sẽ ghi đè dữ liệu hiện tại.");
-                    if (!confirmed) {
+                    if (!window.confirm("⚠️ Phục hồi sẽ ghi đè dữ liệu. Tiếp tục?")) {
                       e.target.value = "";
                       return;
                     }
-
                     const restore = async () => {
                       if (backupFormat === "json") {
                         await restoreFromJSONFile(file, setRestoreProgress, setAlertMessage, setAlertSeverity);
@@ -277,24 +249,20 @@ export default function Admin({ onCancel }) {
                       }
                       e.target.value = "";
                     };
-
                     restore();
                   }}
                 />
               </Button>
 
               <Divider>
-                <Divider sx={{ mt: 3, mb: 0 }}>
-                  <Typography fontWeight="bold" color="error">🗑️ Xóa & Reset dữ liệu</Typography>
-                </Divider>
-
+                <Typography fontWeight="bold" color="error">🗑️ Xóa & Reset dữ liệu</Typography>
               </Divider>
 
               <Button
                 variant="contained"
                 color="error"
-                sx={{ backgroundColor: "#d32f2f", color: "#fff", "&:hover": { backgroundColor: "#9a0007" } }}
                 onClick={handleDeleteAll}
+                sx={{ maxWidth: 300, width: "100%", backgroundColor: "#d32f2f", "&:hover": { backgroundColor: "#9a0007" } }}
               >
                 🗑️ Xóa Database Firestore
               </Button>
@@ -303,45 +271,31 @@ export default function Admin({ onCancel }) {
                 variant="contained"
                 color="primary"
                 onClick={handleSetDefault}
+                sx={{ maxWidth: 300, width: "100%" }}
               >
                 ♻️ Reset điểm danh
               </Button>
 
-              {/* Progress & Alerts */}
-              {(restoreProgress > 0 && restoreProgress < 100) ||
-                (deleteProgress > 0 && deleteProgress < 100) ||
-                (setDefaultProgress > 0 && setDefaultProgress < 100) ? (
+              {(restoreProgress > 0 || deleteProgress > 0 || setDefaultProgress > 0) && (
                 <Box sx={{ mt: 2 }}>
                   <LinearProgress
                     variant="determinate"
-                    value={
-                      restoreProgress > 0 ? restoreProgress
-                        : deleteProgress > 0 ? deleteProgress
-                          : setDefaultProgress
-                    }
+                    value={restoreProgress || deleteProgress || setDefaultProgress}
                     sx={{ height: 10, borderRadius: 5 }}
                   />
                   <Typography variant="caption" align="center" display="block" mt={0.5}>
                     {restoreProgress > 0
-                      ? `Đang phục hồi dữ liệu Firestore... ${restoreProgress}%`
+                      ? `Đang phục hồi... ${restoreProgress}%`
                       : deleteProgress > 0
-                        ? `Đang xóa dữ liệu Firestore... ${deleteProgress}%`
-                        : `Đang reset điểm danh... ${setDefaultProgress}%`}
+                        ? `Đang xóa... ${deleteProgress}%`
+                        : `Đang reset... ${setDefaultProgress}%`}
                   </Typography>
                 </Box>
-              ) : null}
+              )}
 
-              {alertMessage && (
-                <Alert severity={alertSeverity} onClose={() => setAlertMessage("")}>{alertMessage}</Alert>
-              )}
-              {deleteMessage && (
-                <Alert severity={deleteSeverity} onClose={() => setDeleteMessage("")}>{deleteMessage}</Alert>
-              )}
-              {setDefaultMessage && (
-                <Alert severity={setDefaultSeverity} onClose={() => setSetDefaultMessage("")}>
-                  {setDefaultMessage}
-                </Alert>
-              )}
+              {alertMessage && <Alert severity={alertSeverity} onClose={() => setAlertMessage("")}>{alertMessage}</Alert>}
+              {deleteMessage && <Alert severity={deleteSeverity} onClose={() => setDeleteMessage("")}>{deleteMessage}</Alert>}
+              {setDefaultMessage && <Alert severity={setDefaultSeverity} onClose={() => setSetDefaultMessage("")}>{setDefaultMessage}</Alert>}
             </Stack>
           )}
         </Card>

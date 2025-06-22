@@ -72,6 +72,7 @@ export const downloadBackupAsExcel = async () => {
         id: docSnap.id,
         hoVaTen: rawData.hoVaTen || "",
         lop: rawData.lop || "",
+        maDinhDanh: rawData.maDinhDanh || "", // ✅ thêm dòng này
         huyDangKy: rawData.huyDangKy || "",
         banTruNgay: {},
       };
@@ -109,3 +110,4 @@ export const downloadBackupAsExcel = async () => {
     alert("❌ Không thể sao lưu dữ liệu Excel.");
   }
 };
+

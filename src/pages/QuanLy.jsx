@@ -146,7 +146,7 @@ export default function QuanLy() {
                     sx={{
                       backgroundColor: item.color,
                       fontWeight: 600,
-                      minWidth: 250, // ✅ Giảm chiều rộng
+                      minWidth: 300, // ✅ Giảm chiều rộng
                       height: 40,     // ✅ Giảm chiều cao
                       fontSize: 15,   // ✅ Giảm cỡ chữ
                       px: 2,

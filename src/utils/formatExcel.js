@@ -6,6 +6,7 @@ export function formatExcel(dataList, columnDates, year, selectedClass) {
   const headerRow = [
     "stt",
     "id",
+    "maDinhDanh", // ✅ Thêm cột maDinhDanh
     "hoVaTen",
     "lop",
     "huyDangKy",
@@ -16,6 +17,7 @@ export function formatExcel(dataList, columnDates, year, selectedClass) {
     const row = [
       index + 1,
       item.id || "",
+      item.maDinhDanh || "", // ✅ Thêm dữ liệu maDinhDanh
       item.hoVaTen || "",
       item.lop || "",
       item.huyDangKy || "", // giữ nguyên giá trị "x", "T", ""
@@ -32,13 +34,14 @@ export function formatExcel(dataList, columnDates, year, selectedClass) {
 
   const ws = XLSX.utils.aoa_to_sheet(finalData);
 
-  // Cài đặt độ rộng cột
+  // ✅ Cài đặt độ rộng cột, thêm độ rộng cho maDinhDanh
   ws["!cols"] = [
-    { wch: 5 }, // stt
-    { wch: 15 }, // id
-    { wch: 30 }, // hoVaTen
-    { wch: 8 }, // lop
-    { wch: 12 }, // huyDangKy
+    { wch: 5 },   // stt
+    { wch: 15 },  // id
+    { wch: 20 },  // maDinhDanh
+    { wch: 30 },  // hoVaTen
+    { wch: 8 },   // lop
+    { wch: 12 },  // huyDangKy
     ...columnDates.map(() => ({ wch: 12 })),
   ];
 
@@ -73,7 +76,7 @@ export function formatExcel(dataList, columnDates, year, selectedClass) {
             right: { style: "thin", color: { rgb: "999999" } },
           },
           alignment: {
-            horizontal: C === 2 ? "left" : "center", // Họ tên left align
+            horizontal: C === 3 ? "left" : "center", // Họ tên left align
             vertical: "center",
           },
         };
