@@ -168,10 +168,12 @@ export default function Admin({ onCancel }) {
           <Tabs
             value={tabIndex}
             onChange={(e, newValue) => setTabIndex(newValue)}
-            variant="fullWidth"
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
           >
-            <Tab label="⚙️ Cài đặt hệ thống" />
-            <Tab label="🗄️ Cơ sở dữ liệu" />
+            <Tab label="⚙️ System" />
+            <Tab label="🗄️ Database" />
           </Tabs>
 
           {/* Tab 1: Cài đặt hệ thống */}
@@ -210,7 +212,7 @@ export default function Admin({ onCancel }) {
               </Button>
 
               <FormControl component="fieldset">
-                <Typography variant="subtitle1" fontWeight="bold">
+                <Typography variant="subtitle1" fontWeight="bold" sx={{ mt: 2, mb: 1 }}>
                   📊 Tải dữ liệu từ Firestore
                 </Typography>
                 <RadioGroup
@@ -220,9 +222,10 @@ export default function Admin({ onCancel }) {
                 >
                   <FormControlLabel value="khoi" control={<Radio />} label="Tải theo khối" />
                   <FormControlLabel value="lop" control={<Radio />} label="Tải theo lớp" />
-                                    
+                  
                 </RadioGroup>
               </FormControl>
+
             </Stack>
           )}
 
@@ -281,7 +284,10 @@ export default function Admin({ onCancel }) {
               </Button>
 
               <Divider>
-                <Typography fontWeight="bold" color="error">🗑️ Xóa & Reset dữ liệu</Typography>
+                <Divider sx={{ mt: 3, mb: 0 }}>
+                  <Typography fontWeight="bold" color="error">🗑️ Xóa & Reset dữ liệu</Typography>
+                </Divider>
+
               </Divider>
 
               <Button
