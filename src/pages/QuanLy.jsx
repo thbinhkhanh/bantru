@@ -5,7 +5,6 @@ import {
 } from '@mui/material';
 import { motion } from 'framer-motion';
 
-// Import các component chức năng
 import ChotSoLieu from '../ChotSoLieu';
 import SoLieuNgay from '../SoLieuNgay';
 import DieuChinhSuatAn from '../DieuChinhSuatAn';
@@ -21,7 +20,7 @@ import Banner from './Banner';
 // MUI Icons
 import LockIcon from '@mui/icons-material/Lock';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import LunchDiningIcon from '@mui/icons-material/LunchDining'; // ✅ NEW ICON
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
@@ -30,6 +29,8 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import StorageIcon from '@mui/icons-material/Storage';
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 
 export default function QuanLy() {
   const [selectedFunction, setSelectedFunction] = useState('');
@@ -73,12 +74,32 @@ export default function QuanLy() {
   const chucNangNhom = [
     {
       title: 'QUẢN LÝ DỮ LIỆU',
-      icon: <LockIcon />,
+      icon: <StorageIcon />,
       items: [
-        { label: 'CHỐT SỐ LIỆU', code: 'CHOT', color: '#42a5f5', icon: <LockIcon sx={{ fontSize: 50, color: '#42a5f5' }} /> },
-        { label: 'SỐ LIỆU TRONG NGÀY', code: 'SONGAY', color: '#66bb6a', icon: <CalendarTodayIcon sx={{ fontSize: 50, color: '#66bb6a' }} /> },
-        { label: 'ĐIỀU CHỈNH SUẤT ĂN', code: 'SUATAN', color: '#ffb300', icon: <RestaurantMenuIcon sx={{ fontSize: 50, color: '#ffb300' }} /> },
-        { label: 'XÓA DỮ LIỆU', code: 'XOANGAY', color: '#ef5350', icon: <DeleteOutlineIcon sx={{ fontSize: 50, color: '#ef5350' }} /> },
+        {
+          label: 'CHỐT SỐ LIỆU',
+          code: 'CHOT',
+          color: '#42a5f5',
+          icon: <LockIcon sx={{ fontSize: 50, color: '#42a5f5' }} />
+        },
+        {
+          label: 'SỐ LIỆU TRONG NGÀY',
+          code: 'SONGAY',
+          color: '#66bb6a',
+          icon: <CalendarTodayIcon sx={{ fontSize: 50, color: '#66bb6a' }} />
+        },
+        {
+          label: 'ĐIỀU CHỈNH SUẤT ĂN',
+          code: 'SUATAN',
+          color: '#ffb300',
+          icon: <PlaylistAddCheckIcon sx={{ fontSize: 50, color: '#ffb300' }} /> // ✅ Đã thay đổi icon
+        },
+        {
+          label: 'XÓA DỮ LIỆU',
+          code: 'XOANGAY',
+          color: '#ef5350',
+          icon: <DeleteOutlineIcon sx={{ fontSize: 50, color: '#ef5350' }} />
+        },
         ...quanTriHeThong,
       ],
     },
@@ -86,9 +107,24 @@ export default function QuanLy() {
       title: 'THỐNG KÊ DỮ LIỆU',
       icon: <BarChartIcon />,
       items: [
-        { label: 'THỐNG KÊ THEO NGÀY', code: 'TKNGAY', color: '#ab47bc', icon: <BarChartIcon sx={{ fontSize: 50, color: '#ab47bc' }} /> },
-        { label: 'CHI TIẾT TỪNG THÁNG', code: 'TKTHANG', color: '#26c6da', icon: <QueryStatsIcon sx={{ fontSize: 50, color: '#26c6da' }} /> },
-        { label: 'TỔNG HỢP CẢ NĂM', code: 'TKNAM', color: '#8d6e63', icon: <TimelineIcon sx={{ fontSize: 50, color: '#8d6e63' }} /> },
+        {
+          label: 'THỐNG KÊ THEO NGÀY',
+          code: 'TKNGAY',
+          color: '#ab47bc',
+          icon: <BarChartIcon sx={{ fontSize: 50, color: '#ab47bc' }} />
+        },
+        {
+          label: 'CHI TIẾT TỪNG THÁNG',
+          code: 'TKTHANG',
+          color: '#26c6da',
+          icon: <QueryStatsIcon sx={{ fontSize: 50, color: '#26c6da' }} />
+        },
+        {
+          label: 'TỔNG HỢP CẢ NĂM',
+          code: 'TKNAM',
+          color: '#8d6e63',
+          icon: <TimelineIcon sx={{ fontSize: 50, color: '#8d6e63' }} />
+        },
         ...quanTriHeThong,
       ],
     },
@@ -96,9 +132,24 @@ export default function QuanLy() {
       title: 'DANH SÁCH HỌC SINH',
       icon: <ManageAccountsIcon />,
       items: [
-        { label: 'CẬP NHẬT DANH SÁCH', code: 'CAPNHAT', color: '#5c6bc0', icon: <ManageAccountsIcon sx={{ fontSize: 50, color: '#5c6bc0' }} /> },
-        { label: 'LẬP DANH SÁCH LỚP', code: 'LAPDS', color: '#ec407a', icon: <FormatListBulletedIcon sx={{ fontSize: 50, color: '#ec407a' }} /> },
-        { label: 'TẢI DANH SÁCH LÊN', code: 'TAIDS', color: '#789262', icon: <FileUploadIcon sx={{ fontSize: 50, color: '#789262' }} /> },
+        {
+          label: 'CẬP NHẬT DANH SÁCH',
+          code: 'CAPNHAT',
+          color: '#5c6bc0',
+          icon: <ManageAccountsIcon sx={{ fontSize: 50, color: '#5c6bc0' }} />
+        },
+        {
+          label: 'LẬP DANH SÁCH LỚP',
+          code: 'LAPDS',
+          color: '#ec407a',
+          icon: <FormatListBulletedIcon sx={{ fontSize: 50, color: '#ec407a' }} />
+        },
+        {
+          label: 'TẢI DANH SÁCH LÊN',
+          code: 'TAIDS',
+          color: '#789262',
+          icon: <FileUploadIcon sx={{ fontSize: 50, color: '#789262' }} />
+        },
         ...quanTriHeThong,
       ],
     },
