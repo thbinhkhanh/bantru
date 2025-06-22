@@ -200,7 +200,7 @@ export default function QuanLy() {
                       elevation={4}
                       sx={{
                         borderRadius: 2,
-                        height: 290,
+                        height: 280,
                         width: 210,
                         textAlign: 'center',
                         display: 'flex',
@@ -262,7 +262,7 @@ export default function QuanLy() {
                             fontWeight: 600,
                             py: 1,
                             fontSize: '0.85rem',
-                            mt: -1, // ✅ thêm margin-top
+                            mt: 0, // ✅ thêm margin-top
                             mb: 2, // ✅ thêm margin-bottom
                             '&:hover': {
                               backgroundColor: item.color,
