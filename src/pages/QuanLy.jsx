@@ -108,19 +108,19 @@ export default function QuanLy() {
       icon: <BarChartIcon />,
       items: [
         {
-          label: 'THỐNG KÊ THEO NGÀY',
+          label: 'THỐNG KÊ NGÀY',
           code: 'TKNGAY',
           color: '#ab47bc',
           icon: <BarChartIcon sx={{ fontSize: 50, color: '#ab47bc' }} />
         },
         {
-          label: 'CHI TIẾT TỪNG THÁNG',
+          label: 'CHI TIẾT THÁNG',
           code: 'TKTHANG',
           color: '#26c6da',
           icon: <QueryStatsIcon sx={{ fontSize: 50, color: '#26c6da' }} />
         },
         {
-          label: 'TỔNG HỢP CẢ NĂM',
+          label: 'TỔNG HỢP NĂM',
           code: 'TKNAM',
           color: '#8d6e63',
           icon: <TimelineIcon sx={{ fontSize: 50, color: '#8d6e63' }} />
@@ -200,13 +200,13 @@ export default function QuanLy() {
                       elevation={4}
                       sx={{
                         borderRadius: 2,
-                        height: 250,
+                        height: 290,
                         width: 210,
                         textAlign: 'center',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
-                        px: 2,
+                        px: 0,
                       }}
                     >
                       <Box
@@ -227,6 +227,7 @@ export default function QuanLy() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            mt: 2, 
                           }}
                         >
                           {item.icon}
@@ -252,7 +253,7 @@ export default function QuanLy() {
                           Nhấn để truy cập
                         </Typography>
                       </CardContent>
-                      <Box sx={{ px: 2, pb: 2 }}>
+                      <Box sx={{ px: 2, pb: 2, MB: 2 }}>
                         <Button
                           variant="contained"
                           fullWidth
@@ -261,6 +262,8 @@ export default function QuanLy() {
                             fontWeight: 600,
                             py: 1,
                             fontSize: '0.85rem',
+                            mt: -1, // ✅ thêm margin-top
+                            mb: 2, // ✅ thêm margin-bottom
                             '&:hover': {
                               backgroundColor: item.color,
                               filter: 'brightness(0.9)',
