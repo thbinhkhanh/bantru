@@ -233,9 +233,16 @@ export default function QuanLy() {
                         </Box>
                       </Box>
                       <CardContent sx={{ py: 1.5, flexGrow: 1 }}>
-                        <Typography variant="subtitle1" fontWeight={600} gutterBottom noWrap>
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight={600}
+                          gutterBottom
+                          noWrap
+                          sx={{ color: '#1976d2', mt: 1 }} // ✅ thêm margin-top
+                        >
                           {item.label}
                         </Typography>
+
                         <Typography
                           variant="body2"
                           color="text.secondary"
