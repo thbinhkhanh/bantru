@@ -39,7 +39,7 @@ export default function About() {
               align="center"
               sx={{ mb: 1, fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.8rem' } }}
             >
-              HỆ THỐNG ĐIỂM DANH BÁN TRÚ
+              ỨNG DỤNG QUẢN LÝ BÁN TRÚ
             </Typography>
 
             <Divider sx={{ my: 2 }} />
