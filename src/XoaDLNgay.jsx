@@ -18,6 +18,7 @@ import {
   DialogContentText,
   DialogActions,
   FormControl,
+  Tooltip, // ✅ thêm dòng này
 } from "@mui/material";
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -45,6 +46,24 @@ export default function XoaDLNgay({ onBack }) {
   const [openConfirm, setOpenConfirm] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState("");
   const [resultMessage, setResultMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const loginRole = localStorage.getItem("loginRole");
+
+  const canDelete =
+    loginRole === "admin" ||
+    (loginRole === "yte" &&
+      (() => {
+        const now = new Date();
+        const s = selectedDate;
+        return (
+          s.getFullYear() > now.getFullYear() ||
+          (s.getFullYear() === now.getFullYear() && s.getMonth() > now.getMonth()) ||
+          (s.getFullYear() === now.getFullYear() &&
+            s.getMonth() === now.getMonth() &&
+            s.getDate() >= now.getDate())
+        );
+      })());
 
   useEffect(() => {
     const fetchClasses = async () => {
@@ -75,25 +94,6 @@ export default function XoaDLNgay({ onBack }) {
     });
 
   const handleSubmit = () => {
-    const now = new Date();
-    const selectedMonth = selectedDate.getMonth();
-    const selectedYear = selectedDate.getFullYear();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-
-    const loginRole = localStorage.getItem("loginRole"); // ✅ lấy role
-
-    // Nếu không phải admin thì chặn xóa dữ liệu quá khứ
-    if (
-      loginRole !== "admin" &&
-      (selectedYear < currentYear ||
-        (selectedYear === currentYear && selectedMonth < currentMonth))
-    ) {
-      setResultMessage("⚠️ Không thể xóa dữ liệu của tháng trước.");
-      setShowSuccess(true);
-      return;
-    }
-
     const dateStr = formatDate(selectedDate);
     const message =
       option === "toantruong"
@@ -103,8 +103,6 @@ export default function XoaDLNgay({ onBack }) {
     setConfirmMessage(message);
     setOpenConfirm(true);
   };
-
-
 
   const handleConfirm = async () => {
     setOpenConfirm(false);
@@ -203,9 +201,22 @@ export default function XoaDLNgay({ onBack }) {
             </FormControl>
           )}
 
-          <Button variant="contained" color="primary" onClick={handleSubmit}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              if (!canDelete) {
+                setErrorMessage("❌ Bạn không có quyền xóa dữ liệu!");
+                return;
+              }
+              setErrorMessage(""); // Xóa lỗi cũ (nếu có)
+              handleSubmit();
+            }}
+          >
             Thực hiện
           </Button>
+
+
         </Stack>
 
         {showSuccess && (
@@ -213,6 +224,13 @@ export default function XoaDLNgay({ onBack }) {
             {resultMessage}
           </Alert>
         )}
+
+        {errorMessage && (
+          <Alert severity="error" sx={{ mt: 2, mb: 0, textAlign: "center" }}>
+            {errorMessage}
+          </Alert>
+        )}
+
 
         {progressing && (
           <Box sx={{ width: "50%", mt: 2, mx: "auto" }}>
@@ -241,3 +259,4 @@ export default function XoaDLNgay({ onBack }) {
     </Box>
   );
 }
+

@@ -13,69 +13,68 @@ import Banner from './pages/Banner';
 export default function DangNhap() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [selectedAccount, setSelectedAccount] = useState('user');
-  const [savedUserPassword, setSavedUserPassword] = useState('@bc');
-  const [savedAdminPassword, setSavedAdminPassword] = useState('123');
+  const [selectedAccount, setSelectedAccount] = useState('yte');
+
+  const [passwords, setPasswords] = useState({
+    yte: 'yte123',
+    ketoan: 'ketoan123',
+    bgh: 'bgh123',
+    admin: 'admin123'
+  });
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPasswords = async () => {
       try {
-        const adminSnap = await getDoc(doc(db, 'SETTINGS', 'ADMIN'));
-        const userSnap = await getDoc(doc(db, 'SETTINGS', 'USER'));
-        if (adminSnap.exists()) setSavedAdminPassword(adminSnap.data().password || '123');
-        if (userSnap.exists()) setSavedUserPassword(userSnap.data().password || '@bc');
+        const roles = ['YTE', 'KETOAN', 'BGH', 'ADMIN'];
+        const newPasswords = {};
+
+        for (const role of roles) {
+          const snap = await getDoc(doc(db, 'SETTINGS', role));
+          newPasswords[role.toLowerCase()] = snap.exists() ? (snap.data().password || '') : '';
+        }
+
+        setPasswords(newPasswords);
       } catch (err) {
-        console.error('❌ Lỗi khi lấy mật khẩu:', err);
+        console.error('❌ Lỗi khi lấy mật khẩu từ Firestore:', err);
       }
     };
+
     fetchPasswords();
   }, []);
 
   const handleLogin = () => {
-    const expectedPassword = selectedAccount === 'user' ? savedUserPassword : savedAdminPassword;
+    const expectedPassword = passwords[selectedAccount] || '';
 
     if (password === expectedPassword) {
-      // ✅ Lưu loại tài khoản vào localStorage để sử dụng ở các nơi khác
       localStorage.setItem('loginRole', selectedAccount);
 
-      // ✅ Điều hướng đến trang tương ứng
-      if (selectedAccount === 'user') {
-        navigate('/quanly');
-      } else {
+      if (selectedAccount === 'admin') {
         navigate('/admin');
+      } else {
+        navigate('/quanly');
       }
     } else {
       setMessage('❌ Mật khẩu không chính xác!');
     }
   };
 
-  // ✅ Tiêu đề tùy theo loại tài khoản
-  const bannerTitle = selectedAccount === 'user' ? 'QUẢN LÝ BÁN TRÚ' : 'QUẢN TRỊ HỆ THỐNG';
+  const bannerTitle = selectedAccount === 'admin'
+    ? 'QUẢN TRỊ HỆ THỐNG'
+    : 'QUẢN LÝ BÁN TRÚ';
 
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)' }}>
       <Banner title="ĐĂNG NHẬP QUẢN LÝ" />
-      <Box
-        sx={{
-          width: { xs: '90%', sm: 400 },
-          mx: 'auto',
-          mt: 3,
-        }}
-      >
+      <Box sx={{ width: { xs: '90%', sm: 400 }, mx: 'auto', mt: 3 }}>
         <Card elevation={10} sx={{ p: 4, borderRadius: 3, backgroundColor: '#ffffff' }}>
           <Stack spacing={3}>
             <Box textAlign="center">
               <Box sx={{ fontSize: 48, color: 'primary.main', mb: 1 }}>
                 🔐
               </Box>
-              <Typography
-                variant="h5"
-                fontWeight="bold"
-                color="primary"
-                sx={{ mb: 2 }}
-              >
+              <Typography variant="h5" fontWeight="bold" color="primary" sx={{ mb: 2 }}>
                 {bannerTitle}
               </Typography>
             </Box>
@@ -86,9 +85,14 @@ export default function DangNhap() {
                 labelId="account-label"
                 label="Loại tài khoản"
                 value={selectedAccount}
-                onChange={(e) => setSelectedAccount(e.target.value)}
+                onChange={(e) => {
+                  setSelectedAccount(e.target.value);
+                  setMessage('');
+                }}
               >
-                <MenuItem value="user">👤 User</MenuItem>
+                <MenuItem value="yte">🏥 Y tế</MenuItem>
+                <MenuItem value="ketoan">💰 Kế toán</MenuItem>
+                <MenuItem value="bgh">📋 BGH</MenuItem>
                 <MenuItem value="admin">🔐 Admin</MenuItem>
               </Select>
             </FormControl>

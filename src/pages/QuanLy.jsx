@@ -46,8 +46,16 @@ export default function QuanLy() {
   const loginRole = localStorage.getItem('loginRole');
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabIndex(newValue);
+    // Kiểm tra nếu là tab cuối cùng (QUẢN TRỊ)
+    const isQuanTriTab = loginRole === 'admin' && newValue === tabs.length - 1;
+
+    if (isQuanTriTab) {
+      navigate('/admin');
+    } else {
+      setTabIndex(newValue);
+    }
   };
+
 
   const handleFunctionSelect = (code: string) => {
     if (code === 'ADMIN') {

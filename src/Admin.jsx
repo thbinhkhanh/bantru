@@ -1,4 +1,3 @@
-// Bắt đầu từ đây
 import React, { useState, useEffect } from "react";
 import {
   Box, Typography, TextField, Button, Stack,
@@ -21,8 +20,12 @@ import { useNavigate } from "react-router-dom";
 
 export default function Admin({ onCancel }) {
   const [firestoreEnabled, setFirestoreEnabled] = useState(false);
-  const [savedAdminPassword, setSavedAdminPassword] = useState("123");
-  const [savedUserPassword, setSavedUserPassword] = useState("@bc");
+  const [passwords, setPasswords] = useState({
+    yte: "",
+    ketoan: "",
+    bgh: "",
+    admin: ""
+  });
   const [selectedAccount, setSelectedAccount] = useState("admin");
   const [newPassword, setNewPassword] = useState("");
   const [backupFormat, setBackupFormat] = useState("json");
@@ -42,11 +45,15 @@ export default function Admin({ onCancel }) {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const adminSnap = await getDoc(doc(db, "SETTINGS", "ADMIN"));
-        const userSnap = await getDoc(doc(db, "SETTINGS", "USER"));
+        const accounts = ["admin", "yte", "ketoan", "bgh"];
+        const newPasswords = {};
+        for (const acc of accounts) {
+          const snap = await getDoc(doc(db, "SETTINGS", acc.toUpperCase()));
+          newPasswords[acc] = snap.exists() ? snap.data().password || "" : "";
+        }
+        setPasswords(newPasswords);
+
         const toggleSnap = await getDoc(doc(db, "SETTINGS", "TOGGLE"));
-        if (adminSnap.exists()) setSavedAdminPassword(adminSnap.data().password || "123");
-        if (userSnap.exists()) setSavedUserPassword(userSnap.data().password || "@bc");
         if (toggleSnap.exists()) setFirestoreEnabled(toggleSnap.data().useNewVersion);
       } catch (error) {
         console.error("❌ Lỗi khi tải cấu hình:", error);
@@ -75,13 +82,21 @@ export default function Admin({ onCancel }) {
   const handleChangePassword = async (type) => {
     if (!newPassword.trim()) return alert("⚠️ Vui lòng nhập mật khẩu mới!");
     try {
-      await setDoc(doc(db, "SETTINGS", type.toUpperCase()), { password: newPassword });
-      alert(`✅ Đã đổi mật khẩu ${type === "admin" ? "Admin" : "User"}!`);
+      await setDoc(doc(db, "SETTINGS", type.toUpperCase()), {
+        password: newPassword
+      }, { merge: true }); // Thêm { merge: true } để không ghi đè các field khác (nếu có)
+
+      setPasswords((prev) => ({
+        ...prev,
+        [type]: newPassword
+      }));
+      alert(`✅ Đã đổi mật khẩu cho tài khoản "${type}"!`);
       setNewPassword("");
     } catch (err) {
       alert("❌ Không thể đổi mật khẩu!");
     }
   };
+
 
   const handleDeleteAll = async () => {
     const confirmed = window.confirm("⚠️ Bạn có chắc chắn muốn xóa tất cả dữ liệu?");
@@ -166,8 +181,10 @@ export default function Admin({ onCancel }) {
                   value={selectedAccount}
                   onChange={(e) => setSelectedAccount(e.target.value)}
                 >
+                  <MenuItem value="yte">🏥 Y tế</MenuItem>
+                  <MenuItem value="ketoan">💰 Kế toán</MenuItem>
+                  <MenuItem value="bgh">📋 BGH</MenuItem>
                   <MenuItem value="admin">🔐 Admin</MenuItem>
-                  <MenuItem value="user">👤 User</MenuItem>
                 </Select>
               </FormControl>
 
@@ -179,7 +196,12 @@ export default function Admin({ onCancel }) {
                 fullWidth
                 sx={{ maxWidth: 300 }}
               />
-              <Button variant="contained" color="warning" onClick={() => handleChangePassword(selectedAccount)} sx={{ maxWidth: 300, width: "100%" }}>
+              <Button
+                variant="contained"
+                color="warning"
+                onClick={() => handleChangePassword(selectedAccount)}
+                sx={{ maxWidth: 300, width: "100%" }}
+              >
                 Đổi mật khẩu
               </Button>
 

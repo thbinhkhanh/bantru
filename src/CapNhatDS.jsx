@@ -89,6 +89,15 @@ export default function CapNhatDS({ onBack }) {
   }, [selectedStudentId, filteredStudents, nhapTuDanhSach]);
 
   const handleUpdate = async () => {
+    // ✅ PHÂN QUYỀN DỰA TRÊN loginRole
+    const loginRole = localStorage.getItem("loginRole");
+    if (loginRole === "admin" || loginRole === "bgh") {
+      // OK, tiếp tục
+    } else {
+      showSnackbar("❌ Bạn không có quyền cập nhật danh sách!", "error");
+      return;
+    }
+
     setSaving(true);
 
     // 1. Kiểm tra lớp
@@ -167,6 +176,8 @@ export default function CapNhatDS({ onBack }) {
       setSaving(false);
     }
   };
+
+
 
   return (
     <Box
@@ -281,8 +292,12 @@ export default function CapNhatDS({ onBack }) {
                 {snackbar.open && (
                   <Alert
                     severity={snackbar.severity}
-                    onClose={() => setSnackbar({ ...snackbar, open: false })}
-                    sx={{ width: "100%", borderRadius: 2, fontWeight: 500 }}
+                    sx={{
+                      width: '92%',
+                      fontWeight: 500,
+                      borderRadius: 2,
+                      mt: 2
+                    }}
                   >
                     {snackbar.message}
                   </Alert>

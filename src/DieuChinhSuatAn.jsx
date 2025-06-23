@@ -101,11 +101,15 @@ export default function DieuChinhSuatAn({ onBack }) {
     const sm = selectedDate.getMonth(), sy = selectedDate.getFullYear();
     const cm = now.getMonth(), cy = now.getFullYear();
 
+    // ❗ Chặn nếu không phải admin hoặc yte — hoặc yte mà sửa tháng quá khứ
     if (
       loginRole !== "admin" &&
-      (sy < cy || (sy === cy && sm < cm))
+      (
+        loginRole !== "yte" ||
+        (sy < cy || (sy === cy && sm < cm))
+      )
     ) {
-      setSaveSuccess("tooEarly");
+      setSaveSuccess("unauthorized");
       return;
     }
 
@@ -139,6 +143,7 @@ export default function DieuChinhSuatAn({ onBack }) {
       setIsSaving(false);
     }
   };
+
 
   const handleClassChange = async e => { await saveData(); setSelectedClass(e.target.value); await fetchStudents(e.target.value); };
   const handleDateChange = nv => { if (nv instanceof Date && !isNaN(nv)) setSelectedDate(nv); };
@@ -219,17 +224,52 @@ export default function DieuChinhSuatAn({ onBack }) {
           </TableContainer>
 
           <Stack spacing={2} sx={{ mt: 3, alignItems: "center" }}>
-            <Button variant="contained" color="primary" onClick={saveData} disabled={isSaving} sx={{ width: 160, fontWeight: 600 }}>
-              {isSaving ? "🔄 Cập nhật..." : "Cập nhật"}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={saveData}
+              disabled={isSaving}
+              sx={{ width: 160, fontWeight: 600 }}
+            >
+              {isSaving ? "🔄 Cập nhật" : "Cập nhật"}
             </Button>
 
-            {saveSuccess === "tooEarly" && <Alert severity="warning" sx={{ textAlign: 'left' }}>⚠️ Không thể điều chỉnh suất ăn tháng trước.</Alert>}
-            {saveSuccess === true && <Alert severity="success" sx={{ textAlign: 'left' }}>✅ Cập nhật thành công!</Alert>}
-            {saveSuccess === false && <Alert severity="error" sx={{ textAlign: 'left' }}>❌ Lỗi khi lưu dữ liệu!</Alert>}
-            {isSaving && <Alert severity="info" sx={{ textAlign: 'left' }}>🔄 Đang lưu dữ liệu...</Alert>}
+            {saveSuccess === "tooEarly" && (
+              <Alert severity="warning" sx={{ width: "100%", textAlign: 'left' }}>
+                ⚠️ Không thể điều chỉnh suất ăn tháng trước.
+              </Alert>
+            )}
 
-            <Button onClick={onBack} color="secondary">⬅️ Quay lại</Button>
+            {saveSuccess === "unauthorized" && (
+              <Alert severity="error" ssx={{ width: "100%", textAlign: 'left' }}>
+                ❌ Bạn không có quyền điều chỉnh suất ăn!
+              </Alert>
+            )}
+
+            {saveSuccess === true && (
+              <Alert severity="success" sx={{ width: "92%", textAlign: 'left' }}>
+                ✅ Cập nhật thành công!
+              </Alert>
+
+            )}
+
+            {saveSuccess === false && (
+              <Alert severity="error" sx={{ width: "100%", textAlign: 'left' }}>
+                ❌ Lỗi khi lưu dữ liệu!
+              </Alert>
+            )}
+
+            {isSaving && (
+              <Alert severity="info" sx={{ width: "92%", textAlign: 'left' }}>
+                🔄 Đang lưu dữ liệu...
+              </Alert>
+            )}
+
+            <Button onClick={onBack} color="secondary">
+              ⬅️ Quay lại
+            </Button>
           </Stack>
+
         </CardContent>
       </Card>
     </Box>

@@ -32,6 +32,14 @@ export default function TaiDanhSach({ onBack }) {
   };
 
   const handleUpload = async () => {
+    // ✅ PHÂN QUYỀN DỰA TRÊN loginRole
+    const loginRole = localStorage.getItem("loginRole");
+    if (loginRole !== "admin" && loginRole !== "bgh") {
+      setMessage("❌ Bạn không có quyền tải danh sách lên hệ thống!");
+      setSuccess(false);
+      return;
+    }
+
     if (!selectedFile) {
       setMessage('❗ Chưa chọn file!');
       setSuccess(false);
@@ -67,6 +75,7 @@ export default function TaiDanhSach({ onBack }) {
 
     reader.readAsArrayBuffer(selectedFile);
   };
+
 
   const processStudentData = async (jsonData) => {
     const snapshot = await getDocs(collection(db, 'BANTRU'));

@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { getDocs, collection, doc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import { MySort } from './utils/MySort'; // 🆕
+import { MySort } from './utils/MySort';
 
 export default function LapDanhSach({ onBack }) {
   const [allStudents, setAllStudents] = useState([]);
@@ -30,12 +30,12 @@ export default function LapDanhSach({ onBack }) {
         const studentData = snapshot.docs.map(docSnap => {
           const data = docSnap.data();
           const huyDangKy = data.huyDangKy || '';
-          const editable = huyDangKy === 'x'; // Chỉ cho phép chỉnh nếu là "x"
+          const editable = huyDangKy === 'x';
           return {
             id: docSnap.id,
             ...data,
-            registered: !editable, // true nếu không được chỉnh
-            originalRegistered: !editable, // để tránh lưu lại về sau
+            registered: !editable,
+            originalRegistered: !editable,
             editable,
           };
         });
@@ -50,12 +50,11 @@ export default function LapDanhSach({ onBack }) {
           setSelectedClass(firstClass);
 
           const filtered = MySort(
-            studentData.filter(s => s.lop === firstClass) // ✅ Sử dụng studentData
-          ).map((s, idx) => ({ ...s, stt: idx + 1 })); // 🆕 Sắp xếp và gán lại STT
+            studentData.filter(s => s.lop === firstClass)
+          ).map((s, idx) => ({ ...s, stt: idx + 1 }));
 
           setFilteredStudents(filtered);
         }
-
       } catch (err) {
         console.error('❌ Lỗi khi tải dữ liệu từ Firebase:', err);
         setAlertInfo({
@@ -76,7 +75,7 @@ export default function LapDanhSach({ onBack }) {
     setSelectedClass(selected);
     const filtered = MySort(
       allStudents.filter(s => s.lop === selected)
-    ).map((s, idx) => ({ ...s, stt: idx + 1 })); // ✅ Sắp đúng theo tên
+    ).map((s, idx) => ({ ...s, stt: idx + 1 }));
     setFilteredStudents(filtered);
     setAlertInfo({ open: false, message: '', severity: 'success' });
   };
@@ -96,8 +95,21 @@ export default function LapDanhSach({ onBack }) {
   };
 
   const handleSave = async () => {
+    const loginRole = localStorage.getItem("loginRole");
+
+    // ❌ Không có quyền thì báo lỗi
+    if (loginRole !== "admin" && loginRole !== "bgh") {
+      setAlertInfo({
+        open: true,
+        message: '❌ Bạn không có quyền lập danh sách bán trú!',
+        severity: 'error',
+      });
+      return;
+    }
+
     setIsSaving(true);
     setAlertInfo({ open: false, message: '', severity: 'success' });
+
     try {
       const changedStudents = filteredStudents.filter(
         s => s.registered !== s.originalRegistered
@@ -124,7 +136,11 @@ export default function LapDanhSach({ onBack }) {
       );
     } catch (err) {
       console.error('❌ Lỗi khi lưu dữ liệu:', err);
-      setAlertInfo({ open: true, message: '❌ Không thể lưu dữ liệu.', severity: 'error' });
+      setAlertInfo({
+        open: true,
+        message: '❌ Không thể lưu dữ liệu.',
+        severity: 'error',
+      });
     } finally {
       setIsSaving(false);
     }
@@ -143,7 +159,6 @@ export default function LapDanhSach({ onBack }) {
         }}
         elevation={10}
       >
-        {/* Tiêu đề với khoảng cách trên và đường gạch xanh như ThongKeThang */}
         <Box sx={{ mb: 5 }}>
           <Typography
             variant="h5"
@@ -240,11 +255,11 @@ export default function LapDanhSach({ onBack }) {
             disabled={isSaving}
             sx={{ width: 160, fontWeight: 600, py: 1 }}
           >
-            {isSaving ? '🔄 Đang lưu dữ liệu...' : 'Lưu'}
+            {isSaving ? '🔄 Lưu' : 'Lưu'}
           </Button>
 
           {alertInfo.open && (
-            <Alert severity={alertInfo.severity} sx={{ width: '100%' }}>
+            <Alert severity={alertInfo.severity} sx={{ width: '92%' }}>
               {alertInfo.message}
             </Alert>
           )}

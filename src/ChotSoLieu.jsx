@@ -13,6 +13,7 @@ import vi from "date-fns/locale/vi";
 import { db } from "./firebase";
 import { collection, doc, getDocs, setDoc } from "firebase/firestore";
 
+// ======= Xử lý nhóm dữ liệu =======
 function groupData(data) {
   const khoiData = {};
   let truongSiSo = 0;
@@ -81,6 +82,7 @@ function groupData(data) {
   return summaryData;
 }
 
+// ======= Dòng tóm tắt (group/lớp) =======
 function SummaryRow({ row, openGroups, setOpenGroups, summaryData }) {
   const isOpen = openGroups.includes(row.group);
   const isTruong = row.group === "TRƯỜNG";
@@ -134,6 +136,7 @@ function SummaryRow({ row, openGroups, setOpenGroups, summaryData }) {
   );
 }
 
+// ======= Component chính =======
 export default function ChotSoLieu({ onBack }) {
   const [openGroups, setOpenGroups] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -148,18 +151,24 @@ export default function ChotSoLieu({ onBack }) {
     setErrorMessage("");
     setSummaryData([]);
 
-    const loginRole = localStorage.getItem("loginRole"); // ✅ dùng localStorage
-
+    const loginRole = localStorage.getItem("loginRole");
     const selected = new Date(selectedDate);
     selected.setHours(0, 0, 0, 0);
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // ✅ Chặn người không phải admin cập nhật ngày quá khứ
-    if (loginRole !== "admin" && selected < today) {
+    // === PHÂN QUYỀN CẬP NHẬT ===
+    if (loginRole === "admin") {
+      // OK
+    } else if (loginRole === "yte") {
+      if (selected < today) {
+        setIsLoading(false);
+        setErrorMessage("⚠️ Bạn chỉ được cập nhật cho ngày hôm nay hoặc trong tương lai!");
+        return;
+      }
+    } else {
       setIsLoading(false);
-      setErrorMessage("⚠️ Bạn chỉ có thể cập nhật cho ngày hôm nay hoặc trong tương lai!");
+      setErrorMessage("❌ Bạn không có quyền cập nhật dữ liệu!");
       return;
     }
 
@@ -212,14 +221,7 @@ export default function ChotSoLieu({ onBack }) {
   };
 
   return (
-    <Box
-      sx={{
-        maxWidth: { xs: '100%', sm: 500 },
-        mx: 'auto',
-        px: { xs: 0.5, sm: 2 },
-        mt: 0,
-      }}
-    >
+    <Box sx={{ maxWidth: { xs: '100%', sm: 500 }, mx: 'auto', px: { xs: 0.5, sm: 2 }, mt: 0 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 4, mt: 2 }}>
         <Typography variant="h5" fontWeight="bold" color="primary" align="center">
           CHỐT SỐ LIỆU
@@ -227,13 +229,7 @@ export default function ChotSoLieu({ onBack }) {
 
         <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
 
-        <Stack
-          direction="row"
-          spacing={2}
-          justifyContent="center"
-          alignItems="center"
-          sx={{ mb: 3, mt: 3 }}
-        >
+        <Stack direction="row" spacing={2} justifyContent="center" alignItems="center" sx={{ mb: 3, mt: 3 }}>
           <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <DatePicker
               label="Chọn ngày"
@@ -258,10 +254,7 @@ export default function ChotSoLieu({ onBack }) {
             onClick={handleUpdate}
             disabled={isLoading}
             sx={{
-              fontSize: {
-                xs: "0.75rem",
-                sm: "1rem",
-              },
+              fontSize: { xs: "0.75rem", sm: "1rem" },
               minWidth: 120,
               height: 40,
               textTransform: "none",
@@ -319,4 +312,3 @@ export default function ChotSoLieu({ onBack }) {
     </Box>
   );
 }
-
