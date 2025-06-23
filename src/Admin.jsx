@@ -80,22 +80,39 @@ export default function Admin({ onCancel }) {
   };
 
   const handleChangePassword = async (type) => {
-    if (!newPassword.trim()) return alert("⚠️ Vui lòng nhập mật khẩu mới!");
+    if (!newPassword.trim()) {
+      alert("⚠️ Vui lòng nhập mật khẩu mới!");
+      return;
+    }
+
+    // Mapping tên hiển thị cho các tài khoản
+    const accountDisplayNames = {
+      yte: "Y tế",
+      ketoan: "Kế toán",
+      bgh: "BGH",
+      admin: "Admin"
+    };
+
     try {
-      await setDoc(doc(db, "SETTINGS", type.toUpperCase()), {
-        password: newPassword
-      }, { merge: true }); // Thêm { merge: true } để không ghi đè các field khác (nếu có)
+      await setDoc(
+        doc(db, "SETTINGS", type.toUpperCase()),
+        { password: newPassword },
+        { merge: true } // Giữ lại các field khác
+      );
 
       setPasswords((prev) => ({
         ...prev,
         [type]: newPassword
       }));
-      alert(`✅ Đã đổi mật khẩu cho tài khoản "${type}"!`);
+
+      const displayName = accountDisplayNames[type] || type;
+      alert(`✅ Đã đổi mật khẩu cho tài khoản ${displayName}!`);
       setNewPassword("");
     } catch (err) {
       alert("❌ Không thể đổi mật khẩu!");
     }
   };
+
 
 
   const handleDeleteAll = async () => {

@@ -6,7 +6,7 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { motion } from 'framer-motion';
 import * as XLSX from 'xlsx';
-import { setDoc, doc, getDocs, collection } from 'firebase/firestore';
+import { setDoc, doc, getDocs, getDoc, collection } from 'firebase/firestore';
 import { db } from './firebase';
 
 export default function TaiDanhSach({ onBack }) {
@@ -32,7 +32,6 @@ export default function TaiDanhSach({ onBack }) {
   };
 
   const handleUpload = async () => {
-    // ✅ PHÂN QUYỀN DỰA TRÊN loginRole
     const loginRole = localStorage.getItem("loginRole");
     if (loginRole !== "admin" && loginRole !== "bgh") {
       setMessage("❌ Bạn không có quyền tải danh sách lên hệ thống!");
@@ -62,7 +61,6 @@ export default function TaiDanhSach({ onBack }) {
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
         setTotalCount(jsonData.length);
-
         await processStudentData(jsonData);
       } catch (err) {
         console.error('❌ Lỗi khi xử lý file:', err);
@@ -75,7 +73,6 @@ export default function TaiDanhSach({ onBack }) {
 
     reader.readAsArrayBuffer(selectedFile);
   };
-
 
   const processStudentData = async (jsonData) => {
     const snapshot = await getDocs(collection(db, 'BANTRU'));
@@ -118,26 +115,31 @@ export default function TaiDanhSach({ onBack }) {
       setProgress(Math.round(((i + 1) / studentsNew.length) * 100));
     }
 
-    // Cập nhật danh sách lớp
-    const allClasses = new Set();
-    studentsNew.forEach(student => {
-      const lop = student.lop?.toString().trim();
-      if (lop) allClasses.add(lop);
-    });
-
-    const classArray = Array.from(allClasses).sort();
-    const grouped = { K1: [], K2: [], K3: [], K4: [], K5: [] };
-
-    classArray.forEach(lop => {
-      const kh = lop.split('.')[0];
-      if (grouped['K' + kh]) grouped['K' + kh].push(lop);
-    });
-
+    // 🚀 Cập nhật danh sách lớp — phiên bản an toàn (không ghi đè)
     try {
+      const truongRef = doc(db, 'DANHSACH', 'TRUONG');
+      const truongSnap = await getDoc(truongRef);
+      const oldClasses = truongSnap.exists() ? truongSnap.data().list || [] : [];
+      const allClasses = new Set(oldClasses);
+
+      studentsNew.forEach(student => {
+        const lop = student.lop?.toString().trim();
+        if (lop) allClasses.add(lop);
+      });
+
+      const classArray = Array.from(allClasses).sort();
+      const grouped = { K1: [], K2: [], K3: [], K4: [], K5: [] };
+
+      classArray.forEach(lop => {
+        const kh = lop.split('.')[0];
+        if (grouped['K' + kh]) grouped['K' + kh].push(lop);
+      });
+
       await setDoc(doc(db, 'DANHSACH', 'TRUONG'), { list: classArray });
       for (const key in grouped) {
         await setDoc(doc(db, 'DANHSACH', key), { list: grouped[key] });
       }
+
       console.log('✅ Cập nhật danh sách lớp thành công');
     } catch (e) {
       console.error('❌ Lỗi khi cập nhật danh sách lớp:', e.message);
@@ -153,43 +155,18 @@ export default function TaiDanhSach({ onBack }) {
       : `⚠️ Có ${errorCount} lỗi khi thêm ${studentsNew.length} học sinh mới.`);
   };
 
-
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        background: 'transparent',
-        pt: 0,
-        px: 1,
-      }}
-    >
+    <Box sx={{ minHeight: '100vh', background: 'transparent', pt: 0, px: 1 }}>
       <Box maxWidth={420} mx="auto">
         <Card elevation={8} sx={{ p: 4, borderRadius: 4, mt: 2 }}>
-          <Typography
-            variant="h5"
-            color="primary"
-            fontWeight="bold"
-            align="center"
-            gutterBottom
-            //sx={{ borderBottom: '2px solid #1976d2', pb: 1, mb: 3 }}
-          >
+          <Typography variant="h5" color="primary" fontWeight="bold" align="center" gutterBottom>
             TẢI DANH SÁCH HỌC SINH
           </Typography>
           <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
           <Stack spacing={2}>
-            <Button
-              variant="outlined"
-              component="label"
-              startIcon={<UploadFileIcon />}
-              sx={{ height: 40 }}
-            >
+            <Button variant="outlined" component="label" startIcon={<UploadFileIcon />} sx={{ height: 40 }}>
               Chọn file Excel (.xlsx)
-              <input
-                type="file"
-                hidden
-                accept=".xlsx"
-                onChange={handleFileChange}
-              />
+              <input type="file" hidden accept=".xlsx" onChange={handleFileChange} />
             </Button>
 
             {selectedFile && (
@@ -200,13 +177,9 @@ export default function TaiDanhSach({ onBack }) {
 
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
-                fullWidth
-                variant="contained"
-                color="success"
-                startIcon={<CloudUploadIcon />}
-                onClick={handleUpload}
-                sx={{ fontWeight: 'bold', height: 40 }}
-                disabled={loading}
+                fullWidth variant="contained" color="success"
+                startIcon={<CloudUploadIcon />} onClick={handleUpload}
+                sx={{ fontWeight: 'bold', height: 40 }} disabled={loading}
               >
                 {loading ? '🔄 Đang tải lên...' : 'Tải lên'}
               </Button>
@@ -236,4 +209,3 @@ export default function TaiDanhSach({ onBack }) {
     </Box>
   );
 }
-
