@@ -40,22 +40,25 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import StorageIcon from '@mui/icons-material/Storage'; // ✅ icon mới
 
 export default function QuanLy() {
-  const [tabIndex, setTabIndex] = useState(0);
-  const [selectedFunction, setSelectedFunction] = useState('');
-  const navigate = useNavigate();
   const loginRole = localStorage.getItem('loginRole');
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    // Kiểm tra nếu là tab cuối cùng (QUẢN TRỊ)
-    const isQuanTriTab = loginRole === 'admin' && newValue === tabs.length - 1;
+  // Gán tab mặc định dựa vào loginRole
+  const defaultTabIndex =
+    loginRole === 'yte' ? 0 :
+    loginRole === 'ketoan' ? 1 : 2;
 
+  const [tabIndex, setTabIndex] = useState(defaultTabIndex);
+  const [selectedFunction, setSelectedFunction] = useState('');
+  const navigate = useNavigate();
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    const isQuanTriTab = loginRole === 'admin' && newValue === tabs.length - 1;
     if (isQuanTriTab) {
       navigate('/admin');
     } else {
       setTabIndex(newValue);
     }
   };
-
 
   const handleFunctionSelect = (code: string) => {
     if (code === 'ADMIN') {
@@ -119,7 +122,7 @@ export default function QuanLy() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#d0e4f7' /* đậm hơn */ }}>
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#d0e4f7' }}>
       <Banner title="HỆ THỐNG QUẢN LÝ" />
       <Box sx={{ px: 2, pt: 2 }}>
         {selectedFunction ? (
@@ -133,11 +136,7 @@ export default function QuanLy() {
                 variant="scrollable"
                 scrollButtons="auto"
                 allowScrollButtonsMobile
-                sx={{
-                  '.MuiTab-root': {
-                    minWidth: 120,
-                  },
-                }}
+                sx={{ '.MuiTab-root': { minWidth: 120 } }}
               >
                 {tabs.map((tab, index) => (
                   <Tab
@@ -185,9 +184,7 @@ export default function QuanLy() {
                           justifyContent: 'center',
                           cursor: 'pointer',
                           transition: 'transform 0.2s ease-in-out',
-                          '&:hover': {
-                            transform: 'scale(1.05)',
-                          },
+                          '&:hover': { transform: 'scale(1.05)' },
                         }}
                         onClick={() => handleFunctionSelect(func.code)}
                       >

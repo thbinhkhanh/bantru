@@ -5,15 +5,25 @@ import {
   Timestamp,
   doc,
   setDoc,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { formatExcel } from "./formatExcel.js";
 import * as XLSX from "xlsx";
 
-/** 🎯 Sao lưu toàn bộ Firestore sang JSON */
+/** 🎯 Sao lưu toàn bộ Firestore sang JSON theo năm học */
 export const downloadBackupAsJSON = async () => {
   try {
-    const collectionsToBackup = ["BANTRU", "DANHSACH"];
+    // 📌 Lấy năm học từ Firestore
+    const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+    const namHocValue = namHocDoc.exists() ? namHocDoc.data().value : null;
+
+    if (!namHocValue) {
+      alert("❗ Không tìm thấy năm học hợp lệ trong hệ thống!");
+      return;
+    }
+
+    const collectionsToBackup = [`BANTRU_${namHocValue}`, `DANHSACH_${namHocValue}`];
     const backupContent = {};
 
     for (const colName of collectionsToBackup) {
@@ -39,7 +49,6 @@ export const downloadBackupAsJSON = async () => {
     const link = document.createElement("a");
     link.href = url;
 
-    // ✅ Đặt tên theo định dạng backup (21_06_2025 14_35).json
     const now = new Date();
     const day = String(now.getDate()).padStart(2, "0");
     const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -47,7 +56,7 @@ export const downloadBackupAsJSON = async () => {
     const hours = String(now.getHours()).padStart(2, "0");
     const minutes = String(now.getMinutes()).padStart(2, "0");
 
-    const filename = `Backup Firestore (${day}_${month}_${year} ${hours}_${minutes}).json`;
+    const filename = `Backup Firestore_${namHocValue} (${day}_${month}_${year} ${hours}_${minutes}).json`;
     link.download = filename;
     link.click();
 
@@ -59,11 +68,18 @@ export const downloadBackupAsJSON = async () => {
   }
 };
 
-
-/** 📥 Sao lưu dữ liệu ra Excel (.xlsx) */
+/** 📥 Sao lưu dữ liệu ra Excel (.xlsx) theo năm học */
 export const downloadBackupAsExcel = async () => {
   try {
-    const colSnap = await getDocs(collection(db, "BANTRU"));
+    const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+    const namHocValue = namHocDoc.exists() ? namHocDoc.data().value : null;
+
+    if (!namHocValue) {
+      alert("❗ Không tìm thấy năm học hợp lệ trong hệ thống!");
+      return;
+    }
+
+    const colSnap = await getDocs(collection(db, `BANTRU_${namHocValue}`));
     const rawDocs = [];
 
     for (const docSnap of colSnap.docs) {
@@ -72,7 +88,7 @@ export const downloadBackupAsExcel = async () => {
         id: docSnap.id,
         hoVaTen: rawData.hoVaTen || "",
         lop: rawData.lop || "",
-        maDinhDanh: rawData.maDinhDanh || "", // ✅ thêm dòng này
+        maDinhDanh: rawData.maDinhDanh || "",
         huyDangKy: rawData.huyDangKy || "",
         banTruNgay: {},
       };
@@ -91,7 +107,7 @@ export const downloadBackupAsExcel = async () => {
     }
 
     if (rawDocs.length === 0) {
-      alert("Không có dữ liệu để sao lưu.");
+      alert("❗ Không có dữ liệu để sao lưu.");
       return;
     }
 
@@ -99,15 +115,13 @@ export const downloadBackupAsExcel = async () => {
     rawDocs.forEach((item) => {
       Object.keys(item.banTruNgay || {}).forEach((d) => dateSet.add(d));
     });
-    const columnDates = Array.from(dateSet).sort((a, b) => new Date(a) - new Date(b));
 
-    const year = new Date().getFullYear();
+    const columnDates = Array.from(dateSet).sort((a, b) => new Date(a) - new Date(b));
     const selectedClass = "Tất cả";
 
-    formatExcel(rawDocs, columnDates, year, selectedClass);
+    formatExcel(rawDocs, columnDates, namHocValue, selectedClass);
   } catch (error) {
     console.error("❌ Lỗi khi tạo file Excel:", error);
     alert("❌ Không thể sao lưu dữ liệu Excel.");
   }
 };
-

@@ -11,7 +11,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import vi from "date-fns/locale/vi";
 import { db } from "./firebase";
-import { collection, doc, getDocs, setDoc } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc, getDoc } from "firebase/firestore";
 
 // ======= Xử lý nhóm dữ liệu =======
 function groupData(data) {
@@ -176,7 +176,17 @@ export default function ChotSoLieu({ onBack }) {
     const formattedDate = adjustedDate.toISOString().split("T")[0];
 
     try {
-      const hocSinhSnap = await getDocs(collection(db, "BANTRU"));
+      const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+        const namHocValue = namHocDoc.exists() ? namHocDoc.data().value : null;
+
+        if (!namHocValue) {
+          setIsLoading(false);
+          setErrorMessage("❌ Không tìm thấy năm học hợp lệ trong hệ thống!");
+          return;
+        }
+
+        const hocSinhSnap = await getDocs(collection(db, `BANTRU_${namHocValue}`));
+
       const hocSinhData = hocSinhSnap.docs.map(doc => ({
         id: doc.id,
         hoVaTen: doc.data().hoVaTen,
@@ -194,7 +204,7 @@ export default function ChotSoLieu({ onBack }) {
       setTimeout(async () => {
         try {
           await Promise.all(hocSinhData.map(async (hs) => {
-            const studentRef = doc(db, "BANTRU", hs.id);
+            const studentRef = doc(db, `BANTRU_${namHocValue}`, hs.id);
             await setDoc(studentRef, {
               hoVaTen: hs.hoVaTen,
               lop: hs.lop,

@@ -14,9 +14,14 @@ import {
   restoreFromJSONFile,
   restoreFromExcelFile
 } from "./utils/restoreUtils";
-import { deleteAllDateFields } from "./utils/deleteUtils";
+import { deleteAllDateFields as handleDeleteAllUtil } from "./utils/deleteUtils";
+
 import Banner from "./pages/Banner";
 import { useNavigate } from "react-router-dom";
+
+// ✅ Thêm dòng này để sửa lỗi icon chưa định nghĩa
+import LockResetIcon from "@mui/icons-material/LockReset";
+
 
 export default function Admin({ onCancel }) {
   const [firestoreEnabled, setFirestoreEnabled] = useState(false);
@@ -42,6 +47,17 @@ export default function Admin({ onCancel }) {
   const [tabIndex, setTabIndex] = useState(0);
   const navigate = useNavigate();
 
+  const [selectedYear, setSelectedYear] = useState("2024-2025");
+
+  const yearOptions = [
+    "2024-2025",
+    "2025-2026",
+    "2026-2027",
+    "2027-2028",
+    "2028-2029"
+  ];
+
+
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -53,14 +69,31 @@ export default function Admin({ onCancel }) {
         }
         setPasswords(newPasswords);
 
-        const toggleSnap = await getDoc(doc(db, "SETTINGS", "TOGGLE"));
-        if (toggleSnap.exists()) setFirestoreEnabled(toggleSnap.data().useNewVersion);
+        const toggleSnap = await getDoc(doc(db, "SETTINGS", "TAIDULIEU"));
+        if (toggleSnap.exists()) setFirestoreEnabled(toggleSnap.data().theokhoi);
       } catch (error) {
         console.error("❌ Lỗi khi tải cấu hình:", error);
       }
     };
+
+    const fetchYear = async () => {
+      try {
+        const yearSnap = await getDoc(doc(db, "YEAR", "NAMHOC"));
+        if (yearSnap.exists()) {
+          const firestoreYear = yearSnap.data().value;
+          if (firestoreYear) {
+            setSelectedYear(firestoreYear);
+          }
+        }
+      } catch (error) {
+        console.error("❌ Lỗi khi lấy năm học từ Firestore:", error);
+      }
+    };
+
     fetchSettings();
+    fetchYear();
   }, []);
+
 
   useEffect(() => {
     if (restoreProgress === 100) {
@@ -69,11 +102,27 @@ export default function Admin({ onCancel }) {
     }
   }, [restoreProgress]);
 
+  const handleYearChange = async (newYear) => {
+    setSelectedYear(newYear);
+
+    try {
+      await setDoc(doc(db, "YEAR", "NAMHOC"), {
+        value: newYear
+      });
+
+      console.log(`✅ Đã cập nhật năm học: ${newYear}`);
+    } catch (error) {
+      console.error("❌ Lỗi khi ghi năm học vào Firestore:", error);
+      alert("Không thể cập nhật năm học!");
+    }
+  };
+
+
   const handleToggleChange = async (e) => {
     const newValue = e.target.value === "khoi";
     setFirestoreEnabled(newValue);
     try {
-      await setDoc(doc(db, "SETTINGS", "TOGGLE"), { useNewVersion: newValue });
+      await setDoc(doc(db, "SETTINGS", "TAIDULIEU"), { theokhoi: newValue });
     } catch (error) {
       alert("❌ Không thể cập nhật chế độ Firestore!");
     }
@@ -113,28 +162,19 @@ export default function Admin({ onCancel }) {
     }
   };
 
-
-
   const handleDeleteAll = async () => {
-    const confirmed = window.confirm("⚠️ Bạn có chắc chắn muốn xóa tất cả dữ liệu?");
+    const confirmed = window.confirm(`⚠️ Bạn có chắc chắn muốn xóa tất cả dữ liệu điểm danh của năm ${selectedYear}?`);
     if (!confirmed) return;
 
-    setDeleteInProgress(true);
-    setDeleteMessage("");
-    setDeleteProgress(0);
-    try {
-      await deleteAllDateFields({
-        setDeleteProgress,
-        setDeleteMessage,
-        setDeleteSeverity,
-      });
-    } catch (error) {
-      setDeleteMessage("❌ Lỗi khi xóa dữ liệu.");
-      setDeleteSeverity("error");
-    } finally {
-      setDeleteInProgress(false);
-    }
+    await handleDeleteAllUtil({
+      setDeleteInProgress,
+      setDeleteProgress,
+      setDeleteMessage,
+      setDeleteSeverity,
+      namHocValue: selectedYear, // ✅ Truyền giá trị năm học động vào đây
+    });
   };
+
 
   const handleSetDefault = async () => {
     const confirmed = window.confirm("⚠️ Bạn có chắc muốn reset điểm danh?");
@@ -144,14 +184,26 @@ export default function Admin({ onCancel }) {
       setSetDefaultProgress(0);
       setSetDefaultMessage("");
       setSetDefaultSeverity("info");
-      const snapshot = await getDocs(collection(db, "BANTRU"));
+
+      // 🔍 Lấy năm học hiện tại từ YEAR/NAMHOC
+      const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+      const namHocValue = namHocDoc.exists() ? namHocDoc.data().value : null;
+      if (!namHocValue) {
+        setSetDefaultMessage("❌ Không tìm thấy năm học hợp lệ trong hệ thống!");
+        setSetDefaultSeverity("error");
+        return;
+      }
+
+      const collectionName = `BANTRU_${namHocValue}`;
+      const snapshot = await getDocs(collection(db, collectionName));
       const docs = snapshot.docs;
       const total = docs.length;
       let completed = 0;
+
       for (const docSnap of docs) {
         const data = docSnap.data();
         if (data.huyDangKy !== "x") {
-          await setDoc(doc(db, "BANTRU", docSnap.id), {
+          await setDoc(doc(db, collectionName, docSnap.id), {
             ...data,
             huyDangKy: "T",
           });
@@ -159,6 +211,7 @@ export default function Admin({ onCancel }) {
         completed++;
         setSetDefaultProgress(Math.round((completed / total) * 100));
       }
+
       setSetDefaultMessage("✅ Đã reset điểm danh!");
       setSetDefaultSeverity("success");
     } catch (error) {
@@ -168,6 +221,34 @@ export default function Admin({ onCancel }) {
       setTimeout(() => setSetDefaultProgress(0), 3000);
     }
   };
+
+
+  const handleInitNewYearData = async () => {
+    const confirmed = window.confirm(`⚠️ Bạn có chắc muốn khởi tạo dữ liệu cho năm ${selectedYear}?`);
+    if (!confirmed) return;
+
+    const danhSachDocs = ["K1", "K2", "K3", "K4", "K5", "TRUONG"];
+
+    try {
+      // ✅ Khởi tạo các tài liệu bên trong DANHSACH
+      for (const docName of danhSachDocs) {
+        await setDoc(doc(db, `DANHSACH_${selectedYear}`, docName), {
+          list:""
+        });
+      }
+
+      // ✅ Khởi tạo tài liệu init trong BANTRU (không dùng "__init__")
+      await setDoc(doc(db, `BANTRU_${selectedYear}`, "init"), {
+        temp: ""
+      });
+
+      alert(`✅ Đã khởi tạo dữ liệu cho năm học ${selectedYear}`);
+    } catch (err) {
+      console.error("❌ Lỗi khi khởi tạo dữ liệu:", err);
+      alert("❌ Không thể khởi tạo dữ liệu năm mới!");
+    }
+  };
+
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#e3f2fd" }}>
@@ -189,6 +270,37 @@ export default function Admin({ onCancel }) {
               <Button variant="contained" onClick={() => navigate("/quanly")} sx={{ maxWidth: 300, width: "100%" }}>
                 🏫 HỆ THỐNG QUẢN LÝ BÁN TRÚ
               </Button>
+
+              <FormControl fullWidth sx={{ maxWidth: 300 }}>
+                <InputLabel id="year-select-label">Năm học</InputLabel>
+                <Select
+                  labelId="year-select-label"
+                  label="Năm học"
+                  value={selectedYear}
+                  onChange={(e) => handleYearChange(e.target.value)} // ← Gọi hàm ghi Firestore
+                >
+                  {yearOptions.map((year) => (
+                    <MenuItem key={year} value={year}>
+                      {year}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <Button
+                variant="contained"
+                color="info"
+                onClick={handleInitNewYearData}
+                sx={{
+                  maxWidth: 300,
+                  width: "100%",
+                  backgroundColor: "#0288d1", // xanh dương nhạt
+                  "&:hover": { backgroundColor: "#01579b" }
+                }}
+              >
+                🆕 Khởi tạo dữ liệu năm mới
+              </Button>
+
 
               <FormControl fullWidth sx={{ maxWidth: 300 }}>
                 <InputLabel id="account-select-label">Loại tài khoản</InputLabel>
@@ -218,9 +330,11 @@ export default function Admin({ onCancel }) {
                 color="warning"
                 onClick={() => handleChangePassword(selectedAccount)}
                 sx={{ maxWidth: 300, width: "100%" }}
+                startIcon={<LockResetIcon />}
               >
                 Đổi mật khẩu
               </Button>
+
 
               <FormControl>
                 <Typography variant="subtitle1" fontWeight="bold">
@@ -314,7 +428,7 @@ export default function Admin({ onCancel }) {
               >
                 ♻️ Reset điểm danh
               </Button>
-
+              
               {(restoreProgress > 0 || deleteProgress > 0 || setDefaultProgress > 0) && (
                 <Box sx={{ mt: 2 }}>
                   <LinearProgress

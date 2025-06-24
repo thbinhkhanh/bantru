@@ -22,6 +22,7 @@ export default function DieuChinhSuatAn({ onBack }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(null);
+  const [namHocValue, setNamHocValue] = useState(null);
 
   useEffect(() => {
     if (saveSuccess !== null) {
@@ -31,29 +32,42 @@ export default function DieuChinhSuatAn({ onBack }) {
   }, [saveSuccess]);
 
   useEffect(() => {
-    const fetchClassList = async () => {
+    const fetchNamHocAndClassList = async () => {
       try {
-        const docRef = doc(db, "DANHSACH", "TRUONG");
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
+        const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+        const namHoc = namHocDoc.exists() ? namHocDoc.data().value : null;
+
+        if (!namHoc) {
+          setIsLoading(false);
+          setSaveSuccess("❌ Không tìm thấy năm học hợp lệ trong hệ thống!");
+          return;
+        }
+
+        setNamHocValue(namHoc);
+
+        const danhSachDoc = await getDoc(doc(db, `DANHSACH_${namHoc}`, "TRUONG"));
+        if (danhSachDoc.exists()) {
+          const data = danhSachDoc.data();
           setClassList(data.list || []);
           if (data.list.length > 0) {
             setSelectedClass(data.list[0]);
-            await fetchStudents(data.list[0]);
+            await fetchStudents(data.list[0], namHoc);
           }
         }
       } catch (err) {
-        console.error("❌ Lỗi khi tải danh sách lớp:", err);
+        console.error("❌ Lỗi khi tải dữ liệu:", err);
+        setIsLoading(false);
       }
     };
-    fetchClassList();
+    fetchNamHocAndClassList();
   }, []);
 
-  const fetchStudents = async (className) => {
+  const fetchStudents = async (className, nhValue = namHocValue) => {
+    if (!nhValue) return;
+
     setIsLoading(true);
     try {
-      const q = query(collection(db, "BANTRU"), where("lop", "==", className));
+      const q = query(collection(db, `BANTRU_${nhValue}`), where("lop", "==", className));
       const snapshot = await getDocs(q);
 
       const selected = new Date(selectedDate);
@@ -90,18 +104,17 @@ export default function DieuChinhSuatAn({ onBack }) {
   };
 
   useEffect(() => {
-    if (selectedClass) fetchStudents(selectedClass);
+    if (selectedClass && namHocValue) fetchStudents(selectedClass);
   }, [selectedDate]);
 
   const saveData = async () => {
-    if (isSaving) return;
+    if (isSaving || !namHocValue) return;
 
     const loginRole = localStorage.getItem("loginRole");
     const now = new Date();
     const sm = selectedDate.getMonth(), sy = selectedDate.getFullYear();
     const cm = now.getMonth(), cy = now.getFullYear();
 
-    // ❗ Chặn nếu không phải admin hoặc yte — hoặc yte mà sửa tháng quá khứ
     if (
       loginRole !== "admin" &&
       (
@@ -127,7 +140,7 @@ export default function DieuChinhSuatAn({ onBack }) {
         .split("T")[0];
 
       await Promise.all(changed.map(s =>
-        updateDoc(doc(db, "BANTRU", s.id), {
+        updateDoc(doc(db, `BANTRU_${namHocValue}`, s.id), {
           [`data.${selectedDateStr}`]: s.registered ? "T" : ""
         })
       ));
@@ -144,9 +157,16 @@ export default function DieuChinhSuatAn({ onBack }) {
     }
   };
 
+  const handleClassChange = async e => {
+    await saveData();
+    setSelectedClass(e.target.value);
+    await fetchStudents(e.target.value);
+  };
 
-  const handleClassChange = async e => { await saveData(); setSelectedClass(e.target.value); await fetchStudents(e.target.value); };
-  const handleDateChange = nv => { if (nv instanceof Date && !isNaN(nv)) setSelectedDate(nv); };
+  const handleDateChange = nv => {
+    if (nv instanceof Date && !isNaN(nv)) setSelectedDate(nv);
+  };
+
   const toggleRegister = idx => setDataList(prev => prev.map((s, i) => i === idx ? { ...s, registered: !s.registered } : s));
 
   return (
@@ -234,14 +254,8 @@ export default function DieuChinhSuatAn({ onBack }) {
               {isSaving ? "🔄 Cập nhật" : "Cập nhật"}
             </Button>
 
-            {saveSuccess === "tooEarly" && (
-              <Alert severity="warning" sx={{ width: "100%", textAlign: 'left' }}>
-                ⚠️ Không thể điều chỉnh suất ăn tháng trước.
-              </Alert>
-            )}
-
             {saveSuccess === "unauthorized" && (
-              <Alert severity="error" ssx={{ width: "100%", textAlign: 'left' }}>
+              <Alert severity="error" sx={{ width: "100%", textAlign: 'left' }}>
                 ❌ Bạn không có quyền điều chỉnh suất ăn!
               </Alert>
             )}
@@ -250,7 +264,6 @@ export default function DieuChinhSuatAn({ onBack }) {
               <Alert severity="success" sx={{ width: "92%", textAlign: 'left' }}>
                 ✅ Cập nhật thành công!
               </Alert>
-
             )}
 
             {saveSuccess === false && (
@@ -269,7 +282,6 @@ export default function DieuChinhSuatAn({ onBack }) {
               ⬅️ Quay lại
             </Button>
           </Stack>
-
         </CardContent>
       </Card>
     </Box>

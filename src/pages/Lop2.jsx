@@ -7,7 +7,7 @@ import {
 import { getDocs, getDoc, collection, doc, updateDoc, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useLocation } from 'react-router-dom';
-import { MySort } from '../utils/MySort'; // 🆕 Thêm dòng này ở đầu file Lop1.
+import { MySort } from '../utils/MySort';
 
 export default function Lop2() {
   const location = useLocation();
@@ -20,20 +20,29 @@ export default function Lop2() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState(null);
+  const [currentNamHoc, setCurrentNamHoc] = useState(null);
 
   const saveTimeout = useRef(null);
   const intervalRef = useRef(null);
 
-  const fetchStudents = async (className) => {
+  // 🆕 Lấy năm học từ Firestore
+  const fetchNamHoc = async () => {
+    const docSnap = await getDoc(doc(db, 'YEAR', 'NAMHOC'));
+    if (!docSnap.exists()) throw new Error('❌ Không tìm thấy YEAR/NAMHOC');
+    return docSnap.data().value || 'UNKNOWN';
+  };
+
+  const fetchStudents = async (className, namHoc) => {
     setIsLoading(true);
     try {
+      const banTruCollection = `BANTRU_${namHoc}`;
       let snapshot;
 
       if (useNewVersion) {
-        const q = query(collection(db, 'BANTRU'), where('lop', '==', className));
+        const q = query(collection(db, banTruCollection), where('lop', '==', className));
         snapshot = await getDocs(q);
       } else {
-        snapshot = await getDocs(collection(db, 'BANTRU'));
+        snapshot = await getDocs(collection(db, banTruCollection));
       }
 
       const data = snapshot.docs
@@ -49,11 +58,10 @@ export default function Lop2() {
         })
         .filter(student =>
           (useNewVersion || student.lop === className) &&
-          student.huyDangKy !== 'x' // ✅ Lọc theo yêu cầu
+          student.huyDangKy !== 'x'
         );
 
-      //setFilteredStudents(data);
-      setFilteredStudents(MySort(data)); // 🆕 Sắp xếp danh sách theo Tên → Đệm →
+      setFilteredStudents(MySort(data));
 
       const checkedMap = {};
       data.forEach(s => (checkedMap[s.id] = s.registered));
@@ -65,41 +73,52 @@ export default function Lop2() {
     }
   };
 
-  useEffect(() => {
-    const fetchClassList = async () => {
-      try {
-        const docRef = doc(db, 'DANHSACH', 'K2');
-        const docSnap = await getDoc(docRef);
+  const fetchClassList = async (namHoc) => {
+    try {
+      const docRef = doc(db, `DANHSACH_${namHoc}`, 'K2');
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) {
+        console.error(`❌ Không tìm thấy document K2 trong DANHSACH_${namHoc}`);
+        return;
+      }
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          const classes = data.list || [];
-          setClassList(classes);
-          if (classes.length > 0) {
-            const firstClass = classes[0];
-            setSelectedClass(firstClass);
-            await fetchStudents(firstClass);
-          }
-        } else {
-          console.error('❌ Không tìm thấy document K2 trong DANHSACH');
-        }
+      const data = docSnap.data();
+      const classes = data.list || [];
+      setClassList(classes);
+
+      if (classes.length > 0) {
+        const firstClass = classes[0];
+        setSelectedClass(firstClass);
+        await fetchStudents(firstClass, namHoc);
+      }
+    } catch (error) {
+      console.error('❌ Lỗi khi tải danh sách lớp:', error);
+    }
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const namHoc = await fetchNamHoc();
+        setCurrentNamHoc(namHoc);
+        await fetchClassList(namHoc);
       } catch (error) {
-        console.error('❌ Lỗi khi tải danh sách lớp:', error);
+        console.error('❌ Lỗi khởi tạo năm học:', error);
       }
     };
-
-    fetchClassList();
+    init();
   }, []);
 
   const saveData = async () => {
-    if (isSaving) return;
+    if (isSaving || !currentNamHoc) return;
     const changed = filteredStudents.filter(s => s.registered !== originalChecked[s.id]);
     if (changed.length === 0) return;
 
     setIsSaving(true);
     try {
+      const banTruCollection = `BANTRU_${currentNamHoc}`;
       const updates = changed.map(s =>
-        updateDoc(doc(db, 'BANTRU', s.id), { 'huyDangKy': s.registered ? 'T' : '' })
+        updateDoc(doc(db, banTruCollection, s.id), { huyDangKy: s.registered ? 'T' : '' })
       );
       await Promise.all(updates);
 
@@ -118,7 +137,7 @@ export default function Lop2() {
     await saveData();
     const selected = event.target.value;
     setSelectedClass(selected);
-    fetchStudents(selected);
+    await fetchStudents(selected, currentNamHoc);
   };
 
   const toggleRegister = (index) => {
@@ -141,7 +160,7 @@ export default function Lop2() {
   useEffect(() => {
     intervalRef.current = setInterval(saveData, 120000);
     return () => clearInterval(intervalRef.current);
-  }, [filteredStudents, originalChecked]);
+  }, [filteredStudents, originalChecked, currentNamHoc]);
 
   useEffect(() => {
     const beforeUnload = (e) => {
@@ -155,6 +174,7 @@ export default function Lop2() {
     return () => window.removeEventListener('beforeunload', beforeUnload);
   }, [filteredStudents, originalChecked]);
 
+  // ⬇️ UI giữ nguyên
   return (
     <Box sx={{ minHeight: '100vh', background: 'linear-gradient(to bottom, #e3f2fd, #bbdefb)', py: 6, px: 2, mt: 6, display: 'flex', justifyContent: 'center' }}>
       <Card sx={{ p: { xs: 2, sm: 3, md: 4 }, maxWidth: 450, width: '100%', borderRadius: 4, boxShadow: '0 8px 30px rgba(0,0,0,0.15)', backgroundColor: 'white' }} elevation={10}>
@@ -175,9 +195,7 @@ export default function Lop2() {
 
         {isLoading ? (
           <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', my: 2 }}>
-            <Box sx={{ width: '50%' }}>
-              <LinearProgress />
-            </Box>
+            <Box sx={{ width: '50%' }}><LinearProgress /></Box>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               Đang tải dữ liệu học sinh...
             </Typography>
@@ -187,10 +205,9 @@ export default function Lop2() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>STT</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>HỌ VÀ TÊN</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white', px: { xs: 0.5, sm: 1, md: 2 } }}>ĐĂNG KÝ</TableCell>
-
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>STT</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>HỌ VÀ TÊN</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>ĐĂNG KÝ</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

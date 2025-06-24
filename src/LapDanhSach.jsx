@@ -5,7 +5,7 @@ import {
   Select, FormControl, InputLabel, Checkbox, Card, LinearProgress,
   Alert
 } from '@mui/material';
-import { getDocs, collection, doc, updateDoc } from 'firebase/firestore';
+import { getDocs, getDoc, collection, doc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import { MySort } from './utils/MySort';
 
@@ -26,7 +26,22 @@ export default function LapDanhSach({ onBack }) {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const snapshot = await getDocs(collection(db, 'BANTRU'));
+        // 🔄 Lấy giá trị năm học hiện tại
+        const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+        const namHocValue = namHocDoc.exists() ? namHocDoc.data().value : null;
+
+        if (!namHocValue) {
+          setIsLoading(false);
+          setAlertInfo({
+            open: true,
+            message: "❌ Không tìm thấy năm học hợp lệ trong hệ thống!",
+            severity: "error",
+          });
+          return;
+        }
+
+        // ✅ Dùng collection động BANTRU_{namHocValue}
+        const snapshot = await getDocs(collection(db, `BANTRU_${namHocValue}`));
         const studentData = snapshot.docs.map(docSnap => {
           const data = docSnap.data();
           const huyDangKy = data.huyDangKy || '';
@@ -69,6 +84,7 @@ export default function LapDanhSach({ onBack }) {
 
     fetchData();
   }, []);
+
 
   const handleClassChange = (event) => {
     const selected = event.target.value;
@@ -117,7 +133,10 @@ export default function LapDanhSach({ onBack }) {
 
       for (let student of changedStudents) {
         const huyDangKy = student.registered ? 'T' : '';
-        await updateDoc(doc(db, 'BANTRU', student.id), { huyDangKy });
+        const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+        const namHocValue = namHocDoc.exists() ? namHocDoc.data().value : null;
+        if (!namHocValue) throw new Error("Không tìm thấy năm học hợp lệ");
+        await updateDoc(doc(db, `BANTRU_${namHocValue}`, student.id), { huyDangKy });
       }
 
       setAlertInfo({

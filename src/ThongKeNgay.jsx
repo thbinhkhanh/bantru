@@ -3,17 +3,17 @@ import {
   Box, Typography, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, Stack, Button, IconButton, LinearProgress
 } from "@mui/material";
-
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import vi from "date-fns/locale/vi";
-import { getDocs, collection } from "firebase/firestore";
+import { getDocs, getDoc, collection, doc } from "firebase/firestore";
 import { db } from "./firebase";
 import { format } from "date-fns";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
+// Group dữ liệu theo khối và lớp
 function groupData(data, selectedDate) {
   const khoiData = {};
   let truongSiSo = 0;
@@ -42,14 +42,12 @@ function groupData(data, selectedDate) {
       isGroup: false,
     };
 
-    // Đếm sĩ số
     if (huyDK !== "X") {
       khoiData[khoi].children[lop].siSo += 1;
       khoiData[khoi].siSo += 1;
       truongSiSo += 1;
     }
 
-    // Đếm ăn bán trú
     if (student.data && student.data[ngayChon] === "T") {
       khoiData[khoi].children[lop].anBanTru += 1;
       khoiData[khoi].anBanTru += 1;
@@ -85,6 +83,7 @@ function groupData(data, selectedDate) {
   return summaryData;
 }
 
+// Component render từng dòng
 function Row({ row, openGroups, setOpenGroups, summaryData }) {
   const isOpen = openGroups.includes(row.group);
   const isTruong = row.group === "TRƯỜNG";
@@ -138,6 +137,7 @@ function Row({ row, openGroups, setOpenGroups, summaryData }) {
   );
 }
 
+// Hàm chính
 export default function ThongKeTheoNgay({ onBack }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dataList, setDataList] = useState([]);
@@ -149,7 +149,16 @@ export default function ThongKeTheoNgay({ onBack }) {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const snapshot = await getDocs(collection(db, "BANTRU"));
+        const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+        const namHocValue = namHocDoc.exists() ? namHocDoc.data().value : null;
+
+        if (!namHocValue) {
+          console.error("❌ Không tìm thấy năm học hiện tại trong hệ thống!");
+          setIsLoading(false);
+          return;
+        }
+
+        const snapshot = await getDocs(collection(db, `BANTRU_${namHocValue}`));
         const studentData = snapshot.docs.map(doc => doc.data());
         setDataList(studentData);
         setSummaryData(groupData(studentData, selectedDate));
@@ -161,7 +170,7 @@ export default function ThongKeTheoNgay({ onBack }) {
     };
 
     fetchData();
-  }, [selectedDate]); // Cập nhật khi chọn ngày mới
+  }, [selectedDate]);
 
   return (
     <Box sx={{ maxWidth: 500, marginLeft: "auto", marginRight: "auto", paddingLeft: 0.5, paddingRight: 0.5, mt: 2 }}>
@@ -176,7 +185,7 @@ export default function ThongKeTheoNgay({ onBack }) {
           >
             TỔNG HỢP NGÀY
           </Typography>
-           <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
+          <Box sx={{ height: "2px", width: "100%", backgroundColor: "#1976d2", borderRadius: 1, mt: 2, mb: 4 }} />
         </Box>
 
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>

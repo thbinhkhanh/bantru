@@ -1,5 +1,11 @@
-// 📁 restoreUtils.js
-import { collection, doc, getDocs, setDoc, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  Timestamp,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import * as XLSX from "xlsx";
 
@@ -17,6 +23,11 @@ export const restoreFromJSONFile = async (
     const jsonData = JSON.parse(text);
     const collections = Object.entries(jsonData);
 
+    // 🔍 Lấy năm học từ Firestore
+    const yearDocSnap = await getDoc(doc(db, "YEAR", "NAMHOC"));
+    if (!yearDocSnap.exists()) throw new Error("❌ Không tìm thấy YEAR/NAMHOC!");
+    const currentNamHoc = yearDocSnap.data().value || "UNKNOWN";
+
     let totalDocs = 0;
     collections.forEach(([name, docs]) => {
       if (name !== "SETTINGS") {
@@ -27,7 +38,10 @@ export const restoreFromJSONFile = async (
     let processed = 0;
 
     for (const [collectionName, documents] of collections) {
-      if (collectionName === "SETTINGS") continue; // 🚫 Bỏ qua SETTINGS
+      if (collectionName === "SETTINGS") continue;
+
+      // Xác định collection nào cần kiểm tra maDinhDanh
+      const requiresMaDinhDanh = collectionName.startsWith("BANTRU");
 
       for (const [docId, docData] of Object.entries(documents)) {
         const restoredData = {};
@@ -35,15 +49,18 @@ export const restoreFromJSONFile = async (
         for (const [key, value] of Object.entries(docData)) {
           if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
             const date = new Date(value);
-            restoredData[key] = isNaN(date.getTime()) ? value : Timestamp.fromDate(date);
+            restoredData[key] = isNaN(date.getTime())
+              ? value
+              : Timestamp.fromDate(date);
           } else {
             restoredData[key] = value;
           }
         }
 
-        // ✅ Kiểm tra maDinhDanh trước khi ghi
-        if (typeof restoredData.maDinhDanh === "undefined") {
-          console.warn(`❗ Thiếu maDinhDanh tại docId: ${docId}, collection: ${collectionName}`);
+        if (requiresMaDinhDanh && typeof restoredData.maDinhDanh === "undefined") {
+          console.warn(
+            `❗ Thiếu maDinhDanh tại docId: ${docId}, collection: ${collectionName}`
+          );
           continue;
         }
 
@@ -54,7 +71,7 @@ export const restoreFromJSONFile = async (
     }
 
     setRestoreProgress(100);
-    setAlertMessage("✅ Đã phục hồi dữ liệu thành công!");
+    setAlertMessage(`✅ Đã phục hồi dữ liệu năm học ${currentNamHoc} thành công!`);
     setAlertSeverity("success");
   } catch (error) {
     console.error("❌ Lỗi khi phục hồi JSON:", error);
@@ -62,6 +79,7 @@ export const restoreFromJSONFile = async (
     setAlertSeverity("error");
   }
 };
+
 
 /** 🔁 Phục hồi dữ liệu từ Excel (.xlsx) */
 export const restoreFromExcelFile = async (
@@ -74,6 +92,14 @@ export const restoreFromExcelFile = async (
     if (!file) return alert("⚠️ Chưa chọn file để phục hồi!");
 
     setRestoreProgress(0);
+
+    const yearDocSnap = await getDoc(doc(db, "YEAR", "NAMHOC"));
+    if (!yearDocSnap.exists())
+      throw new Error("❌ Không tìm thấy năm học trong Firestore (YEAR/NAMHOC)");
+    const currentNamHoc = yearDocSnap.data().value;
+    if (!currentNamHoc)
+      throw new Error("❌ Trường value trong YEAR/NAMHOC trống.");
+
     const data = await file.arrayBuffer();
     const workbook = XLSX.read(data, { type: "array" });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -87,6 +113,7 @@ export const restoreFromExcelFile = async (
 
     const totalRows = rows.length;
     let processed = 0;
+    const collectionWithYear = `BANTRU_${currentNamHoc}`;
 
     for (const row of rows) {
       const { id, maDinhDanh, ...rawDoc } = row;
@@ -95,16 +122,21 @@ export const restoreFromExcelFile = async (
         continue;
       }
 
-      const docData = { maDinhDanh }; // ⚠️ Đảm bảo maDinhDanh luôn có
+      const docData = { maDinhDanh };
       const dataField = {};
 
       for (const [key, value] of Object.entries(rawDoc)) {
         if (/^\d{4}[-/]\d{2}[-/]\d{2}/.test(key)) {
           const normalizedDate = key.replace(/\//g, "-");
           dataField[normalizedDate] = value;
-        } else if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value)) {
+        } else if (
+          typeof value === "string" &&
+          /^\d{4}-\d{2}-\d{2}T/.test(value)
+        ) {
           const date = new Date(value);
-          docData[key] = isNaN(date.getTime()) ? value : Timestamp.fromDate(date);
+          docData[key] = isNaN(date.getTime())
+            ? value
+            : Timestamp.fromDate(date);
         } else {
           docData[key] = value;
         }
@@ -114,14 +146,16 @@ export const restoreFromExcelFile = async (
         docData.data = dataField;
       }
 
-      await setDoc(doc(db, "BANTRU", id.toString()), docData, { merge: true });
+      await setDoc(doc(db, collectionWithYear, id.toString()), docData, {
+        merge: true,
+      });
       processed++;
       setRestoreProgress(Math.round((processed / totalRows) * 100));
     }
 
     setRestoreProgress(100);
     setTimeout(() => {
-      setAlertMessage("✅ Đã phục hồi dữ liệu thành công!");
+      setAlertMessage(`✅ Đã phục hồi dữ liệu năm học ${currentNamHoc} thành công!`);
       setAlertSeverity("success");
     }, 500);
   } catch (error) {

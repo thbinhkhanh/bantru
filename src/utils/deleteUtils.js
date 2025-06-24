@@ -1,4 +1,3 @@
-// utils/deleteUtils.js
 import { collection, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -6,13 +5,14 @@ export const deleteAllDateFields = async ({
   setDeleteProgress,
   setDeleteMessage,
   setDeleteSeverity,
+  namHocValue, // ➕ Thêm giá trị năm học từ ngoài truyền vào
 }) => {
   setDeleteProgress(1);
   setDeleteMessage("");
   setDeleteSeverity("info");
 
   try {
-    const banTruCol = collection(db, "BANTRU");
+    const banTruCol = collection(db, `BANTRU_${namHocValue}`); // 🔁 Sử dụng động theo năm học
     const docsSnap = await getDocs(banTruCol);
     const total = docsSnap.size;
     let processed = 0;

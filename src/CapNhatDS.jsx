@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Card, Stack, FormControl, InputLabel,
   Select, MenuItem, TextField, Button, LinearProgress,
-  RadioGroup, FormControlLabel, Radio, Snackbar, Alert, Checkbox
+  RadioGroup, FormControlLabel, Radio, Alert
 } from "@mui/material";
 import { collection, getDocs, doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
@@ -19,6 +19,7 @@ export default function CapNhatDS({ onBack }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [nhapTuDanhSach, setNhapTuDanhSach] = useState("danhSach");
+  const [namHocValue, setNamHocValue] = useState(null);
 
   const [customHoTen, setCustomHoTen] = useState("");
   const [customMaDinhDanh, setCustomMaDinhDanh] = useState("");
@@ -35,7 +36,16 @@ export default function CapNhatDS({ onBack }) {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const snapshot = await getDocs(collection(db, "BANTRU"));
+        const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+        const namHoc = namHocDoc.exists() ? namHocDoc.data().value : null;
+        if (!namHoc) {
+          setLoading(false);
+          showSnackbar("❌ Không tìm thấy năm học hợp lệ trong hệ thống!", "error");
+          return;
+        }
+        setNamHocValue(namHoc);
+
+        const snapshot = await getDocs(collection(db, `BANTRU_${namHoc}`));
         const studentsData = snapshot.docs.map((docSnap) => ({
           id: docSnap.id,
           ...docSnap.data(),
@@ -59,17 +69,14 @@ export default function CapNhatDS({ onBack }) {
       setSelectedStudentId("");
       setSelectedStudentData(null);
       setDangKy("");
-      // ẩn thông báo khi đổi lớp
       if (snackbar.open) setSnackbar({ ...snackbar, open: false });
       return;
     }
     const filtered = MySort(allStudents.filter((s) => s.lop === selectedClass));
     setFilteredStudents(filtered);
-
     setSelectedStudentId("");
     setSelectedStudentData(null);
     setDangKy("");
-    // ẩn thông báo khi đổi lớp
     if (snackbar.open) setSnackbar({ ...snackbar, open: false });
   }, [selectedClass]);
 
@@ -77,37 +84,35 @@ export default function CapNhatDS({ onBack }) {
     if (!selectedStudentId || nhapTuDanhSach !== "danhSach") {
       setSelectedStudentData(null);
       setDangKy("");
-      // ẩn thông báo khi đổi chọn học sinh
       if (snackbar.open) setSnackbar({ ...snackbar, open: false });
       return;
     }
     const student = filteredStudents.find((s) => s.id === selectedStudentId);
     setSelectedStudentData(student || null);
     setDangKy(student?.dangKy || "");
-    // ẩn thông báo khi đổi chọn học sinh
     if (snackbar.open) setSnackbar({ ...snackbar, open: false });
   }, [selectedStudentId, filteredStudents, nhapTuDanhSach]);
 
   const handleUpdate = async () => {
-    // ✅ PHÂN QUYỀN DỰA TRÊN loginRole
     const loginRole = localStorage.getItem("loginRole");
-    if (loginRole === "admin" || loginRole === "bgh") {
-      // OK, tiếp tục
-    } else {
+    if (loginRole !== "admin" && loginRole !== "bgh") {
       showSnackbar("❌ Bạn không có quyền cập nhật danh sách!", "error");
+      return;
+    }
+
+    if (!namHocValue) {
+      showSnackbar("❌ Không tìm thấy năm học để cập nhật!", "error");
       return;
     }
 
     setSaving(true);
 
-    // 1. Kiểm tra lớp
     if (!selectedClass) {
       showSnackbar("⚠️ Vui lòng chọn lớp!", "warning");
       setSaving(false);
       return;
     }
 
-    // 2. Kiểm tra học sinh hoặc nhập tay
     if (nhapTuDanhSach === "danhSach") {
       if (!selectedStudentId || !selectedStudentData) {
         showSnackbar("⚠️ Vui lòng chọn học sinh!", "warning");
@@ -122,7 +127,6 @@ export default function CapNhatDS({ onBack }) {
       }
     }
 
-    // 3. Kiểm tra trạng thái đăng ký
     if (!dangKy) {
       showSnackbar("⚠️ Vui lòng chọn trạng thái đăng ký!", "warning");
       setSaving(false);
@@ -144,15 +148,14 @@ export default function CapNhatDS({ onBack }) {
           return;
         }
 
-        await updateDoc(doc(db, "BANTRU", selectedStudentData.id), {
+        await updateDoc(doc(db, `BANTRU_${namHocValue}`, selectedStudentData.id), {
           huyDangKy,
         });
 
         showSnackbar("✅ Cập nhật thành công!");
       } else {
-        // Nhập thủ công
         const maDinhDanh = customMaDinhDanh.trim();
-        const docRef = doc(db, "BANTRU", maDinhDanh);
+        const docRef = doc(db, `BANTRU_${namHocValue}`, maDinhDanh);
         const docSnap = await getDoc(docRef);
 
         if (!docSnap.exists()) {

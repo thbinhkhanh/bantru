@@ -6,7 +6,7 @@ export function formatExcel(dataList, columnDates, year, selectedClass) {
   const headerRow = [
     "stt",
     "id",
-    "maDinhDanh", // ✅ Thêm cột maDinhDanh
+    "maDinhDanh",
     "hoVaTen",
     "lop",
     "huyDangKy",
@@ -17,10 +17,10 @@ export function formatExcel(dataList, columnDates, year, selectedClass) {
     const row = [
       index + 1,
       item.id || "",
-      item.maDinhDanh || "", // ✅ Thêm dữ liệu maDinhDanh
+      item.maDinhDanh || "",
       item.hoVaTen || "",
       item.lop || "",
-      item.huyDangKy || "", // giữ nguyên giá trị "x", "T", ""
+      item.huyDangKy || "",
     ];
 
     columnDates.forEach((dateStr) => {
@@ -31,21 +31,15 @@ export function formatExcel(dataList, columnDates, year, selectedClass) {
   });
 
   const finalData = [headerRow, ...dataRows];
-
   const ws = XLSX.utils.aoa_to_sheet(finalData);
 
-  // ✅ Cài đặt độ rộng cột, thêm độ rộng cho maDinhDanh
+  // ✅ Đặt độ rộng cột
   ws["!cols"] = [
-    { wch: 5 },   // stt
-    { wch: 15 },  // id
-    { wch: 20 },  // maDinhDanh
-    { wch: 30 },  // hoVaTen
-    { wch: 8 },   // lop
-    { wch: 12 },  // huyDangKy
+    { wch: 5 }, { wch: 15 }, { wch: 20 }, { wch: 30 }, { wch: 8 }, { wch: 12 },
     ...columnDates.map(() => ({ wch: 12 })),
   ];
 
-  // Styling cho header và dữ liệu
+  // ✅ Styling
   const range = XLSX.utils.decode_range(ws["!ref"]);
   for (let R = 0; R <= range.e.r; ++R) {
     for (let C = 0; C <= range.e.c; ++C) {
@@ -53,39 +47,37 @@ export function formatExcel(dataList, columnDates, year, selectedClass) {
       const cell = ws[cellRef];
       if (!cell) continue;
 
-      if (R === 0) {
-        // Header style
-        cell.s = {
-          font: { bold: true },
-          fill: { fgColor: { rgb: "EAF1FB" } },
-          border: {
-            top: { style: "thin", color: { rgb: "000000" } },
-            bottom: { style: "thin", color: { rgb: "000000" } },
-            left: { style: "thin", color: { rgb: "000000" } },
-            right: { style: "thin", color: { rgb: "000000" } },
-          },
-          alignment: { horizontal: "center", vertical: "center" },
-        };
-      } else {
-        // Data row style
-        cell.s = {
-          border: {
-            top: { style: "thin", color: { rgb: "999999" } },
-            bottom: { style: "thin", color: { rgb: "999999" } },
-            left: { style: "thin", color: { rgb: "999999" } },
-            right: { style: "thin", color: { rgb: "999999" } },
-          },
-          alignment: {
-            horizontal: C === 3 ? "left" : "center", // Họ tên left align
-            vertical: "center",
-          },
-        };
-      }
+      cell.s = R === 0
+        ? {
+            font: { bold: true },
+            fill: { fgColor: { rgb: "EAF1FB" } },
+            border: {
+              top: { style: "thin", color: { rgb: "000000" } },
+              bottom: { style: "thin", color: { rgb: "000000" } },
+              left: { style: "thin", color: { rgb: "000000" } },
+              right: { style: "thin", color: { rgb: "000000" } },
+            },
+            alignment: { horizontal: "center", vertical: "center" },
+          }
+        : {
+            border: {
+              top: { style: "thin", color: { rgb: "999999" } },
+              bottom: { style: "thin", color: { rgb: "999999" } },
+              left: { style: "thin", color: { rgb: "999999" } },
+              right: { style: "thin", color: { rgb: "999999" } },
+            },
+            alignment: {
+              horizontal: C === 3 ? "left" : "center",
+              vertical: "center",
+            },
+          };
     }
   }
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Backup");
+
+  // ✅ Tạo tên file theo format chuẩn
   const now = new Date();
   const day = String(now.getDate()).padStart(2, "0");
   const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -93,6 +85,8 @@ export function formatExcel(dataList, columnDates, year, selectedClass) {
   const hours = String(now.getHours()).padStart(2, "0");
   const minutes = String(now.getMinutes()).padStart(2, "0");
 
-  const filename = `Backup Firestore (${day}_${month}_${yearNow} ${hours}_${minutes}).xlsx`;
+  const filename = `Backup Firestore_${year} (${day}_${month}_${yearNow} ${hours}_${minutes}).xlsx`;
+
   XLSX.writeFile(wb, filename);
 }
+

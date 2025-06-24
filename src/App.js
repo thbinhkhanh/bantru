@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,6 +6,15 @@ import {
   Link,
   useLocation,
 } from 'react-router-dom';
+
+import {
+  Box,
+  Typography,
+  TextField, // ✅ Dùng TextField thay vì Select
+} from '@mui/material';
+
+import { getDoc, setDoc, doc } from 'firebase/firestore';
+import { db } from './firebase';
 
 import Home from './pages/Home';
 import Lop1 from './pages/Lop1';
@@ -19,12 +28,11 @@ import Admin from './Admin';
 import DangNhap from './DangNhap';
 import Footer from './pages/Footer';
 
-export default function App() {
+function App() {
   return (
     <Router>
       <Navigation />
-      {/* 👉 KHÔNG dùng paddingTop toàn cục nếu muốn Banner sát trên */}
-      <div>
+      <div style={{ paddingTop: 0 }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/lop1" element={<Lop1 />} />
@@ -45,6 +53,37 @@ export default function App() {
 
 function Navigation() {
   const location = useLocation();
+  const [selectedYear, setSelectedYear] = useState('');
+  const yearOptions = ['2024-2025', '2025-2026'];
+
+  useEffect(() => {
+    const fetchYear = async () => {
+      try {
+        const docRef = doc(db, 'YEAR', 'NAMHOC');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setSelectedYear(data?.value || '2024-2025');
+        } else {
+          await setDoc(docRef, { value: '2024-2025' });
+          setSelectedYear('2024-2025');
+        }
+      } catch (error) {
+        console.error('Lỗi đọc năm học từ Firestore:', error);
+      }
+    };
+    fetchYear();
+  }, []);
+
+  const handleYearChange = async (e) => {
+    const newYear = e.target.value;
+    setSelectedYear(newYear);
+    try {
+      await setDoc(doc(db, 'NAMHOC', 'current'), { nam: newYear });
+    } catch (error) {
+      console.error('Lỗi cập nhật năm học:', error);
+    }
+  };
 
   const navItems = [
     { path: '/', name: 'Trang chủ' },
@@ -70,35 +109,74 @@ function Navigation() {
         color: 'white',
         display: 'flex',
         alignItems: 'center',
-        overflowX: 'auto',
+        justifyContent: 'space-between',
         whiteSpace: 'nowrap',
         gap: '10px',
       }}
     >
-      <img
-        src="/Logo.png"
-        alt="Logo"
-        style={{ height: '40px', marginRight: '16px' }}
-      />
-      {navItems.map((item, index) => (
-        <Link
-          key={index}
-          to={item.path}
-          style={{
-            color: 'white',
-            textDecoration: 'none',
-            padding: '8px 12px',
-            backgroundColor:
-              location.pathname === item.path ? '#1565c0' : 'transparent',
-            borderBottom:
-              location.pathname === item.path ? '3px solid white' : 'none',
-            borderRadius: '4px',
-            flexShrink: 0,
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <img
+          src="/Logo.png"
+          alt="Logo"
+          style={{ height: '40px', marginRight: '16px' }}
+        />
+        {navItems.map((item, index) => (
+          <Link
+            key={index}
+            to={item.path}
+            style={{
+              color: 'white',
+              textDecoration: 'none',
+              padding: '8px 12px',
+              backgroundColor:
+                location.pathname === item.path ? '#1565c0' : 'transparent',
+              borderBottom:
+                location.pathname === item.path ? '3px solid white' : 'none',
+              borderRadius: '4px',
+              flexShrink: 0,
+            }}
+          >
+            {item.name}
+          </Link>
+        ))}
+      </div>
+
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold' }}>
+          Năm học:
+        </Typography>
+        <TextField
+          value={selectedYear}
+          onChange={handleYearChange}
+          variant="outlined"
+          size="small"
+          disabled  // 🔒 KHÓA ô này
+          sx={{
+            backgroundColor: 'white',
+            minWidth: 110,          // 🔽 giảm chiều rộng
+            maxWidth: 130,
+            borderRadius: 1,        // 🔘 bo góc nhẹ
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 1,      // 🔘 bo góc input
+              height: '32px',       // 🔽 giảm chiều cao
+            },
           }}
-        >
-          {item.name}
-        </Link>
-      ))}
+          inputProps={{
+            style: {
+              color: '#1976d2',
+              fontWeight: 'bold',
+              textAlign: 'center',
+              padding: '6px 8px',   // 🔽 thu gọn padding
+              fontSize: '14px',
+            },
+          }}
+        />
+
+      </Box>
     </nav>
   );
 }
+
+export default App;
+
+

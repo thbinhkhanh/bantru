@@ -18,7 +18,7 @@ import {
   DialogContentText,
   DialogActions,
   FormControl,
-  Tooltip, // ✅ thêm dòng này
+  Tooltip,
 } from "@mui/material";
 
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -32,6 +32,7 @@ import {
   updateDoc,
   doc,
   deleteField,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -68,7 +69,15 @@ export default function XoaDLNgay({ onBack }) {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const docRef = collection(db, "DANHSACH");
+        const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+        const namHocValue = namHocDoc.exists() ? namHocDoc.data().value : null;
+
+        if (!namHocValue) {
+          setErrorMessage("❌ Không tìm thấy năm học hợp lệ trong hệ thống!");
+          return;
+        }
+
+        const docRef = collection(db, `DANHSACH_${namHocValue}`);
         const snapshot = await getDocs(docRef);
         const truongDoc = snapshot.docs.find((doc) => doc.id === "TRUONG");
         const data = truongDoc?.data();
@@ -115,7 +124,16 @@ export default function XoaDLNgay({ onBack }) {
       .split("T")[0];
 
     try {
-      const danhSachRef = collection(db, "BANTRU");
+      const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+      const namHocValue = namHocDoc.exists() ? namHocDoc.data().value : null;
+
+      if (!namHocValue) {
+        setProgressing(false);
+        setErrorMessage("❌ Không tìm thấy năm học hợp lệ trong hệ thống!");
+        return;
+      }
+
+      const danhSachRef = collection(db, `BANTRU_${namHocValue}`);
       const snapshot = await getDocs(danhSachRef);
       const docsToUpdate = [];
 
@@ -138,7 +156,7 @@ export default function XoaDLNgay({ onBack }) {
 
         await Promise.all(
           docsToUpdate.map(async (s) => {
-            const docRef = doc(db, "BANTRU", s.id);
+            const docRef = doc(db, `BANTRU_${namHocValue}`, s.id);
             await updateDoc(docRef, {
               [`data.${selectedDateStr}`]: deleteField(),
             });
@@ -209,14 +227,12 @@ export default function XoaDLNgay({ onBack }) {
                 setErrorMessage("❌ Bạn không có quyền xóa dữ liệu!");
                 return;
               }
-              setErrorMessage(""); // Xóa lỗi cũ (nếu có)
+              setErrorMessage("");
               handleSubmit();
             }}
           >
             Thực hiện
           </Button>
-
-
         </Stack>
 
         {showSuccess && (
@@ -230,7 +246,6 @@ export default function XoaDLNgay({ onBack }) {
             {errorMessage}
           </Alert>
         )}
-
 
         {progressing && (
           <Box sx={{ width: "50%", mt: 2, mx: "auto" }}>
@@ -259,4 +274,3 @@ export default function XoaDLNgay({ onBack }) {
     </Box>
   );
 }
-

@@ -21,13 +21,26 @@ export default function ThongKeNam({ onBack }) {
   const [monthSet, setMonthSet] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showMonths, setShowMonths] = useState(false);
+  const [namHocValue, setNamHocValue] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  // Lấy năm học động
   useEffect(() => {
+    const fetchNamHoc = async () => {
+      const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+      const value = namHocDoc.exists() ? namHocDoc.data().value : null;
+      setNamHocValue(value);
+    };
+    fetchNamHoc();
+  }, []);
+
+  // Lấy danh sách lớp từ DANHSACH_{namHoc}
+  useEffect(() => {
+    if (!namHocValue) return;
     const fetchClassList = async () => {
       try {
-        const docRef = doc(db, "DANHSACH", "TRUONG");
+        const docRef = doc(db, `DANHSACH_${namHocValue}`, "TRUONG");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const list = docSnap.data().list || [];
@@ -39,15 +52,16 @@ export default function ThongKeNam({ onBack }) {
       }
     };
     fetchClassList();
-  }, []);
+  }, [namHocValue]);
 
+  // Lấy dữ liệu thống kê từ BANTRU_{namHoc}
   useEffect(() => {
-    if (!selectedClass || !selectedDate) return;
+    if (!selectedClass || !selectedDate || !namHocValue) return;
 
     const fetchStudents = async () => {
       setIsLoading(true);
       try {
-        const q = query(collection(db, "BANTRU"), where("lop", "==", selectedClass));
+        const q = query(collection(db, `BANTRU_${namHocValue}`), where("lop", "==", selectedClass));
         const snapshot = await getDocs(q);
 
         const students = snapshot.docs.map((docSnap, index) => {
@@ -88,7 +102,7 @@ export default function ThongKeNam({ onBack }) {
     };
 
     fetchStudents();
-  }, [selectedClass, selectedDate]);
+  }, [selectedClass, selectedDate, namHocValue]);
 
   const headCellStyle = {
     fontWeight: "bold",

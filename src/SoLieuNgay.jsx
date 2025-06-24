@@ -16,10 +16,10 @@ import {
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
-// Hàm gom nhóm dữ liệu theo mẫu
+// Hàm gom nhóm dữ liệu theo lớp và khối
 function groupData(data) {
   const khoiData = {};
   let truongSiSo = 0;
@@ -142,7 +142,7 @@ function Row({ row, openGroups, setOpenGroups, summaryData }) {
   );
 }
 
-// Component chính
+// ✅ Component chính
 export default function SoLieuTrongNgay({ onBack }) {
   const [openGroups, setOpenGroups] = useState([]);
   const [summaryData, setSummaryData] = useState([]);
@@ -152,13 +152,24 @@ export default function SoLieuTrongNgay({ onBack }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const snapshot = await getDocs(collection(db, "BANTRU"));
+        // 🔄 Lấy năm học hiện tại từ Firestore
+        const namHocDoc = await getDoc(doc(db, "YEAR", "NAMHOC"));
+        const namHocValue = namHocDoc.exists() ? namHocDoc.data().value : null;
+
+        if (!namHocValue) {
+          alert("❗ Không tìm thấy năm học hợp lệ trong hệ thống!");
+          setLoading(false);
+          return;
+        }
+
+        // 🔄 Truy xuất collection theo năm học
+        const snapshot = await getDocs(collection(db, `BANTRU_${namHocValue}`));
         const allData = snapshot.docs.map(doc => doc.data());
         const summary = groupData(allData);
         setSummaryData(summary);
       } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu Firestore:", error);
-        alert("Không thể tải dữ liệu từ Firestore!");
+        console.error("❌ Lỗi khi lấy dữ liệu Firestore:", error);
+        alert("❌ Không thể tải dữ liệu từ Firestore!");
       } finally {
         setLoading(false);
       }

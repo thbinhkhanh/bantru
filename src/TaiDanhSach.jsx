@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Card, Button, Alert, Stack, LinearProgress
 } from '@mui/material';
@@ -17,6 +17,28 @@ export default function TaiDanhSach({ onBack }) {
   const [progress, setProgress] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
+  const [namHoc, setNamHoc] = useState('');
+
+  useEffect(() => {
+    const fetchNamHoc = async () => {
+      try {
+        const docRef = doc(db, 'YEAR', 'NAMHOC');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const value = docSnap.data().value;
+          if (value) setNamHoc(value);
+          else setMessage('❗ Chưa có năm học từ hệ thống!');
+        } else {
+          setMessage('❗ Không tìm thấy thông tin năm học!');
+        }
+      } catch (err) {
+        setMessage('❌ Lỗi khi lấy năm học!');
+        console.error(err);
+      }
+    };
+
+    fetchNamHoc();
+  }, []);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -45,6 +67,11 @@ export default function TaiDanhSach({ onBack }) {
       return;
     }
 
+    if (!namHoc) {
+      setMessage('❗ Không có năm học hợp lệ!');
+      return;
+    }
+
     setLoading(true);
     setMessage('🔄 Đang xử lý file...');
     setProgress(0);
@@ -56,12 +83,43 @@ export default function TaiDanhSach({ onBack }) {
       try {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const range = XLSX.utils.decode_range(sheet['!ref']);
 
-        setTotalCount(jsonData.length);
-        await processStudentData(jsonData);
+        const headerRow = [];
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+          const cellAddress = XLSX.utils.encode_cell({ r: 2, c: C });
+          const cell = sheet[cellAddress];
+          headerRow.push((cell?.v || '').toString().trim().toUpperCase());
+        }
+
+        const expectedHeaders = ['STT', 'MÃ ĐỊNH DANH', 'HỌ VÀ TÊN', 'LỚP', 'ĐĂNG KÝ'];
+        const isValidHeader = headerRow.length === expectedHeaders.length &&
+          expectedHeaders.every((title, index) => headerRow[index] === title);
+
+        if (!isValidHeader) {
+          setLoading(false);
+          setSuccess(false);
+          setMessage('❌ Dữ liệu không hợp lệ! Tiêu đề phải nằm ở hàng 3 và đúng định dạng: STT, MÃ ĐỊNH DANH, HỌ VÀ TÊN, LỚP, ĐĂNG KÝ.');
+          return;
+        }
+
+        const jsonData = XLSX.utils.sheet_to_json(sheet, {
+          defval: '',
+          header: 1,
+          range: 3,
+        });
+
+        const formattedData = jsonData.map(row => {
+          const obj = {};
+          expectedHeaders.forEach((key, i) => {
+            obj[key] = row[i] ?? '';
+          });
+          return obj;
+        });
+
+        setTotalCount(formattedData.length);
+        await processStudentData(formattedData);
       } catch (err) {
         console.error('❌ Lỗi khi xử lý file:', err);
         setSuccess(false);
@@ -75,7 +133,10 @@ export default function TaiDanhSach({ onBack }) {
   };
 
   const processStudentData = async (jsonData) => {
-    const snapshot = await getDocs(collection(db, 'BANTRU'));
+    const banTruCollection = `BANTRU_${namHoc}`;
+    const danhSachCollection = `DANHSACH_${namHoc}`;
+
+    const snapshot = await getDocs(collection(db, banTruCollection));
     const existingIds = new Set(snapshot.docs.map(doc => doc.id));
 
     const studentsNew = jsonData
@@ -104,7 +165,7 @@ export default function TaiDanhSach({ onBack }) {
     for (let i = 0; i < studentsNew.length; i++) {
       const student = studentsNew[i];
       try {
-        await setDoc(doc(db, 'BANTRU', student.maDinhDanh), student);
+        await setDoc(doc(db, banTruCollection, student.maDinhDanh), student);
         successCount++;
       } catch (err) {
         console.error(`❌ Lỗi khi ghi mã ${student.maDinhDanh}:`, err.message);
@@ -115,9 +176,8 @@ export default function TaiDanhSach({ onBack }) {
       setProgress(Math.round(((i + 1) / studentsNew.length) * 100));
     }
 
-    // 🚀 Cập nhật danh sách lớp — phiên bản an toàn (không ghi đè)
     try {
-      const truongRef = doc(db, 'DANHSACH', 'TRUONG');
+      const truongRef = doc(db, danhSachCollection, 'TRUONG');
       const truongSnap = await getDoc(truongRef);
       const oldClasses = truongSnap.exists() ? truongSnap.data().list || [] : [];
       const allClasses = new Set(oldClasses);
@@ -135,9 +195,9 @@ export default function TaiDanhSach({ onBack }) {
         if (grouped['K' + kh]) grouped['K' + kh].push(lop);
       });
 
-      await setDoc(doc(db, 'DANHSACH', 'TRUONG'), { list: classArray });
+      await setDoc(doc(db, danhSachCollection, 'TRUONG'), { list: classArray });
       for (const key in grouped) {
-        await setDoc(doc(db, 'DANHSACH', key), { list: grouped[key] });
+        await setDoc(doc(db, danhSachCollection, key), { list: grouped[key] });
       }
 
       console.log('✅ Cập nhật danh sách lớp thành công');
@@ -145,10 +205,7 @@ export default function TaiDanhSach({ onBack }) {
       console.error('❌ Lỗi khi cập nhật danh sách lớp:', e.message);
     }
 
-    if (successCount > 0) {
-      setSelectedFile(null);
-    }
-
+    if (successCount > 0) setSelectedFile(null);
     setSuccess(errorCount === 0);
     setMessage(errorCount === 0
       ? `✅ Đã thêm thành công ${successCount} học sinh mới.`
