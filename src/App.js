@@ -110,15 +110,23 @@ function Navigation() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        whiteSpace: 'nowrap',
-        gap: '10px',
+        overflowX: 'auto', // ✅ Cho phép cuộn ngang nếu tràn
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          flexWrap: 'nowrap',
+          overflowX: 'auto', // ✅ Cho phần tử con cuộn được
+          paddingRight: '8px',
+        }}
+      >
         <img
           src="/Logo.png"
           alt="Logo"
-          style={{ height: '40px', marginRight: '16px' }}
+          style={{ height: '40px', marginRight: '16px', flexShrink: 0 }}
         />
         {navItems.map((item, index) => (
           <Link
@@ -134,6 +142,7 @@ function Navigation() {
                 location.pathname === item.path ? '3px solid white' : 'none',
               borderRadius: '4px',
               flexShrink: 0,
+              whiteSpace: 'nowrap',
             }}
           >
             {item.name}
@@ -141,7 +150,7 @@ function Navigation() {
         ))}
       </div>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
         <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold' }}>
           Năm học:
         </Typography>
@@ -150,15 +159,15 @@ function Navigation() {
           onChange={handleYearChange}
           variant="outlined"
           size="small"
-          disabled  // 🔒 KHÓA ô này
+          disabled // 🔒 KHÓA ô này
           sx={{
             backgroundColor: 'white',
-            minWidth: 110,          // 🔽 giảm chiều rộng
-            maxWidth: 130,
-            borderRadius: 1,        // 🔘 bo góc nhẹ
+            minWidth: 80,
+            maxWidth: 90,
+            borderRadius: 1,
             '& .MuiOutlinedInput-root': {
-              borderRadius: 1,      // 🔘 bo góc input
-              height: '32px',       // 🔽 giảm chiều cao
+              borderRadius: 1,
+              height: '32px',
             },
           }}
           inputProps={{
@@ -166,12 +175,11 @@ function Navigation() {
               color: '#1976d2',
               fontWeight: 'bold',
               textAlign: 'center',
-              padding: '6px 8px',   // 🔽 thu gọn padding
+              padding: '6px 8px',
               fontSize: '14px',
             },
           }}
         />
-
       </Box>
     </nav>
   );
