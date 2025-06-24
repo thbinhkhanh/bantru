@@ -150,7 +150,17 @@ function Navigation() {
         ))}
       </div>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+      <Box
+        sx={{
+          display: {
+            xs: 'none',  // ❌ Ẩn toàn bộ Box trên điện thoại
+            sm: 'flex',  // ✅ Hiển thị từ tablet trở lên
+          },
+          alignItems: 'center',
+          gap: 1,
+          flexShrink: 0,
+        }}
+      >
         <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold' }}>
           Năm học:
         </Typography>
@@ -162,8 +172,8 @@ function Navigation() {
           disabled // 🔒 KHÓA ô này
           sx={{
             backgroundColor: 'white',
-            minWidth: 80,
-            maxWidth: 90,
+            minWidth: 100,
+            maxWidth: 100,
             borderRadius: 1,
             '& .MuiOutlinedInput-root': {
               borderRadius: 1,
@@ -181,6 +191,7 @@ function Navigation() {
           }}
         />
       </Box>
+
     </nav>
   );
 }
