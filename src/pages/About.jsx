@@ -87,7 +87,10 @@ export default function About() {
             </Typography>
             <Typography variant="body1" paragraph>📥 <strong>Sao lưu dữ liệu</strong>: Tải toàn bộ dữ liệu hệ thống về máy dưới định dạng <em>JSON</em> hoặc <em>Excel</em>.</Typography>
             <Typography variant="body1" paragraph>🔁 <strong>Phục hồi dữ liệu</strong>: Khôi phục dữ liệu từ tệp sao lưu đã lưu trước đó.</Typography>
-            <Typography variant="body1" paragraph>🗑️ <strong>Xóa toàn bộ dữ liệu</strong>: Xóa toàn bộ dữ liệu điểm danh trên hệ thống. </Typography>
+            <Typography variant="body1" paragraph>🗑️ <strong>Xóa toàn bộ dữ liệu</strong>: Xóa toàn bộ dữ liệu điểm danh trên hệ thống.</Typography>
+            <Typography variant="body1" paragraph>🆕 <strong>Khởi tạo năm học mới</strong>: Tạo mới dữ liệu cho năm học mới mà không làm mất dữ liệu của các năm học cũ.</Typography>
+            <Typography variant="body1" paragraph>📂 <strong>Xem dữ liệu năm học trước</strong>: Cho phép truy cập và xem lại dữ liệu bán trú của các năm học đã lưu trữ.</Typography>
+
 
             
             {/* Có thể bỏ nhóm quản trị nếu đã bị loại khỏi giao diện chính */}
