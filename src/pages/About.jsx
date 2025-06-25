@@ -36,7 +36,6 @@ export default function About() {
             px: 3,
             display: "flex",
             alignItems: "center",
-            mt: { xs: 100, sm: 3 } // ✅ Thêm dòng này
           }}
         >
           <InfoIcon sx={{ fontSize: 32, mr: 1 }} />
