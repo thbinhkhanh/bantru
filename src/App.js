@@ -136,6 +136,7 @@ function Navigation() {
           flexWrap: 'nowrap',
           overflowX: 'auto',
           paddingRight: '8px',
+          whiteSpace: 'nowrap',
         }}
       >
         <img

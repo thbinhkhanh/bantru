@@ -202,20 +202,89 @@ export default function Lop1() {
           </Box>
         ) : (
           <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 2 }}>
-            <Table size="small">
+            <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>STT</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>HỌ VÀ TÊN</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#1976d2', color: 'white' }}>ĐĂNG KÝ</TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: 'bold',
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                      position: 'sticky',
+                      left: 0,
+                      zIndex: 2,
+                    }}
+                  >
+                    STT
+                  </TableCell>
+
+                  <TableCell
+                    align="center"  // 👈 Tiêu đề căn giữa
+                    sx={{
+                      fontWeight: 'bold',
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    HỌ VÀ TÊN
+                  </TableCell>
+
+                  <TableCell
+                    align="center"
+                    sx={{
+                      fontWeight: 'bold',
+                      backgroundColor: '#1976d2',
+                      color: 'white',
+                      position: 'sticky',
+                      right: 0,
+                      zIndex: 2,
+                    }}
+                  >
+                    ĐĂNG KÝ
+                  </TableCell>
                 </TableRow>
               </TableHead>
+
               <TableBody>
                 {filteredStudents.map((student, index) => (
                   <TableRow key={student.id}>
-                    <TableCell align="center">{index + 1}</TableCell>
-                    <TableCell>{student.hoVaTen || 'Không có tên'}</TableCell>
-                    <TableCell align="center">
+                    <TableCell
+                      align="center"
+                      sx={{
+                        position: 'sticky',
+                        left: 0,
+                        backgroundColor: 'white',
+                        zIndex: 1,
+                      }}
+                    >
+                      {index + 1}
+                    </TableCell>
+
+                    <TableCell
+                      align="left"  // 👈 Nội dung căn trái
+                      sx={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        maxWidth: 375,
+                      }}
+                    >
+                      {student.hoVaTen || 'Không có tên'}
+                    </TableCell>
+
+                    <TableCell
+                      align="center"
+                      sx={{
+                        position: 'sticky',
+                        right: 0,
+                        backgroundColor: 'white',
+                        zIndex: 1,
+                      }}
+                    >
                       <Checkbox
                         checked={student.registered ?? false}
                         onChange={() => toggleRegister(index)}
