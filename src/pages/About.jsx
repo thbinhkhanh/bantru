@@ -41,7 +41,7 @@ export default function About() {
           <InfoIcon sx={{ fontSize: 32, mr: 1 }} />
           <Box>
             <Typography variant="h6" fontWeight="bold">
-              GIỚI THIỆU
+              GIỚI THIỆU CHỨC NĂNG
             </Typography>
             <Typography variant="body2">
               Dành cho cán bộ, giáo viên và phụ huynh

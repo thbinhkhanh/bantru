@@ -185,13 +185,10 @@ function Navigation() {
                 : 'none',
             borderRadius: '4px',
             textTransform: 'none',
-            fontSize: '1rem',       // 👈 Thêm dòng này
-            //fontWeight: 'bold',     // 👈 Và dòng này
           }}
         >
           Giới thiệu
         </Button>
-
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
