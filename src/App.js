@@ -10,7 +10,10 @@ import {
 import {
   Box,
   Typography,
-  TextField, // ✅ Dùng TextField thay vì Select
+  TextField,
+  Menu,
+  MenuItem,
+  Button,
 } from '@mui/material';
 
 import { getDoc, setDoc, doc } from 'firebase/firestore';
@@ -27,6 +30,7 @@ import About from './pages/About';
 import Admin from './Admin';
 import DangNhap from './DangNhap';
 import Footer from './pages/Footer';
+import HuongDan from './pages/HuongDan';
 
 function App() {
   return (
@@ -44,6 +48,8 @@ function App() {
           <Route path="/quanly" element={<QuanLy />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/gioithieu" element={<About />} />
+          <Route path="/huongdan" element={<HuongDan />} />
+          <Route path="/chucnang" element={<About />} />
         </Routes>
         <Footer />
       </div>
@@ -54,6 +60,8 @@ function App() {
 function Navigation() {
   const location = useLocation();
   const [selectedYear, setSelectedYear] = useState('');
+  const [anchorEl, setAnchorEl] = useState(null);
+
   const yearOptions = ['2024-2025', '2025-2026'];
 
   useEffect(() => {
@@ -85,6 +93,14 @@ function Navigation() {
     }
   };
 
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   const navItems = [
     { path: '/', name: 'Trang chủ' },
     { path: '/lop1', name: 'Lớp 1' },
@@ -93,7 +109,6 @@ function Navigation() {
     { path: '/lop4', name: 'Lớp 4' },
     { path: '/lop5', name: 'Lớp 5' },
     { path: '/dangnhap', name: 'Quản lý' },
-    { path: '/gioithieu', name: 'Giới thiệu' },
   ];
 
   return (
@@ -110,7 +125,7 @@ function Navigation() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        overflowX: 'auto', // ✅ Cho phép cuộn ngang nếu tràn
+        overflowX: 'auto',
       }}
     >
       <div
@@ -119,7 +134,7 @@ function Navigation() {
           alignItems: 'center',
           gap: '10px',
           flexWrap: 'nowrap',
-          overflowX: 'auto', // ✅ Cho phần tử con cuộn được
+          overflowX: 'auto',
           paddingRight: '8px',
         }}
       >
@@ -148,13 +163,50 @@ function Navigation() {
             {item.name}
           </Link>
         ))}
+
+        {/* Dropdown Giới thiệu */}
+        <Button
+          onClick={handleMenuOpen}
+          style={{
+            color: 'white',
+            padding: '8px 12px',
+            backgroundColor:
+              location.pathname.includes('/gioithieu') ||
+              location.pathname.includes('/huongdan') ||
+              location.pathname.includes('/chucnang')
+                ? '#1565c0'
+                : 'transparent',
+            borderBottom:
+              location.pathname.includes('/gioithieu') ||
+              location.pathname.includes('/huongdan') ||
+              location.pathname.includes('/chucnang')
+                ? '3px solid white'
+                : 'none',
+            borderRadius: '4px',
+            textTransform: 'none',
+          }}
+        >
+          Giới thiệu
+        </Button>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem component={Link} to="/huongdan" onClick={handleMenuClose}>
+            Hướng dẫn sử dụng
+          </MenuItem>
+          <MenuItem component={Link} to="/chucnang" onClick={handleMenuClose}>
+            Giới thiệu chức năng
+          </MenuItem>
+        </Menu>
       </div>
 
       <Box
         sx={{
           display: {
-            xs: 'none',  // ❌ Ẩn toàn bộ Box trên điện thoại
-            sm: 'flex',  // ✅ Hiển thị từ tablet trở lên
+            xs: 'none',
+            sm: 'flex',
           },
           alignItems: 'center',
           gap: 1,
@@ -169,7 +221,7 @@ function Navigation() {
           onChange={handleYearChange}
           variant="outlined"
           size="small"
-          disabled // 🔒 KHÓA ô này
+          disabled
           sx={{
             backgroundColor: 'white',
             minWidth: 100,
@@ -191,11 +243,8 @@ function Navigation() {
           }}
         />
       </Box>
-
     </nav>
   );
 }
 
 export default App;
-
-

@@ -8,7 +8,7 @@ import {
   Link,
   Box,
 } from "@mui/material";
-import Banner from "./Banner";
+import InfoIcon from "@mui/icons-material/Info";
 
 export default function About() {
   return (
@@ -20,14 +20,43 @@ export default function About() {
         px: 0,
       }}
     >
-      <Banner title="GIỚI THIỆU" />
+      {/* Tiêu đề khung xanh */}
+      <Container
+        sx={{
+          mt: { xs: '64px', sm: '70px' }, // để không bị che bởi menu
+          width: { xs: "98%", sm: "90%", md: "850px" },
+        }}
+      >
+        <Box
+          sx={{
+            backgroundColor: "#2196f3",
+            color: "#fff",
+            borderRadius: 2,
+            py: 2,
+            px: 3,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <InfoIcon sx={{ fontSize: 32, mr: 1 }} />
+          <Box>
+            <Typography variant="h6" fontWeight="bold">
+              GIỚI THIỆU
+            </Typography>
+            <Typography variant="body2">
+              Dành cho cán bộ, giáo viên và phụ huynh
+            </Typography>
+          </Box>
+        </Box>
+      </Container>
 
+      {/* Nội dung chính */}
       <Container
         sx={{
           mt: 3,
           mb: 4,
-          width: { xs: '98%', sm: '90%', md: '850px' },
-          mx: 'auto' // căn giữa
+          width: { xs: "98%", sm: "90%", md: "850px" },
+          mx: "auto",
         }}
       >
         <Card elevation={3} sx={{ borderRadius: 3, p: 2 }}>
@@ -37,7 +66,10 @@ export default function About() {
               color="primary"
               fontWeight="bold"
               align="center"
-              sx={{ mb: 1, fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.8rem' } }}
+              sx={{
+                mb: 1,
+                fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.8rem" },
+              }}
             >
               ỨNG DỤNG QUẢN LÝ BÁN TRÚ
             </Typography>
@@ -50,7 +82,7 @@ export default function About() {
 
             <Divider sx={{ my: 3 }} />
 
-            {/* 🗓️ QUẢN LÝ DỮ LIỆU NGÀY */}
+            {/* Quản lý dữ liệu ngày */}
             <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mt: 4, mb: 1.5 }}>
               🗓️ Quản lý dữ liệu ngày
             </Typography>
@@ -61,7 +93,7 @@ export default function About() {
 
             <Divider sx={{ my: 3 }} />
 
-            {/* 📈 THỐNG KÊ */}
+            {/* Thống kê */}
             <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mt: 4, mb: 1.5 }}>
               📈 Thống kê
             </Typography>
@@ -71,7 +103,7 @@ export default function About() {
 
             <Divider sx={{ my: 3 }} />
 
-            {/* 👥 DANH SÁCH HỌC SINH */}
+            {/* Danh sách học sinh */}
             <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mt: 4, mb: 1.5 }}>
               👥 Danh sách học sinh
             </Typography>
@@ -81,7 +113,7 @@ export default function About() {
 
             <Divider sx={{ my: 3 }} />
 
-            {/* 🗄️ CƠ SỞ DỮ LIỆU */}
+            {/* Cơ sở dữ liệu */}
             <Typography variant="h6" color="primary" fontWeight="bold" sx={{ mt: 4, mb: 1.5 }}>
               🗄️ Cơ sở dữ liệu
             </Typography>
@@ -90,10 +122,6 @@ export default function About() {
             <Typography variant="body1" paragraph>🗑️ <strong>Xóa toàn bộ dữ liệu</strong>: Xóa toàn bộ dữ liệu điểm danh trên hệ thống.</Typography>
             <Typography variant="body1" paragraph>🆕 <strong>Khởi tạo năm học mới</strong>: Tạo mới dữ liệu cho năm học mới mà không làm mất dữ liệu của các năm học cũ.</Typography>
             <Typography variant="body1" paragraph>📂 <strong>Xem dữ liệu năm học trước</strong>: Cho phép truy cập và xem lại dữ liệu bán trú của các năm học đã lưu trữ.</Typography>
-
-
-            
-            {/* Có thể bỏ nhóm quản trị nếu đã bị loại khỏi giao diện chính */}
 
             <Divider sx={{ my: 4 }} />
 
@@ -108,7 +136,7 @@ export default function About() {
               Phiên bản 1.0.0 — Cập nhật: 21/06/2025
             </Typography>
             <Typography variant="body2" align="center" color="text.secondary" sx={{ mt: 3 }}>
-              © 2025 thbinhkhanh@gmail.com. 
+              © 2025 thbinhkhanh@gmail.com.
             </Typography>
           </CardContent>
         </Card>
