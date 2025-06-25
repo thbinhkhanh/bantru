@@ -145,7 +145,7 @@ export default function Lop4() {
     const hour = now.getHours();
 
     if (hour < 5 || hour >= 15) {
-      alert("⚠️ Thời gian điểm danh từ 07:00 đến trước 15:00 mỗi ngày.");
+      alert("⚠️ Thời gian điểm danh: 07:00 - 15:00");
       return;
     }
 
