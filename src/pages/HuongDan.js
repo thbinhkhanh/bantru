@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   Box,
+  Button,
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 
@@ -131,11 +132,11 @@ export default function HuongDan() {
                 <ul>
                   <li>
                     B1: Tại Trang chủ, chọn biểu tượng lớp hoặc chọn lớp từ menu theo khối.<br />
-                    <img src="/images/H0_B1.png" alt="B1" style={{ maxWidth: "100%", height: "auto" }}/>
+                    <img src="/images/H0_B1.png" alt="B1" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }} />
                   </li>
                   <li>
                     B2: Hệ thống hiển thị danh sách học sinh.<br />
-                    <img src="/images/H0_B2.png" alt="B2" style={{ maxWidth: "100%", height: "auto" }}/>
+                    <img src="/images/H0_B2.png" alt="B2" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }} />
                   </li>
                   <li>B3: Tick học sinh để đánh dấu có ăn bán trú. 👉 Mọi thay đổi được tự động lưu.</li>
                 </ul>
@@ -151,9 +152,9 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản Y tế</li>
-                          <li>B3: Chọn biểu tượng chốt số liệu<br /><img src="/images/H11_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Chọn biểu tượng chốt số liệu<br /><img src="/images/H11_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B4: Chọn ngày cần chốt</li>
-                          <li>B5: Nhấn "Thực hiện" để chốt<br /><img src="/images/H11_B5.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B5: Nhấn "Thực hiện" để chốt<br /><img src="/images/H11_B5.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                         </ul>
                       )
                     },
@@ -163,7 +164,7 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản Y tế</li>
-                          <li>B3: Chọn biểu tượng số liệu trong ngày<br /><img src="/images/H12_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Chọn biểu tượng số liệu trong ngày<br /><img src="/images/H12_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                         </ul>
                       )
                     },
@@ -173,9 +174,9 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản Y tế</li>
-                          <li>B3: Chọn biểu tượng Điều chỉnh suất ăn<br /><img src="/images/H13_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Chọn biểu tượng Điều chỉnh suất ăn<br /><img src="/images/H13_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B4: Chọn lớp</li>
-                          <li>B5: Chọn ngày<br /><img src="/images/H13_B4.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B5: Chọn ngày<br /><img src="/images/H13_B4.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B6: Tick học sinh và Cập nhật</li>
                         </ul>
                       )
@@ -186,7 +187,7 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản Y tế</li>
-                          <li>B3: Chọn biểu tượng Xóa dữ liệu ngày<br /><img src="/images/H14_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Chọn biểu tượng Xóa dữ liệu ngày<br /><img src="/images/H14_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B4: Chọn ngày cần xóa</li>
                           <li>B5: Chọn xóa toàn trường hay lớp bất kỳ, nhấn Thực hiện</li>
                         </ul>
@@ -206,8 +207,8 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản Kế toán</li>
-                          <li>B3: Chọn biểu tượng<br /><img src="/images/H21_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
-                          <li>B4: Chọn ngày<br /><img src="/images/H21_B4.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Chọn biểu tượng<br /><img src="/images/H21_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
+                          <li>B4: Chọn ngày<br /><img src="/images/H21_B4.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B5: Xem tổng hợp</li>
                         </ul>
                       )
@@ -218,7 +219,7 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản Kế toán</li>
-                          <li>B3: Chọn biểu tượng<br /><img src="/images/H22_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Chọn biểu tượng<br /><img src="/images/H22_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B4: Nhấn "Hiện ngày"</li>
                         </ul>
                       )
@@ -229,8 +230,8 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản Kế toán</li>
-                          <li>B3: Chọn biểu tượng<br /><img src="/images/H23_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
-                          <li>B4: Chọn năm học và lớp<br /><img src="/images/H23_B4.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Chọn biểu tượng<br /><img src="/images/H23_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
+                          <li>B4: Chọn năm học và lớp<br /><img src="/images/H23_B4.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B5: Nhấn "Hiện tháng"</li>
                         </ul>
                       )
@@ -249,8 +250,8 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản BGH</li>
-                          <li>B3: Chọn biểu tượng "Cập nhật danh sách"<br /><img src="/images/H31_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
-                          <li>B4: Chọn lớp, tên học sinh, trạng thái đăng ký<br /><img src="/images/H31_B4.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Chọn biểu tượng "Cập nhật danh sách"<br /><img src="/images/H31_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
+                          <li>B4: Chọn lớp, tên học sinh, trạng thái đăng ký<br /><img src="/images/H31_B4.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B5: Nhấn Cập nhật</li>
                         </ul>
                       )
@@ -261,9 +262,9 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản BGH</li>
-                          <li>B3: Chọn biểu tượng "Lập danh sách lớp"<br /><img src="/images/H32_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Chọn biểu tượng "Lập danh sách lớp"<br /><img src="/images/H32_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B4: Vào lớp tương ứng</li>
-                          <li>B5: Chọn biểu tượng "Cập nhật danh sách"<br /><img src="/images/H32_B5.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B5: Chọn biểu tượng "Cập nhật danh sách"<br /><img src="/images/H32_B5.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B6: Nhấn "Lưu"</li>
                         </ul>
                       )
@@ -275,8 +276,8 @@ export default function HuongDan() {
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản BGH</li>
                           <li>B3: Chuẩn bị file Excel theo mẫu</li>
-                          <li>B4: Chọn biểu tượng "Tải danh sách lên"<br /><img src="/images/H33_B4.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
-                          <li>B5: Chọn file và tải lên hệ thống<br /><img src="/images/H33_B5.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B4: Chọn biểu tượng "Tải danh sách lên"<br /><img src="/images/H33_B4.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
+                          <li>B5: Chọn file và tải lên hệ thống<br /><img src="/images/H33_B5.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                         </ul>
                       )
                     }
@@ -294,7 +295,7 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản Admin</li>
-                          <li>B3: Vào tab "Database"<br /><img src="/images/H41_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Vào tab "Database"<br /><img src="/images/H41_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B4: Chọn định dạng (JSON/Excel) → Nhấn "Sao lưu"</li>
                         </ul>
                       )
@@ -305,7 +306,7 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản Admin</li>
-                          <li>B3: Vào tab "Database"<br /><img src="/images/H42_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Vào tab "Database"<br /><img src="/images/H42_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B4: Chọn "Phục hồi" và tìm đến tệp đã sao lưu</li>
                           <li>B5: Xác nhận phục hồi</li>
                         </ul>
@@ -317,7 +318,7 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản Admin</li>
-                          <li>B3: Vào tab "Database"<br /><img src="/images/H43_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Vào tab "Database"<br /><img src="/images/H43_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B4: Chọn "Xóa Database Firestore"</li>
                           <li>B5: Nhập mật khẩu (nếu được yêu cầu) để xác nhận</li>
                         </ul>
@@ -330,7 +331,7 @@ export default function HuongDan() {
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản Admin</li>
                           <li>B3: Vào tab "System"</li>
-                          <li>B4: Chọn "Khởi tạo dữ liệu năm mới"<br /><img src="/images/H44_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B4: Chọn "Khởi tạo dữ liệu năm mới"<br /><img src="/images/H44_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                         </ul>
                       )
                     },
@@ -340,7 +341,7 @@ export default function HuongDan() {
                         <ul>
                           <li>B1: Chọn menu "Quản lý"</li>
                           <li>B2: Đăng nhập bằng tài khoản Admin</li>
-                          <li>B3: Chọn năm học cần xem tại tab "System"<br /><img src="/images/H45_B3.png" alt="" style={{ maxWidth: "100%", height: "auto" }} /></li>
+                          <li>B3: Chọn năm học cần xem tại tab "System"<br /><img src="/images/H45_B3.png" alt="" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}  /></li>
                           <li>B4: Chọn "Hệ thống quản lý bán trú" để xem dữ liệu</li>
                         </ul>
                       )
