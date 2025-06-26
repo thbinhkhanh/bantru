@@ -217,32 +217,33 @@ function Navigation() {
         <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold' }}>
           Năm học:
         </Typography>
-        <TextField
-          value={selectedYear}
-          onChange={handleYearChange}
-          variant="outlined"
-          size="small"
-          disabled
+        <Box
           sx={{
             backgroundColor: 'white',
             minWidth: 100,
             maxWidth: 100,
             borderRadius: 1,
-            '& .MuiOutlinedInput-root': {
-              borderRadius: 1,
-              height: '32px',
-            },
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '1px solid #c4c4c4',
           }}
-          inputProps={{
-            style: {
+        >
+          <Typography
+            sx={{
               color: '#1976d2',
               fontWeight: 'bold',
+              fontSize: '14px',
               textAlign: 'center',
               padding: '6px 8px',
-              fontSize: '14px',
-            },
-          }}
-        />
+              width: '100%',
+            }}
+          >
+            {selectedYear}
+          </Typography>
+        </Box>
+
       </Box>
     </nav>
   );
