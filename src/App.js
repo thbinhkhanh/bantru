@@ -187,7 +187,7 @@ function Navigation() {
             textTransform: 'none',
           }}
         >
-          Giới thiệu
+          Trợ giúp
         </Button>
         <Menu
           anchorEl={anchorEl}
