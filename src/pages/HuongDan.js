@@ -138,7 +138,8 @@ export default function HuongDan() {
                     B2: Hệ thống hiển thị danh sách học sinh.<br />
                     <img src="/images/H0_B2.png" alt="B2" style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }} />
                   </li>
-                  <li>B3: Tick học sinh để đánh dấu có ăn bán trú. 👉 Mọi thay đổi được tự động lưu.</li>
+                  <li>B3: Tick học sinh để đánh dấu có ăn bán trú.</li>
+                  <li>👉 Mọi thay đổi được tự động lưu.</li>
                 </ul>
               ))}
 
